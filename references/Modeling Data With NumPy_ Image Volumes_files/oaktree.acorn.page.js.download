@@ -1,0 +1,242 @@
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page = OakTree.Page || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+OakTree.Page.initAuthorListDialogView = function($el, options) {
+	// Initialize author list dialog view.
+	options = options || {};
+	_.defaults(options, {
+		model: OakTree.Models.ApplicationContentModel,
+		articleCollectionClass: OakTree.Collections.OakTreePaginatedCollection,
+		name_data_attr: 'data-name',
+		url_data_attr: 'href-data',
+		viewPrototypeAttrs: {},
+	});
+	_.defaults(options, {
+		metaStateViewPrototype: OakTree.Page.Meta.MetaArticleCollectionView.extend(options.viewPrototypeAttrs),
+	})
+
+	 // Initialize the metaStateView if one was not provided. The initialization procedure for the state view
+	 // checks the dialog view for an item view. If one is not present, it creates one.using the template selectors
+	 // provided with the options.
+	 if (!options.metaStateView && options.metaStateViewPrototype) {
+	 	options.metaStateView = OakTree.Page.Meta.compileMetaStateView(options.metaStateViewPrototype, $el,
+	 		_.pick(options, 'template_dialog_selector', 'template_listitem_selector'));
+	 }
+
+	 // Ensure required components are available
+	 if (!options.metaStateView)
+	 	throw new Error('Unable to initialize metadata collection and associated views, invalid meta state view');
+
+	 var umodel = new options.model({
+	 	name: $el.attr(options.name_data_attr), dialog: true, description: '',
+	 });
+
+	 // Initialize author list view
+	 var cview = new options.metaStateView({
+	 	model: umodel, el: $el,
+	 	collection: new options.articleCollectionClass([], {
+	 		dataurl: $el.attr(options.url_data_attr),
+	 	}),
+	 });
+}
+
+
+OakTree.Page.Views.DialogFormView = OakTree.Page.Views.DialogBaseFormView.extend({
+	// Data bound view used for displaying content in popup light box.
+	// Provides support for initializing content components and handling common
+	// site workflows. This implementation includes form handlers to reload
+	// content after a failed or successful form submission.
+	initialize: function(options) {
+		options = options || {};
+		var dview = this;
+
+		// Form event handlers
+		this.listenTo(this.model, 'form:submit:complete', OakTree.Page.Views.updateViewContentCallback(dview));
+
+		// Initialize parent attribues
+		OakTree.Page.Views.DialogBaseFormView.prototype.initialize.apply(this, [options]);
+	}
+});
+
+OakTree.Page.initAcornContentSearchView = function(pageview, options) {
+	// Initialize acorn search content view
+
+	options = options || {};
+
+	_.defaults(options, {
+        selector: '.site-search',
+		stateView: OakTree.Page.Search.Views.AcornContentSearchView,
+        url_data_attr: 'href-data',
+		page_id_attr: 'page-id',
+    });
+
+	$(options.selector).each(function() {
+		var scontrol = $(this);
+		var ctime = Date.now();
+
+		var sview = new options.stateView({
+			model: new OakTree.Page.Search.Models.AcornContentSearch({
+					ctime_filter: ctime, mtime_filter: ctime,
+				}, {
+					page: pageview.model,
+					searchurl: scontrol.attr(GuruLabs.api.searchurl),
+				}),
+			pageview: pageview,
+			el: scontrol
+		})
+	})
+};
+
+
+OakTree.Page.initSavedContentView = function(pageview, options) {
+    // Initialize saved content views
+    options = options || {};
+    _.defaults(options, {
+        selector: '.toolbar-container',
+		stateView: OakTree.Page.Views.ToolbarSavedView,
+		// model: pageview.,
+        url_data_attr: 'href-data',
+		page_id_attr: 'page-id',
+		saved_attr: 'saved',
+    });
+
+    var $el = pageview.$el.find(options.selector);
+	if($el.length) {
+		var $toolbar_saved = $el.find('.toolbar-save');
+		if ($toolbar_saved.length) {
+			pageview.model.saveurl = $toolbar_saved.attr(options.url_data_attr);
+			pageview.model.id = $toolbar_saved.attr(options.page_id_attr);
+			pageview.model.set('saved', !!$toolbar_saved.attr(options.saved_attr));
+		}
+
+		$el.each(function () {
+			var $control = $(this);
+			// Initialize save content data model and view
+			var cview = new options.stateView({
+				model: pageview.model,
+				pageview: pageview,
+				el: $control,
+			});
+		});
+	}
+};
+
+
+OakTree.Page.Views.AcornContentView = OakTree.Page.Views.ContentView.extend({
+	meta_collection_selector: '.meta-collection',
+	author_list_collection_selector: '.more-by-author',
+	content_form_selector: '.content-form',
+
+	initialize: function(options) {
+		options = options || {};
+		_.defaults(options, _.pick(this, 'meta_collection_selector', 'author_list_collection_selector',
+			'content_form_selector'));
+		_.extend(this, _.pick(options, 'meta_collection_selector', 'author_list_collection_selector',
+			'content_form_selector'));
+
+		OakTree.Page.Views.ContentView.prototype.initialize.apply(this, [options]);
+	},
+
+	initView: function() {
+		var cview = this;
+
+		// Check view element and API reference for form URL
+		if (!this.model.dataform_url && this.siteview) {
+			cview.model.dataform_url = this.$el.attr(OakTree.api.dataform_url_attr)
+				|| this.siteview.$apiref.attr(OakTree.api.dataform_url_attr);
+			this.model.dataform_behavior = this.$el.attr(OakTree.api.dataform_behavior_attr)
+				|| this.siteview.$apiref.attr(OakTree.api.dataform_behavior_attr);
+		}
+
+		// Initialize recent content views
+		OakTree.Page.initRecentContentViews(this);
+		OakTree.Page.initFeaturedContentViews(this);
+		OakTree.Page.initSavedContentView(this);
+		OakTree.Page.initAcornContentSearchView(this);
+
+
+		// Initialize core content features
+		OakTree.Page.Views.ContentView.prototype.initView.apply(this, arguments);
+
+
+		// Retrieve content-form selector and initialize form view for each
+		var $content_form_selector = this.$el.find(this.content_form_selector);
+
+		if ($content_form_selector.length) {
+			// Iterating across each form block on the page
+			$content_form_selector.each(function() {
+				var $control = $(this);
+				let dataform_url = $control.attr(OakTree.api.dataform_url_attr);
+				// if url of the form exists make ajax request to the server
+				if (dataform_url) {
+					$.ajax({ url: dataform_url }).done(function(data, tstatus, jqxhr) {
+						if (data) {
+							// Converting response to html and pasting inside content_form container
+							$control.append($(data));
+
+							// init page model
+							var dpage = new OakTree.Models.Page({});
+							var $dmain= $control.find('main');
+							dpage.set('title', $dmain.attr(OakTree.api.title_attr));
+
+							// Init form dialog view for running form functionality on the page
+							var dview = new OakTree.Page.Views.DialogFormView({
+								siteview: cview.siteview, model: dpage, el: $dmain,
+							});
+						}
+					});
+				}
+
+			})
+		}
+
+
+		// Retrieve form content associated with the view
+		if (this.model.dataform_url && !$.magnificPopup.instance.isOpen) {
+			this.siteview.model.set('default_route', false);
+			
+			// Initialize page model
+			var dpage = new OakTree.Models.Page({});
+
+			// Retrieve and open for instance
+			$.magnificPopup.open({
+				items: { src: this.model.dataform_url },
+				type: 'ajax',
+				callbacks: {
+					ajaxContentAdded: function() {
+						var $dcontent = $(this.content);
+						var $dmain= $dcontent.find('main');
+						dpage.set('title', $dmain.attr(OakTree.api.title_attr));
+						var dview = new OakTree.Page.Views.DialogFormView({
+							siteview: cview.siteview, model: dpage, el: $dmain,
+						});
+					},
+					afterClose: function() {
+						cview.siteview.model.set('default_route', true);
+						dpage.retire();
+					},
+				}
+			});
+		}
+
+		if (_.isFunction(GuruLabs.getObjectPath(OakTree, 'Page.Meta.initMetaCollectionViews'))) {
+
+			// Initializd meta collections
+			cview.$el.find(cview.meta_collection_selector).each(function(){
+				var $control = $(this);
+				OakTree.Page.Meta.initMetaCollectionViews($control);
+			});
+
+			// Initialize more by author list
+			cview.$el.find(cview.author_list_collection_selector).each(function() {
+				var $control = $(this);
+				OakTree.Page.initAuthorListDialogView($control);
+			});
+		}
+
+		// Initialize client routing
+		Backbone.history.start();
+	}
+});
+

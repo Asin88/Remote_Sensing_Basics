@@ -1,0 +1,132 @@
+// Core data models for Comments frontend application
+var CommentsSystem = CommentsSystem || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+// API codes for core data models
+CommentsSystem.api = _.extend(CommentsSystem.api || {}, {
+
+	// HTML URL attributes
+	detailsurl: 'href-details',
+	settingsurl: 'href-settings',
+	settingsurl_json: 'href-settings-json',
+	imagesurl: 'href-image-create',
+	comment_createurl: 'href-comment-create',
+	comment_updateurl: 'href-comment-update',
+	responsesurl: 'href-response-create',
+	// HTML auth attributes
+	auth_username_attr: 'auth-username',
+	auth_email_attr: 'auth-email',
+	auth_displayname_attr: 'auth-name',
+	auth_firstname_attr: 'auth-first-name',
+	auth_lastname_attr: 'auth-last-name',
+	auth_phone_attr: 'auth-phone',
+	auth_username_anon: 'anon',
+	auth_user_id: 'auth-user-id',
+	auth_user_nickname: 'auth-user-nickname',
+	auth_user_location: 'auth-user-location',
+	saveurl: 'href-save-create',
+	comments_total_count: 'comments-total-count',
+	data_spam: 'data-spam',
+	data_archived: 'data-archived',
+	data_approved: 'data-approved',
+	comments_count_url: 'href-comments-count'
+});
+
+
+
+function timeSince(date) {
+	// covert date in format 'datetime ago'
+
+	var dateNow = new Date();
+	if(dateNow.getDate() != date.getDate()){
+		return date.getDate() + ' ' + OakTree.api.datetime.month_names_long[date.getMonth() + 1];
+	}
+	var seconds = Math.floor((dateNow - date) / 1000);
+	var interval = Math.floor(seconds / 3600);
+
+	if (interval > 1) {
+		return interval + " hours ago";
+	}
+	interval = Math.floor(seconds / 60);
+	if (interval > 1) {
+		return interval + " minutes ago";
+	}
+	return Math.floor(seconds) + " seconds ago";
+}
+
+
+CommentsSystem.Models.Comment = OakTree.Models.SavedPage.extend({
+   // Comment
+	dataname: 'comment',
+    idAttribute: 'token',
+
+  	url: function() {
+		return Backbone.Model.prototype.url.apply(this, arguments);
+	},
+
+	initialize: function(attributes, options) {
+		options = options || {};
+
+		_.extend(options, _.pick(this, 'dataname'));
+
+		if(options.id) { this.id = options.id; }
+
+		OakTree.Models.SavedPage.prototype.initialize.apply(this, [attributes, options]);
+
+		var nmodel = this;
+		GuruLabs.createTrackedObjectProperty(this, 'responsesurl', { signalname: 'url:responses' });
+		this.responsesurl = options.responsesurl;
+
+
+		// Initialize responses collection and data URLs
+		this.responses = options.responses || new CommentsSystem.Collections.CommentCollection([], {
+			collectionurl: this.responsesurl,
+		});
+	},
+
+	parse: function(sresponse, options) {
+		// Parse a server response (or data object) to a set of model attributes
+		options = options || {};
+		_.defaults(options, {
+			responses: this.responses || new CommentsSystem.Collections.CommentCollection([]),
+		});
+
+		if(sresponse.timestamp){
+			sresponse.timestamp = timeSince(new Date(sresponse.timestamp));
+		}
+
+		var attributes = OakTree.Models.Page.prototype.parse.apply(this,
+			[
+				_.omit(
+					sresponse, 'responses'),
+				options,
+			]);
+
+		// Parse responses properties and responses collection properties from server response
+		if (sresponse[CommentsSystem.api.responsesurl] && options.responsesurl != sresponse[CommentsSystem.api.responsesurl]) {
+			options.responsesurl = sresponse[CommentsSystem.api.responsesurl];
+			options.responses.collectionurl = options.responsesurl;
+		}
+		if (sresponse.responses && _.isArray(sresponse.responses)) {
+			options.responses.set(sresponse.responses, { parse: true, merge: true, remove: false });
+		}
+
+		if (_.isUndefined(attributes.saved)) attributes.saved = false;
+		if (_.isUndefined(attributes.saved_count)) attributes.saved_count = 0;
+
+		if(sresponse[CommentsSystem.api.saveurl]) {
+			options.saveurl = sresponse[CommentsSystem.api.saveurl];
+		}
+
+		options.id = attributes.id;
+
+		return attributes;
+	},
+});
+
+
+CommentsSystem.Collections.CommentCollection = GuruLabs.Collections.BaseModelCollection.extend({
+    // Collection of comments
+
+    model: CommentsSystem.Models.Comment
+});

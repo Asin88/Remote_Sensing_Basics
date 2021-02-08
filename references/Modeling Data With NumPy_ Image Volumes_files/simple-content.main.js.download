@@ -1,0 +1,25 @@
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+$(document).ready(function() {
+
+	// Initialize the site view and user model
+	var siteview = OakTree.initSiteView();
+
+	// Initialize page primary content and interactive features
+	var pageref = $('main.page-content');
+	if (!pageref.length)
+		throw new Error('Unable to initialize interactive page features, invalid content reference');
+	var pageview = new OakTree.Page.Views.AcornContentView({
+		model: new OakTree.Models.SavedPage({
+			title: pageref.attr('data-title')
+		}, {
+				dataform_url: pageref.attr('data-formurl'), dataform_behavior: pageref.attr('data-form-behavior'),
+				dataname: 'page'
+			}),
+		el: pageref,
+		siteview: siteview,
+	});
+});
+
+

@@ -1,0 +1,178 @@
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page = OakTree.Page || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page.Meta = OakTree.Page.Category || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+OakTree.Page.Meta.Models.MetadataCollection = OakTree.Collections.OakTreePaginatedCollection.extend({
+	// Model collection which can be used to work with and manage content metadata collections.
+	// Metadata collections each have a set of content associated with them.
+	model: OakTree.Models.ApplicationContentModel,
+});
+
+
+OakTree.Page.Meta.compileMetaStateView = function(metaStateViewPrototype, $el, options) {
+	// Create a metadata state view and dialog view using the provided prototype, element, and options
+	options = options || {};
+	_.defaults(options, {
+		// Template selectors for the item view and item view prototype. Used to create
+		// template functions for the dialog view protoype and state view protoype
+		template_dialog_selector: '.template-meta-dialog',
+		template_listitem_selector: '.template-content-item',
+		viewAttrs: {},
+	});
+
+	// Create item view from prototype for the dialog view (if needed)
+ 	if (!metaStateViewPrototype.prototype.dialogView 
+ 		&& !metaStateViewPrototype.prototype.dialogViewPrototype.prototype.itemView 
+ 		&& metaStateViewPrototype.prototype.dialogViewPrototype.prototype.itemViewPrototype) {
+ 		var $template_listitem = $el.find(options.template_listitem_selector);
+ 		if (!$template_listitem.length) 
+ 			throw new Error('Invalid list item template selector, unable to lcoate source element');
+ 		template_listitem = _.template($template_listitem.text(), { variable: 'data' });
+
+ 		// Create the itemView from by extending the prototype to include a template
+ 		metaStateViewPrototype.prototype.dialogViewPrototype.prototype.itemView = 
+ 			metaStateViewPrototype.prototype.dialogViewPrototype.prototype.itemViewPrototype.extend({
+	 			template: template_listitem,
+	 		});
+ 	}
+
+ 	// Create dialog view from prototype (if needed)
+ 	if (!metaStateViewPrototype.prototype.dialogView && metaStateViewPrototype.prototype.dialogViewPrototype) {
+ 		var $template_dialog = $el.find(options.template_dialog_selector);
+ 		if (!$template_dialog.length)
+ 			throw new Error('Invalid dialog selector, unable to locate source element');
+ 		var template_dialog = _.template($template_dialog.text(), { variable: 'data' });
+
+		metaStateViewPrototype.prototype.dialogView = metaStateViewPrototype.prototype.dialogViewPrototype.extend({
+			template: template_dialog,
+		});
+ 	}
+
+ 	// Create new view class with provided view attributes
+ 	return metaStateViewPrototype.extend(options.viewAttrs);
+}
+
+
+OakTree.Page.Meta.initMetaCollectionViews = function($el, options) {
+	// Initialize metadata collection views. Metadata collections are nested.
+	// They include model instance associated with the metatadata (such as tags or categories)
+	// and a content collection which can be retrieved for each piece of metatadata (articleCollection).
+	options = options || {};
+	 _.defaults(options, {
+		selector: '.meta-item',
+		metaCollectionClass: OakTree.Page.Meta.Models.MetadataCollection,
+		articleCollectionClass: OakTree.Collections.OakTreePaginatedCollection,
+		url_data_attr: 'href-data',
+		name_data_attr: 'data-name',
+		description_data_attr: 'data-description',
+		icon_data_attr: 'data-icon',
+		icon_prefix_data_attr: 'data-icon-prefix',
+		viewPrototypeAttrs: {},
+	});
+	 _.defaults(options, {
+	 	// Dialog and state view prototypes. If a metaStateView property is not
+		// provided, the template selectors are used to locate a dialog template, add
+		// it to the dialog protoype, and then extend the state view prototype with the resulting dialog view.
+	 	metaStateViewPrototype: OakTree.Page.Meta.MetaArticleCollectionView.extend(options.viewPrototypeAttrs),
+	 	collection: new options.metaCollectionClass([]),
+	 });
+
+	 // Initialize the metaStateView if one was not provided. The initialization procedure for the state view
+	 // checks the dialog view for an item view. If one is not present, it creates one.using the template selectors
+	 // provided with the options.
+	 if (!options.metaStateView && options.metaStateViewPrototype) {
+	 	options.metaStateView = OakTree.Page.Meta.compileMetaStateView(options.metaStateViewPrototype, $el,
+	 		_.pick(options, 'template_dialog_selector', 'template_listitem_selector'));
+	 }
+
+	 // Ensure required components are available
+	 if (!options.metaStateView)
+	 	throw new Error('Unable to initialize metadata collection and associated views, invalid meta state view');
+
+	 // Iterate through category collections in the page
+	 $el.find(options.selector).each(function() {
+	 	var $control = $(this);
+
+	 	// Create model instance for the metadata instance
+	 	var mmodel = options.collection.add({ 
+	 		name: $control.attr(options.name_data_attr), dialog: true, 
+	 		description: $control.attr(options.description_data_attr) || '',
+	 		icon: {
+		 		prefix: $control.attr(options.icon_prefix_data_attr),
+		 		icon: $control.attr(options.icon_data_attr),
+	 		},
+	 	});
+
+	 	// Initialize meta collection view
+	 	var cview = new options.metaStateView({
+	 		model: mmodel, el: $control, 
+	 		collection: new options.articleCollectionClass([], {
+	 			dataurl: $control.attr(options.url_data_attr),
+	 		}),
+	 	});
+	 });
+}
+
+
+OakTree.Page.Meta.MetaArticleCollectionDialogView = OakTree.Page.Views.RecentContentCollectionView.extend({
+	// Data bound view used to open metadata (category/tags) based collections in a dialog
+});
+
+
+OakTree.Page.Meta.MetaArticleCollectionView = OakTree.Views.CollectionBaseView.extend({
+	// Data bound view used to work with metadata (category/tags) grids. When a metadata link block is 
+	// is clicked on, a dialog is loaded with the articles that have been tagged with the metadata.
+	// One view should be initialized for each metadata based collection..
+	dialogViewPrototype: OakTree.Page.Meta.MetaArticleCollectionDialogView,
+	fetch_data: false,
+	showmeta_selector: '.meta-collection-view',
+
+	initialize: function(options) {
+		options = options || {};
+
+		// Initialize view options/defaults
+		_.defaults(options, _.pick(this, 'showmeta_selector'));
+		_.extend(this, _.pick(options, 'showmeta_selector'));
+		this.events = this.events || {};
+
+		// Ensure view required components are present
+		OakTree.Views.CollectionBaseView.prototype.initialize.apply(this, [options]);
+	},
+
+	initView: function() {
+		this.events['click '+this.showmeta_selector] = 'showMetaArticleCollection';
+
+		OakTree.Views.CollectionBaseView.prototype.initView.apply(this, arguments);
+
+		// Ensure required view components are available
+		if (!this.dialogView)
+			throw new Error('Unable to initialie metadata article collection view, invalid dialog view');
+
+		this.delegateEvents(this.events);
+	},
+
+	showMetaArticleCollection: function(e) {
+		// Show the article collection associated with the meta model
+		if (!$.magnificPopup.instance.isOpen) this.showCollectionDialog();
+	},
+});
+_.extend(OakTree.Page.Meta.MetaArticleCollectionView.prototype, OakTree.Views.CollectionDialogViewMixin, {
+	initCollectionDialog: function() {
+		// Initialize dialog view for the metadata article collection. Initializes a new view, configures
+		// event handlers for the workflow, and returns
+		var cview = this;
+
+		var dview = new this.dialogView({ model: this.model, collection: this.collection, fetch_data: false, });
+		dview.listenTo(this.model, 'dialog:open:success', function() { dview.fetchData(); });
+		dview.listenTo(this.model, 'dialog:close:success', function() {
+			dview.trigger('remove:prep');
+			dview.remove();
+			cview.collection.reset();
+			cview.model.trigger('collection:reset');
+		});
+
+		dview.render();
+		return dview;
+	}
+});

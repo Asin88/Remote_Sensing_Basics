@@ -1,0 +1,992 @@
+var CommentsSystem = CommentsSystem || _.clone(GuruLabs.namespace_structure, {deep: true});
+
+
+CommentsSystem.Views.CommentCreateComputedProperties = {
+    commentCreateNotActive: function () {
+        // Return true if comment area is not active and vice-versa
+        return !this.getBinding('commentCreate');
+    },
+
+    submitIsAllowed: function () {
+        // return false if all field was filled and vice-versa
+        var nickname_filled = this.getBinding('nickname_filled');
+        var create_textarea_filled = this.getBinding('create_textarea_filled');
+        var location_filled = this.getBinding('location_filled');
+        return !(nickname_filled && create_textarea_filled && location_filled);
+    },
+};
+
+CommentsSystem.Views.CommentCreateEvents = {
+    // Comment create area events
+    'click .comment-create-not-active': 'commentCreateToggle',
+    'click .comment-button-cancel': 'cancel',
+    'click .comment-button-submit': 'save',
+    'change .comment-create-text': 'updateCharactersCount',
+    'keyup .comment-create-text': 'updateCharactersCount',
+    'paste .comment-create-text': 'updateCharactersCount',
+
+    // check field is filled or not
+    'change .username': 'checkUsernameField',
+    'keyup .username': 'checkUsernameField',
+    'paste .username': 'checkUsernameField',
+    'change .location': 'checkLocationField',
+    'keyup .location': 'checkLocationField',
+    'paste .location': 'checkLocationField',
+    'click .user-info-edit': 'toggleUserInformationForm',
+    'click #email-notify': 'notifyUserToggle',
+    'click .edit-user-image-button': 'chooseUserAvatar',
+    'change .avatar-upload': 'uploadAvatar',
+};
+
+CommentsSystem.Views.CommentCreateView = OakTree.Views.BaseDataBoundModelView.extend({
+    // Application view used for working with creating new comments.
+    // Contains properties which control the displaying create area (textarea, user info input forms)
+
+    // @attribute user_nickname (str): nickname of authenticated user
+    // @attribute user_location (str): location of authenticated user. If user_location and
+    // user_nickname attributes aren't undefined it hides user information input forms and
+    // filled data automatically
+    // @attribute commentCreate (bool): toggle createarea in comments when user clicks on reply button
+
+    // @signal (create view) 'user:info:update'. Updates user information if nickname and location
+    // was getting from the API
+
+    // @signal (create view) 'comment:clear'. It sets initial state to comment create are
+
+    // @signal (create view) 'comment:state'. Toggles commentCreate attribute.
+
+    init_view: true,
+    commentCreate: false,
+    bindings: 'comment-create-data-bind',
+    create_textarea_selector: '.comment-create-text',
+    create_username_selector: '.username',
+    create_location_selector: '.location',
+    create_avatar_selector: '.edit-user-avatar',
+    create_email_notify_selector: '.email-notify',
+
+    initialize: function (options) {
+        options = options || {};
+
+        // Set options for the view
+        _.defaults(options, _.pick(this, 'init_view', 'template_comment_selector', 'commentCreate',
+            'create_textarea_selector', 'create_username_selector', 'create_location_selector',
+            'create_email_notify_selector', 'create_avatar_selector'));
+        _.extend(this, _.pick(options, 'template_comment_selector', 'fetch_data', 'template_comment',
+            'commentCreate', 'init_view', 'comments', 'user_nickname', 'user_location'));
+
+        // Init events
+        this.events = this.events || {};
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+        if (this.init_view) {
+            this.initView();
+        }
+    },
+
+    initView: function () {
+        var cview = this;
+
+        // Comment inputs and setting default bindings
+        this.model.set({
+            commentCreate: this.commentCreate, charactersCount: this.textarea_characters_count,
+            location_filled: false, nickname_filled: false, create_textarea_filled: false,
+            user_information_exist: false,
+            user_nickname: this.user_nickname, user_location: this.user_location,
+            notifyUser: false, sending_error_visible: false
+        });
+
+        this.$create_textarea = this.$el.find(this.create_textarea_selector);
+        this.$username = this.$el.find(this.create_username_selector);
+        this.$location = this.$el.find(this.create_location_selector);
+        this.$avatar = this.$el.find(this.create_avatar_selector);
+        this.$email_notify = this.$el.find(this.create_email_notify_selector);
+
+        if (this.model.get('nickname')) {
+            this.$create_textarea.val('@' + this.model.get('nickname') + ' ');
+        }
+
+        // View event hundlers
+        this.listenTo(this, 'user:info:update', this.updateUserInformation.bind(this));
+        this.listenTo(this, 'comment:clear', this.clear.bind(cview));
+        this.listenTo(this, 'comment:state', this.commentCreateToggle.bind(cview));
+
+
+        // set initial state of user information panel
+        this.trigger('user:info:update');
+
+		this.delegateEvents(this.events);
+        OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+    },
+
+    updateUserInformation: function () {
+        // if user nickname and user location isn't empty fill appropriate forms with these data
+        if (this.model.get('user_nickname') && this.model.get('user_location')) {
+            this.model.set('user_information_exist', true);
+            this.$username.val(this.model.get('user_nickname'));
+            this.$location.val(this.model.get('user_location'));
+            this.model.set('nickname_filled', true);
+            this.model.set('location_filled', true);
+        }
+    },
+
+    toggleUserInformationForm: function (event) {
+        event.stopPropagation();
+        this.model.set('user_information_exist', false);
+    },
+
+    updateCharactersCount: function (event) {
+        // set the count of remaining characters
+        this.model.set('charactersCount', this.$create_textarea.attr('maxlength') - this.$create_textarea.val().length);
+
+        // set textarea create field is filled or not
+        this.model.set('create_textarea_filled', !!this.$create_textarea.val());
+    },
+
+    checkUsernameField: function () {
+        // set nickname field is filled or not
+        this.model.set('nickname_filled', !!this.$username.val());
+    },
+
+    checkLocationField: function() {
+        // set location field is filled or not
+        this.model.set('location_filled', this.$location.val() ? true : false);
+    },
+
+
+    chooseUserAvatar: function (e) {
+        e.stopPropagation();
+        var $avatar_upload = this.$el.find('.avatar-upload');
+        if($avatar_upload.length) $avatar_upload[0].click()
+    },
+
+    uploadAvatar: function (e) {
+        e.stopPropagation();
+
+        var aview = this;
+
+        if (e.originalEvent.target.files && e.originalEvent.target.files.length) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                aview.$el.find('.edit-user-avatar').attr('src', e.target.result);
+
+                aview.avatar = reader.result;
+
+            };
+            reader.readAsDataURL(e.originalEvent.target.files[0]);
+        }
+        this.model.set('avatar_changed', true);
+    },
+
+    cancel: function (e) {
+        e.stopPropagation();
+        this.trigger('comment:clear');
+        this.trigger('user:info:update');
+    },
+
+    clear: function () {
+        // Clear data from the edit textarea and set commentCreateNotActive binding true
+        this.$create_textarea.val(this.model.get('nickname') ?
+            '@' + this.model.get('nickname') + ' ' : '');
+        this.$email_notify.prop("checked", false);
+        this.model.set('create_textarea_filled', false);
+        this.model.set('commentCreate', false);
+        this.model.set('notifyUser', false);
+    },
+
+    commentCreateToggle: function () {
+        this.model.set('commentCreate', !this.model.get('commentCreate'));
+    },
+
+    save: function (e) {
+        e.stopPropagation();
+        var cview = this;
+
+        if (this.$create_textarea.val() && this.$username.val() && this.$location.val()) {
+
+            // save collection url
+            var prev_url = this.comments.collectionurl;
+
+            // create new model instance
+            //update collection url appropriate to comment object
+            if (this.model.get(CommentsSystem.api.responsesurl)) {
+                this.comments.collectionurl = this.model.get(CommentsSystem.api.responsesurl)
+            }
+
+            data = {
+                comment: this.$create_textarea.val(),
+                location: this.$location.val(),
+                nickname: this.$username.val(),
+                parent: {token: this.model.get('id')},
+                notify_user: this.model.get('notifyUser')
+            };
+
+            if (this.avatar && this.model.get('avatar_changed')) {
+                data['avatar'] = this.avatar;
+            }
+
+            this.comments.trigger('comment:parsed:success', {
+                create_view: this,
+                data: data,
+                prev_url: prev_url
+            })
+        }
+    },
+
+    events: _.extend({}, CommentsSystem.Views.CommentCreateEvents),
+
+    computeds: _.extend({
+        user_information_not_exist: function () {
+            return !this.getBinding('user_information_exist');
+        },
+        comment_create: function () {
+            return !!this.getBinding(this.cid + '_comment_create')
+        }
+    }, CommentsSystem.Views.CommentCreateComputedProperties)
+
+
+});
+
+CommentsSystem.Views.CommentView = OakTree.Views.BaseDataBoundModelView.extend({
+	tagName: 'div',
+    className: 'comment',
+    bindings: 'comment-data-bind',
+    render_view: true,
+    comment_textarea_selector: '.response-textarea',
+    commentCreateViewPrototype: CommentsSystem.Views.CommentCreateView,
+    comment_summary_selector: '.comment-summary',
+
+    initialize: function (options) {
+        options = options || {};
+
+        _.defaults(options, _.pick(this, 'render_view', 'comment_textarea_selector', 'comment_summary_selector'));
+        _.extend(this, _.pick(options, 'collectionView', 'render_view', 'comment_textarea_selector',
+            'commentCreateViewPrototype', 'main_model', 'showCommentResponses', 'parent_view'));
+
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+        this.model.set({
+            showResponses: this.showCommentResponses ? this.showCommentResponses : false,
+            showRepliesButton: false, commentCreate: false, showResponseLink: false,
+            responseLinkText: ''
+        });
+
+        this.events = this.events || {};
+
+        // Model/view event handlers
+        this.listenTo(this.model, 'destroy', this.remove.bind(this));
+
+        if (this.render_view) this.render();
+    },
+
+    initView: function (options) {
+        // Initialize DOM references and events
+        var cview = this;
+
+         // View UI references
+        this.$comment_summary = this.$el.find(this.comment_summary_selector);
+
+        // Ensure required view components
+		if (!this.$comment_summary.length)
+			throw new Error('Invalid comment summary selector, unable to locate comment summary content');
+
+		// console.log(this.$comment_summary);
+		// set html of comment summary with marked
+        this.$comment_summary.html(marked(cview.model.get('comment')));
+
+
+        if(!this.model.get('parent')) {
+            if (!this.model.responses.length) {
+                this.model.responses = new CommentsSystem.Collections.CommentCollection([]);
+                this.model.responses.collectionurl = this.model.get(CommentsSystem.api.responsesurl);
+            }
+            else {
+                this.model.set('showRepliesButton', !this.model.get('showResponses'));
+            }
+
+            // init collection view for the second level comments
+            this.comments_view = new CommentsSystem.Views.CommentCollectionView({
+                el: cview.$el.find('.comment-responses').length ? cview.$el.find('.comment-responses')[0] : undefined,
+                model: new CommentsSystem.Models.Comment([]),
+                collection: this.model.responses,
+                fetch_data: false,
+                template_comment: this.collectionView.template_comment,
+                results_count: this.model.get('responses_count'),
+                user_location: this.collectionView.user_location,
+                user_nickname: this.collectionView.user_nickname,
+                main_model: this.main_model,
+                parent_view: this
+            });
+        }
+
+        if(_.isUndefined(this.parent_view) && this.model.get('parent')) {
+            if(this.model.get('parent').nickname) {
+                this.model.set('showRepliesButton', false);
+                this.model.set("responseLinkText", "In Reply to " + this.model.get('parent').nickname);
+                this.model.set('showResponseLink', true);
+            }
+        };
+
+        if (this.$el.find(this.comment_textarea_selector).length) {
+            this.create_view = new this.commentCreateViewPrototype({
+                el: this.$el.find(this.comment_textarea_selector).length
+                    ? this.$el.find(this.comment_textarea_selector)[0] : undefined,
+                model: this.model,
+                comments: this.model.get('parent') ? this.collectionView.collection : this.model.responses,
+                user_location: this.collectionView.user_location,
+                user_nickname: this.collectionView.user_nickname
+            })
+        }
+
+        // Initialize toolbar view
+		if(this.model.saveurl && this.$el.find('.recommend-button').length) {
+			var tview = new OakTree.Page.Views.ToolbarSavedView({
+				model: this.model,
+				el: this.$el.find('.recommend-button')[0],
+			});
+		}
+
+        // set count of replies
+        this.model.set('responsesCount', this.model.get('responses_count') ? this.model.get('responses_count') + ' Replies' : '');
+        this.delegateEvents(this.events);
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+    },
+
+    events: {
+	    'click a.comment-responses-count': 'showResponses',
+        'click a.comment-reply': 'showCommentCreate',
+        'click .open-comment-details': 'openCommentDetails',
+        'click .comment-responses-link': 'openCommentDetails'
+    },
+
+    computeds: _.extend({
+        showReplyButton: function(){
+            // return true if replies button and reply link is hidden and vice versa
+            return !this.getBinding('showRepliesButton') && !this.getBinding('showResponseLink');
+        },
+
+    }, CommentsSystem.Views.CommentCreateComputedProperties),
+
+    showResponses: function () {
+        var cview = this;
+
+        this.collectionView.collection.models.forEach(function (model) {
+            if (model.responses.length) {
+                model.set('showResponses', true);
+                model.set('showRepliesButton', false);
+            }
+        });
+    },
+
+    showCommentCreate: function (e) {
+        e.stopPropagation();
+
+        var cview = this;
+        if (this.collectionView) {
+            this.collectionView.collection.models.forEach(function (model) {
+                model.set('commentCreate', false);
+            });
+        }
+
+        if(this.model.responses) {
+            this.model.responses.forEach(function(model) {
+               model.set('commentCreate', false);
+            });
+        }
+
+        if(this.parent_view) {
+            this.parent_view.collectionView.collection.forEach(function(model) {
+               model.set('commentCreate', false);
+            });
+        }
+
+        this.model.set('showResponses', true);
+        this.model.set('commentCreate', true);
+    },
+
+    remove: function() {
+		this.trigger('remove:prep');
+		OakTree.Views.BaseDataBoundModelView.prototype.remove.apply(this, arguments);
+	},
+
+    openCommentDetails: function(e) {
+	    //just trigger it
+	    e.stopPropagation();
+        this.main_model.trigger('collection:url', 'comments/' + this.model.get("id"));
+
+    },
+
+});
+
+CommentsSystem.Views.CommentCollectionView = OakTree.Views.BaseDataBoundModelView.extend({
+    // View which can be used to manage collections of comments
+    //
+    // @signal (collection) 'fetch:init:success'. Signal triggered when the model has
+    // 	successfully retrieved comments from the API.
+    // @signal (collection) 'comment:parsed:success'. Signal triggered when the user put on save
+    // button and data was parsed for saving it
+    // @signal (collection) 'add:comment:success'. Signal triggered when the comment was successfully
+    // saved
+    //
+
+    bindings: 'comments-data-bind',
+    all_comment_results_selector: '.all-comment-results',
+    reader_picks_comment_results_selector: '.reader-picks-comment-results',
+    init_view: true,
+    itemViewPrototype: CommentsSystem.Views.CommentView,
+
+    search_update_delay: 1000,
+    results_render_delay: 250,
+
+    textarea_characters_count: 1500,
+    template_comment_selector: '.template-comment',
+    fetch_data: true,
+    template_comment: undefined,
+    commentCreateViewPrototype: CommentsSystem.Views.CommentCreateView,
+    comments_header_selector: '.comments-header',
+    details_selector: '.comment-item-details',
+    active_tab: 'all-comments',
+
+
+    initialize: function (options) {
+        options = options || {};
+
+        // Set options for the view
+        _.defaults(options, _.pick(this, 'init_view', 'template_comment_selector', 'commentCreate', 'active_tab'));
+        _.extend(this, _.pick(options, 'template_comment_selector', 'fetch_data', 'template_comment',
+            'commentCreate', 'comments_header_selector', 'comments', 'results_count', 'user_nickname',
+            'user_location', 'main_model', 'parent_view', 'active_tab', 'commentsCountUrl'));
+
+        // Initialize default collection using options
+        this.collection = options.collection || new CommentsSystem.Collections.CommentCollection([], {
+            collectionurl: options.collectionurl
+        }),
+
+            this.events = this.events || {};
+
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+        if (this.init_view) this.initView();
+    },
+
+    initView: function () {
+        var cview = this;
+
+        this.model.set({
+            collection_count: this.collection.length,
+            additional: null, page: null, pending: null, error: null, page: 1,
+            collection_results_empty: false,
+            commentsCount: '',
+            readerPicksActive: false,
+            dialog: false, details: false
+        });
+
+        // View UI references
+        this.$comment_results = this.$el.find(this.all_comment_results_selector);
+
+        // Ensure required view components
+		if (!this.$comment_results.length)
+			throw new Error('Invalid comment results selector, unable to locate results container');
+
+		this.$comment_results = this.$comment_results[0];
+
+        // Compile search result template
+        if (!this.template_comment) {
+            var $template_comment = this.$el.find(this.template_comment_selector);
+            if (!$template_comment.length)
+                throw new Error('Unable to initialize comment view, invalid search result item '
+                    + 'template selector string');
+            this.template_comment = _.template($template_comment.text(), {variable: 'data'});
+        }
+
+        // Initialize UI references
+		this.$details = this.$el.find(this.details_selector);
+
+        // initialize create view for main comment create area and router
+        if (this.$el.find(this.comments_header_selector).length) {
+            this.create_view = new this.commentCreateViewPrototype({
+                el: this.$el.find(this.comments_header_selector),
+                model: this.model,
+                comments: this.collection,
+                user_nickname: this.user_nickname,
+                user_location: this.user_location
+            });
+
+            //  Initialize router view
+            this.initRouter();
+        }
+
+        if(this.commentsCountUrl) {
+            this.fetchCommentsInfo();
+        }
+
+        // Add note template to item view prototype
+        this.itemView = this.itemViewPrototype.extend({
+            template: this.template_comment
+        });
+
+        // Collection list event hundlers
+        this.listenTo(this.collection, 'fetch:init:success', this.renderItemList.bind(this));
+        this.listenTo(this.collection, 'comment:parsed:success', this.save.bind(this));
+        this.listenTo(this.collection, 'add:comment:success', this.renderItemList.bind(this));
+
+
+        this.listenTo(this.collection, 'fetch:paginated:more', function() {
+			cview.model.set('additional', true, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+		this.listenTo(this.collection, 'fetch:paginated:last', function() {
+			cview.model.set('additional', false, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+		this.listenTo(this.collection, 'fetch:paginated:none', function(c, d, pagedata) {
+			cview.model.set('page', 1);
+			cview.model.set('additional', false, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+
+		// Set event when tab was changed
+        this.$el.find('.tabs').on('change.zf.tabs', this.changeTabs.bind(this));
+
+        this.listenTo(this.collection, 'tab:changed:success', this.renderItemList.bind(this));
+
+
+        // delegate events
+        this.delegateEvents(this.events);
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+
+
+        // if current collection is response collection and it's fetched now
+        // trigger about it and set pagination data
+        if (this.collection.length && !this.fetch_data) {
+            this.collection.trigger('fetch:paginated:none');
+            if (this.results_count && this.collection.length < this.results_count) {
+                this.collection.trigger('fetch:paginated:more');
+            }
+            this.collection.trigger('fetch:init:success');
+        }
+
+        if (this.fetch_data) this.fetchData();
+    },
+
+    fetchCommentsInfo: function() {
+        var cview = this;
+        GuruLabs.getJSON({
+            url: this.commentsCountUrl,
+            success: function(sdata) {
+                if(!_.isUndefined(sdata['comments_total']) && !_.isNull(sdata['comments_total'])) {
+                    cview.model.set('commentsCount', sdata['comments_total'])
+                }
+                if(sdata['reader_picks']) {
+                    cview.model.set('readerPicksActive', !!sdata['reader_picks'])
+                }
+            }
+        })
+    },
+    renderItemList: function () {
+        // Render collection list items
+        this.trigger('render:clear');
+        this.trigger('render:prep');
+        var ulimit;
+
+
+        // Limit the number of results that will be rendered if a limit is defined on the view
+        if (this.itemlist_limit) {
+            ulimit = this.collection.length > this.itemlist_limit ?
+                this.itemlist_limit : this.collection.length;
+        } else {
+            ulimit = this.collection.length;
+        }
+
+        // Render item list
+        _.each(this.collection.slice(0, ulimit), this.renderItemView.bind(this));
+
+        this.trigger('render:success');
+    },
+
+    renderItemView: function (rmodel) {
+        // Initialize item list view, add signal handlers to manage lifecycle
+        var voptions = _.extend({model: rmodel, collectionView: this,
+                main_model: this.main_model ? this.main_model : this.model,
+                parent_view: this.parent_view },
+            _.isFunction(this.itemViewInitOptions) ? this.itemViewInitOptions(rmodel) : {});
+        var iview = new this.itemView(voptions);
+
+        // Remove the item view when preparing to render new views
+        iview.listenTo(this, 'render:clear', iview.remove.bind(iview));
+
+        // Append to comment results container
+        iview.$el.appendTo(this.$comment_results);
+
+        return iview;
+    },
+
+
+    dataFetchParams: function (options) {
+        // Set the request to fetch 6 items on the initial load
+        // Search defaults
+        options = options || {};
+        _.defaults(options, {page: 1, items: 5 });
+
+        if(!this.collection.models.length || (this.collection.models.length && !this.collection.models[0].get('parent'))) {
+            _.extend(options, {'include-responses': true});
+        }
+
+        if(this.active_tab && !this.parent_view) {
+            options[this.active_tab] = true;
+        }
+
+        return _.pick(options, 'include-responses', 'page', 'items', 'reader-picks');
+    },
+
+
+    fetchData: function (options) {
+        // Retrieve comments collection data from the server. Set common properties
+        // related to data retrieval and trigger collection signals
+        var cview = this;
+        cview.model.set({pending: true, results: false, error: false});
+
+        this.collection.fetch({
+            data: _.isFunction(cview.dataFetchParams) ? cview.dataFetchParams(options) : {},
+            success: function (collection, sdata, options) {
+                var pdata = GuruLabs.getPaginationData(options.xhr);
+
+                GuruLabs.parsePaginationData(collection, sdata, pdata, {
+                    paginated_fetch_signalname: 'fetch:paginated',
+                });
+
+                if (!collection.length) {
+                    cview.model.set('collection_results_empty', true)
+                }
+
+                // Update pending and results properties of model
+                cview.model.set({pending: false, results: true, error: false});
+                cview.collection.trigger('fetch:init:success');
+            },
+            error: function () {
+                // Update pending and results properties of models
+                cview.model.set({pending: false, results: false, error: true})
+            },
+            remove: false
+        });
+    },
+
+
+    save: function (options) {
+        // Sending data of new comment on backend and doesn't add model to collection, if request was failed
+        // show appropriate notification for the user
+
+        var cview = this;
+
+        if (options.data && options.create_view) {
+            GuruLabs.postJSON({
+                url: cview.collection.url(),
+                data: JSON.stringify(options.data),
+                success: function (sresponse) {
+                    options.create_view.trigger('comment:clear');
+
+                    if (options.prev_url) {
+                        cview.collection.collectionurl = options.prev_url;
+                    }
+                },
+                error: function (sresponse) {
+                    options.create_view.model.set('sending_error_visible', true);
+                }
+            })
+        }
+
+
+        //     var cmodel;
+        //
+        //     if (cmodel && options.create_view) {
+        //         cmodel.save({}, {
+        //             success: function (m, sresponse) {
+        //                 // Model saved successfully. Add the comment to the collection,
+        //                 // set the model primay key (returned from the server),
+        //                 // clear editing interface, return to list view
+        //
+        //
+        //                 // Set url of main response collection
+        //                 if(options.prev_url) {
+        //                     cview.collection.collectionurl = options.prev_url;
+        //                 }
+        //             },
+        //             error: function (m, sresponse) {
+        //                 if (cmodel.isNew()) cmodel.retire();
+        //                 cview.model.set('sending_error_visible', true);
+        //             },
+        //         });
+        //     }
+    },
+
+    loadMoreResults: function (event) {
+        // Fetch next page of results
+        event.stopPropagation();
+
+        // increase current value of page if it's undefined, set default value
+        this.model.set('page', this.model.get('page') ? this.model.get('page') + 1 : 1);
+        options = {page: this.model.get('page')};
+
+        this.fetchData(options);
+    },
+
+    initRouter: function() {
+		// Initialize the router instance for the collectionview
+		var cview = this;
+
+		// Create router instance which will respond to routes for the collection view
+		var routes = {};
+		routes['comments'] = 'dialog';
+		routes['comments/'+':rid'] = 'details';
+
+		var rclass = CommentsSystem.CommentsCollectionRouter.extend({
+			routes: _.extend(routes,
+				CommentsSystem.CommentsCollectionRouter.prototype.routes || {}),
+		});
+
+		// Initialize router instance
+		this.router = new rclass({ view: this });
+	},
+
+    showDialog: function() {
+        // Toggle the dialog to the collection view
+		this.model.set('dialog', true);
+		this.model.set('details', false);
+		this.model.trigger('collection:url', 'comments');
+    },
+
+    showDetails: function(rid) {
+		// Show the details for the specified model
+		var dview = this;
+
+		// Show details content
+		if (rid && this.$details) {
+		    var parent_detailsurl = dview.collection.collectionurl + '/comment/' + rid + '/parent/';
+			// Remove any currently loaded details content (if it exists)
+			dview.removeDetails();
+            var details_model = new CommentsSystem.Models.Comment({});
+            details_model.url = parent_detailsurl + '?include-responses=true&page=1&items=5';
+
+            details_model.fetch({
+                success: function() {
+                    dview.details = new dview.itemView({
+                        model: details_model,
+                        collectionView: dview,
+                        main_model: dview.main_model ? dview.main_model : dview.model,
+                        showCommentResponses: true,
+                        parent_view: dview.parent_view
+                    });
+                    dview.details.$el.appendTo(dview.$details);
+
+                    // Show details content
+                    dview.model.set('dialog', false);
+                    dview.model.set('details', true);
+                },
+                error: function() {
+                    dview.model.trigger('collection:url', 'comments');
+			    }
+            })
+		}
+		else {
+            dview.model.trigger('collection:url', 'comments');
+        }
+	},
+
+    removeDetails: function() {
+		// Remove an active details view from the dialog (if it exists)
+		if (this.details) this.details.remove();
+	},
+
+    showCommentsDialog: function() {
+        // set triggers on open and close events of foundation off-canvas dialog
+        var cview = this;
+
+        // set dialog true if triggers were setted
+        this.dialog = true;
+
+        // Set the initial state of the application model
+		this.model.set({ dialog: false, details: false });
+
+		this.$el.find('.off-canvas').on('opened.zf.offcanvas', () => {
+            this.model.trigger('dialog:open:success');
+        });
+
+        this.$el.find('.off-canvas').on('closed.zf.offcanvas', () => {
+            this.model.trigger('dialog:close:success');
+		    this.model.trigger('collection:url', '');
+            this.dialog = false;
+            this.model.set({ 'dialog': false });
+        });
+
+    },
+
+    closeDialog: function(e) {
+        this.$el.find('.off-canvas').foundation('close');
+    },
+
+    closeDetails: function(e) {
+        this.model.set('dialog', true);
+        this.model.set('details', false);
+
+        this.collection.forEach(function(model) {
+           model.set('showResponses', false);
+           model.set('showRepliesButton', !!model.responses.length);
+        });
+
+        this.model.trigger('collection:url', 'comments');
+    },
+
+    changeTabs: function(event, activeTab) {
+        // Read name of active tab, reset collection and fetch data again with provided parameters
+        var active_tab = activeTab.attr('data-name');
+        if (!active_tab)
+            throw new Error('Invalid data name for tab, unable to locate active tab');
+
+        if(active_tab === 'reader-picks') {
+            this.$comment_results = this.$el.find(this.reader_picks_comment_results_selector);
+        }
+        else {
+            this.$comment_results = this.$el.find(this.all_comment_results_selector);
+        }
+
+        // Ensure required view components
+        if (!this.$comment_results.length)
+            throw new Error('Invalid reader picks comment results selector, unable to locate results container');
+
+        this.$comment_results = this.$comment_results[0];
+
+        this.collection.trigger('fetch:paginated:none');
+		this.collection.reset();
+
+		if (!this.collection.length) {
+            this.active_tab = active_tab;
+            this.fetchData();
+        }
+    },
+
+    computeds: _.extend({}, CommentsSystem.Views.CommentCreateComputedProperties),
+
+    events: {
+        'click button.collection-items-load': 'loadMoreResults',
+        'click .show-comments-panel-button': 'showDialog',
+        'click .comment-close-dialog': 'closeDialog',
+        'click .close-comment-details': 'closeDetails',
+    }
+
+});
+
+
+CommentsSystem.CommentsCollectionRouter = Backbone.Router.extend({
+    // Router class which manages URL based loading of community collection dialog
+
+	initialize: function(options) {
+		options = options || {};
+		var router = this;
+
+		this.view = options.view;
+
+		if (!this.view)
+			throw new Error('Unable to initialize collection router, invalid view reference');
+
+		// Update the URL model
+		this.listenTo(this.view.model, 'collection:url', function(url, options) {
+			options = options || {};
+			_.defaults(options, { replace: false, trigger: true });
+			router.navigate(url, options);
+		});
+	},
+
+	dialog: function(qs) {
+		// Show the comments collection view
+		var router = this;
+
+		if(!this.view.collection.length) {
+            this.view.fetchData();
+        }
+
+		var show_collection_dialog = function() {
+			router.view.showDialog();
+		};
+
+        var init_dialogview = function() {
+			router.listenToOnce(router.view.model, 'dialog:open:success', show_collection_dialog);
+			router.view.showCommentsDialog();
+            router.view.$el.find('.off-canvas').foundation('open');
+		};
+
+		// Dialog open, toggle back to collection
+        if (this.view.dialog && !this.view.model.get('dialog')) show_collection_dialog();
+
+        // Collection results loaded, dialog view does not exist, create view and open dialog
+        else if (this.view.collection.length && !this.view.dialog) init_dialogview();
+
+        // Collection results not yet loaded, initialize upon completion of load
+		else if(!this.view.collection.length) this.listenToOnce(this.view.collection, 'fetch:init:success', init_dialogview);
+	},
+
+	details: function(rid) {
+		// Show the details view for a memeber of the collection dialog
+		var router = this;
+
+		if(!this.view.collection.length) {
+            this.view.fetchData();
+        }
+
+		var show_dialog_details = function() {
+		    // Show the dialog details for the specified model
+			router.view.showDetails(rid);
+		}
+
+		var init_dialogview = function() {
+			router.listenToOnce(router.view.model, 'dialog:open:success', show_dialog_details);
+			router.view.showCommentsDialog();
+            router.view.$el.find('.off-canvas').foundation('open');
+		}
+
+		// Collection results loaded, dialog view exists, popup open, and model exists: show the details
+		if (this.view.dialog) show_dialog_details();
+        //
+		// Dialog view does not exist, create view, open dialog, and navigate to detail
+		else if (this.view.collection.length && !this.view.dialog) init_dialogview();
+
+		// Collection results not yet loaded, initialize upon completion of load
+		else if(!this.view.collection.length) this.listenToOnce(this.view.collection, 'fetch:init:success', init_dialogview);
+	},
+	bindingFilters: _.extend({}, GuruLabs.Views.CoreDataBindingFilters),
+});
+
+
+$(document).ready(function() {
+
+	// retrieve a reference to the page API element
+    var $el = $('.comments-container');
+
+	var $apiref = $('api');
+	// Initialize saved properties view
+    if($el.length) {
+        var commentsview = new CommentsSystem.Views.CommentCollectionView({
+            el: $el,
+            model: new CommentsSystem.Models.Comment([]),
+            collectionurl: $apiref.attr(CommentsSystem.api.comment_createurl),
+            user_location: $apiref.attr(CommentsSystem.api.auth_user_location) ?
+                $apiref.attr(CommentsSystem.api.auth_user_location) : '',
+            user_nickname: $apiref.attr(CommentsSystem.api.auth_user_nickname) ?
+                $apiref.attr(CommentsSystem.api.auth_user_nickname) : '',
+            commentsCountUrl: $apiref.attr(CommentsSystem.api.comments_count_url) ?
+                $apiref.attr(CommentsSystem.api.comments_count_url) : '',
+            fetch_data: false,
+        });
+
+        // If there are several buttons on page init one view but initialize events for each
+        var $comment_open_buttons = $('.show-comments-panel-button');
+        if($comment_open_buttons) {
+            $comment_open_buttons.each(function (el) {
+                $(this).on('click', commentsview.showDialog.bind(commentsview))
+            })
+        }
+    }
+});

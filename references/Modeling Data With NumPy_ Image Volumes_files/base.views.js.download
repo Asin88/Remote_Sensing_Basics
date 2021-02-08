@@ -1,0 +1,581 @@
+// Backbone.js helper methods and views used to build Backbone.js applications
+var GuruLabs = GuruLabs || {
+	Models: {},
+	Collections: {},
+	Views: {},
+};
+
+GuruLabs.api = _.extend(GuruLabs.api || {}, { 
+	attr_active_class: 'active-class',
+	attr_inactive_class: 'inactive-class',
+	attr_alt_class: 'alt-class',
+	select_tag: 'select',
+	attr_model_default: 'model-default',
+	keycodes: {
+		enter: 13,
+		escape: 27,
+		left_arrow: 37,
+		up_arrow: 38,
+		right_arrow: 39,
+		down_arrow: 40,
+	}
+});
+
+
+// jQuery Compatability: jQuery 2.0/3.0
+
+GuruLabs.jQuery = GuruLabs.jQuery || {};
+
+// Determine jQuery version active on the page
+GuruLabs.jQuery.version = {
+	raw: $.fn.jquery,
+	parts: _.chain($.fn.jquery.split('.')).map(function(val){ return val ? parseInt(val) : 0; }).value(),
+}
+if (GuruLabs.jQuery.version.parts.length > 2) {
+	GuruLabs.jQuery.version.major = GuruLabs.jQuery.version.parts[0];
+	GuruLabs.jQuery.version.minor = GuruLabs.jQuery.version.parts[1];
+	GuruLabs.jQuery.version.release = GuruLabs.jQuery.version.parts[2];
+}
+_.defaults(GuruLabs.jQuery, { exceptions: {log: true }});
+
+// For jQuery 3.0, create an exception hook which maintains the logging behavior of previous versions
+if (GuruLabs.jQuery.version.major && GuruLabs.jQuery.version.major >= 3.0) {
+	GuruLabs.jQuery.Deferred = GuruLabs.jQuery.Deferred || {};
+	GuruLabs.jQuery.Deferred.exceptionHook = $.Deferred.exceptionHook;
+
+	$.Deferred.exceptionHook = function(error, stack) {
+		// Log jQuery exceptions to the console
+		if (window.console && GuruLabs.jQuery.exceptions.log) {
+			console.error('jQuery exception: ' + error.message, error.stack ? error.stack : '', stack ? stack : ''); 
+		} else { GuruLabs.jQuery.Deferred.exceptionHook(error, stack); }
+	}
+}
+
+
+// Helper functions
+
+GuruLabs.isDOM = function (obj) {
+	// Determines if the @obj parameter is a DOM element    
+    // DOM, Level2, determination of object type
+    if ("HTMLElement" in window) {
+        return (!!obj && obj instanceof HTMLElement);
+    }
+    // Older browsers
+    return (!!obj && typeof obj === "object" && obj.nodeType === 1 && !!obj.nodeName);
+}
+
+
+GuruLabs.modelFieldnames = function(imodel) {
+	// Returns an array of field names form the model instance
+	// @input imodel (Backbone.js model subclass): Model from which to retrieve the model fieldnames
+	return _.without(_.keys(imodel.toJSON()), 'id', 'cid');
+}
+
+
+GuruLabs.formFieldnames = function(mform) {
+	// 	Return an array of fieldnames from a form. Looks for inputs, text areas, and button elements
+	// 	@input mform (jQuery element reference): The form (or form fieldset) that should be
+	//		searched for form elements. Only children of "mform" will be searched
+	var fnames = []
+	mform.find(':input').each(function(){
+		var control = $(this);
+		if (!_.isUndefined(control.attr('name'))) fnames.push(control.attr('name'));
+	});
+	return fnames;
+}
+
+
+GuruLabs.formSelectFieldnames = function(mform) {
+	// Return an array of select fields from within a form element
+	var fnames = [];
+	mform.find('select').each(function(){
+		var control = $(this);
+		if (control.attr('name') || control.attr('model-fieldname')) 
+			fnames.push(control.attr('name') || control.attr(GuruLabs.api.attr_model_fieldname));
+	});
+	return fnames;
+}
+
+
+GuruLabs.forwardViewNotificationsToContainer = function(view, container) {
+	// 	Forward view notifications from a view to a container view. Useful for dealing with
+	// 	cases where there are nested views. Forwarding is done using anonymous callbacks,
+	//	which means that they will be retired after calling stopListening() or close() on the
+	//	view.
+	
+	//	@input view (GuruLabs.Views.BaseView subclass): View from which the notifications should
+	//		be forwarded
+	//	@input container (GuruLabs.Views.BaseView subclass): View to which the notifications
+	//		should be forwarded
+	view.listenTo(view, 'notification:user',
+		function(usermessage, options){ container.userMessage(usermessage, options); });
+	view.listenTo(view, 'notification:error',
+		function(errormessage, options){ container.errorMessage(errormessage, options); });
+}
+
+
+GuruLabs.forwardViewSignalsToContainer = function(view, container, signals) {
+	//	Forward view signals to a container. View signals are forwarded by binding a listener
+	//	to the signal, which then triggers the same signal (with the same arguments) on the container.
+	//	Method kept in order to preserve backwards compatability, delegates to GuruLabs.forwardSignalsToContainer.
+	
+	//	@input view (Backbone.View): View from which the signals originate
+	//	@input container (Backbone.object): Object to where the signals should be forwarded
+	//	@input signals (array): Array of signals which should be forwarded
+	GuruLabs.forwardSignalsToContainer(view, container, signals);
+}
+
+
+GuruLabs.model_toJSON = function(rmodel, rcallback, options) {
+	// 	Create a new function which calls rcallback with rmodel.toJSON() as its first argument.
+	//	Useful for wrapping model 'change' events for views in order to have them re-render
+	//	components of the view when specific attributes of the model change.
+
+	// 	@input rmodel (Backbone.js model): Model for which its toJSON method will be used as input
+	//		to the callback
+	//	@input rcallback (function): Callback function which should accept a JSON object as input
+	//	@input options (JavaScipt object): Hash of method options
+
+	//	@option jstypes (bool, default=false): jstypes option to pass to the model
+
+	options = options || {};
+	_.defaults(options, { jstypes: false, });
+	if (!_.isFunction(rcallback)) throw new Error('model_toJSON: rcallback must be a function')
+	return function() { rcallback(rmodel.toJSON({ jstypes: options.jstypes, })); }
+}
+
+
+GuruLabs.css3AnimationCallback = function(el, callback) {
+	// 	Attach a callback to a CSS3 animation event
+	//	@input el (jQuery element reference, required): Element to which the callback should be applied
+	//	@input callback (function): Callback to be attached to the animation
+	return el.one('animationend webkitAnimationEnd mozAnimationEnd MSAnimationEnd oAnimationEnd '
+		+ 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', callback);
+}
+
+
+GuruLabs.css3Animation = function(options) {
+	// 	Attach a CSS animation to an element
+	//	@input options (default={}): Options for the animation
+	
+	//	@option el (jQuery element reference, required):
+	//		Element to which the animation should be applied
+	//	@option animation_class (string, required): Animation class string which should
+	//		be added to the element
+	//	@callback after_animation (function/callback): Called after the animation has completed
+
+	options = options || {};
+	if (_.isUndefined(options.el)) 
+		throw new Error('css_animation: Unable to apply animation, no element reference provided.');
+	if (!_.isString(options.animation_class))
+		throw new Error('css_animation: Unable to apply animation, no animation string supplied.');
+	// Apply callback to run after the animation completes
+	GuruLabs.css3AnimationCallback(options.el, function() {
+		// Trigger after_animation callback
+		if (_.isFunction(options.after_animation)) options.after_animation();
+		// Remove class at the end of the animation so it can be reapplied
+		options.el.removeClass(options.animation_class);
+	});
+	options.el.addClass(options.animation_class).show();
+}
+
+
+GuruLabs.checkHtmlRenderComponents = function(el, templatefunc) {
+	// 	Check that the provide element and template function are able to properly rendered.
+	//	Element should be a valid jQuery reference with at least one member (el.length > 0)
+	//	Template should be a valid Underscore.js template function
+	//	@input el (jQuery element reference): Element reference to check
+	//	@input templatefunc (_.template function): Template function
+	//	@returns bool (true if all conditions met, false otherwise)
+	if (_.has(el, 'length')) {
+		// if ((el.length > 0) & (_.isFunction(templatefunc)) { return true; }
+		if ((el.length > 0) & (_.isFunction(templatefunc))) return true;
+	}
+	return false;
+}
+
+
+GuruLabs.getHtmlForm = function(options) {
+	//	Retrieve HTML form from the server and initializes result to a jQuery element.
+	//	Wrapper function for jquery.get.
+	//	@input options (default={}): Option array
+
+	//	@option url (required): The URL from which the data should be retrieved
+
+	//	@callback success (rdata) : Called after data has been retrieved from the server
+	//		rdata is an instantiated jQuery element
+	//	@callbadck error: Called if there was an error retrieving data from the server
+	//	@callback always: Called after all attempts to retrieve data
+
+	options = options || {};
+	_.defaults(options, { type: 'html' }); // Default options
+	if (!options.url) throw new Error('Unable to retrieve form from server, no URL specified');
+	return $.get(options.url, options.type, function(rdata){
+		if (_.isFunction(options.success)) {
+			var $rdata = $(rdata);
+			options.success($rdata);
+		}
+	}).fail(function(jqxhr, textstatus, errorthrown){
+		if (_.isFunction(options.error)) options.error(jqxhr, textstatus, errorthrown);
+	}).always(function(){
+		if (_.isFunction(options.always)) options.always();
+	});
+}
+
+
+GuruLabs.contentWindow = function(options) {
+	// 	Display content in a new window. Uses window.open.
+
+	//	@option url (string, required): Content URL which should be opened in the new window
+
+	//	@option name (string, default=undefined): Name to apply to the titlebar of the new window.
+	//	@option titlebar (boolean, default=true): Whether or not to display the titlebar.
+	//	@option toolbar (boolean, default=false): Whether or not to display the toolbar.
+	//	@option menubar (boolean, default=false): Whether or not to display the menubar.
+	//	@option status (boolean, default=false): Whether or not to display the status bar
+	//	@option scrollbars (boolean, default=true): Whether or not to display scrollbars.
+	//	@option resizable (boolean, default=true): Whether or not the window is resiable
+
+	//	@option width (int pixels): The width of the window
+	//	@option height (int pixels): Height of the window
+
+	options = options || {};
+	_.defaults(options, {
+		location: true,
+		titlebar: true,
+		toolbar: false,
+		menubar: false,
+		status: false,
+		scrollbars: true,
+		resizable: true,
+	});
+	if (!options.url) 
+		throw new Error('contentWindow: Unable to open a new content window, no URL specified');
+	// Convert options array to spec object
+	var specs = _.chain(_.pick(options, 'width', 'height', 'titlebar', 'toolbar', 'menubar', 
+		'status', 'scrollbars', 'resizable'))
+		.map(function(val, key){	// Map boolean values to string
+			if (_.isBoolean(val)) val = GuruLabs.bool2str_yes_no(val);
+			return [key, val];
+		}).object().value();
+	return window.open(options.url, options.name, GuruLabs.template_keyvalues_string({ object: specs }));
+}
+
+
+// Integer helper methods
+
+GuruLabs.duplicateString = function(str, times) {
+	// 	Duplicate the string the specified number of times
+	//	Example: GuruLabs.duplicateString('0', 3) -> '000'
+	//	@input istr (str): Input string to be duplicated
+	//	@input times (int): Number of times to duplicate the string
+	return (new Array(times+1)).join(str);
+}
+
+
+GuruLabs.formatIntOutput = function(tnum, places) {
+	// 	Output an integer string that is zero padded and formatted to the specified number of places
+	//	Example: GuruLabs.formatIntOutput(5, 2) -> 05, GuruLabs.formatIntOutput(15, 2) -> 15
+	//	@input tnum (int): Integer for which the output string should be created
+	//	@input numpad (int): Number of significant places in the output string
+	return (GuruLabs.duplicateString('0', places)+tnum).slice(-places);
+}
+
+
+// Date/Time helper functions
+
+GuruLabs.date2str = function(cdate, options) {
+	// Convert a date to a formatted string
+	//	@option short (bool, default=false): Use short month names in output date
+	//	@option us_format (bool, default=true): Return date string in US format (Monthy Day, Year). When false
+	//		uses the European format (Day Month Year)
+	//	@option include_time (bool, default=true): Append the time to the date string
+	//	@option utc (bool, default=false): Render the time as UTC, otherwise the local time of the browser client's system.
+	//	@returns formatted date strings
+	options = options || {}
+	_.defaults(options, {
+		short: false,
+		us_format: true,
+		include_time: true,
+		utc: false,
+		format: {
+			year: 'numeric',
+			day: 'numeric',
+		},
+	});
+	if (!_.isDate(cdate)) throw new Error('date2str: Unable to convert, please provide a Date object');
+	
+	_.defaults(options.format, {
+		month: options.short ? 'short' : 'long',
+	});
+
+	if(options.include_time) {
+		_.defaults(options.format, { hour: 'numeric', minute: 'numeric' });
+	}
+	if(options.utc) {
+		_.defaults(options.format, { timeZone: 'UTC' });
+	}
+	
+	if(options.us_format)
+		datestring = cdate.toLocaleString('en-US', options.format);
+	else
+		datestring = cdate.toLocaleString('en-GB', options.format);
+
+	return datestring;
+}
+
+
+// URL Helper Methods
+
+GuruLabs.urlJoin = function (urlparts, options) {
+	// Combine the array provided in urlparts into a valid URL
+	options = options || {};
+	_.defaults(options, { separator: '/' });
+	return _.chain(urlparts).filter(function(upart) {
+			return _.isString(upart);
+		}).value().join(options.separator);
+}
+
+
+
+// Convenience templates for rendering all or part of an API message as a text string
+GuruLabs.template_apimessage_text_complete = _.template(
+	'<%= header %> '
+	+ '<% if (typeof(subheader) != undefined) { %> <%= subheader %> <% } %>'
+	+ '<% if (typeof(message) != undefined) { %> <%= message %> <% } %>')
+GuruLabs.template_apimessage_text_header = _.template(
+	'<%= header %><% if (typeof(subheader) != undefined) { %> <%= subheader %> <% } %>')
+
+// Convenience templates for converting a JSON object to a list of key/value pairs
+GuruLabs.template_keyvalues_string = _.template(
+	'<% _.each(object, function(val, key){ %><%= key %>=<%= val %>,<% }) %>');
+
+
+GuruLabs.resourceFullUrl = function(resource) {
+	// Determine if the resource URL is a full URL include protocol, network location, and path.
+	// If not, add the protocol and scheme data from the currently loaded resource.
+
+	//	@input resource (str): Resource to which the network connection and other information
+	//		should be added
+	//	@returns full connection URL
+
+	var urlparts = GuruLabs.parseUri(resource);
+
+	// Complete base URL
+	if (urlparts.protocol && urlparts.host) return resource;
+
+	// Add protocol, domain, and port from href
+	var chost_urlparts = GuruLabs.parseUri(window.location.href);
+	var chost_netloc = chost_urlparts.host && chost_urlparts.port 
+		? chost_urlparts.host + ':' + chost_urlparts.port : chost_urlparts.host;
+	
+	return chost_urlparts.protocol + '://' + chost_netloc + resource;
+}
+
+
+// Base - Views
+
+GuruLabs.Views.BaseView = Backbone.View.extend({
+	// Backbone.js view used as a foundation for other Guru Labs views
+
+	usermessage_notificationtype: 'alert',
+	errormessage_notificationtype: 'error',
+	successmessage_notificationtype: 'success',
+
+	userMessage: function(usermessage, options) {
+		options = options || {};
+		_.defaults(options, { type: this.usermessage_notificationtype, });
+		this.trigger('notification:user', usermessage, options);
+	}, 
+
+	errorMessage: function(errormessage, options) {
+		options = options || {};
+		_.defaults(options, { type: this.errormessage_notificationtype });
+		this.trigger('notification:error', errormessage, options);
+	}
+
+});
+
+
+GuruLabs.Views.BaseModelView = GuruLabs.Views.BaseView.extend({
+	// 	Backbone.us view used as a foundation for views closely associated with models
+	//	@property template (_.template function): Function which should be used to render
+	//		view HTML
+
+	template: undefined,
+	
+	removeView: function(options) {
+		// Causes a view to fadeout and then removes it from the DOM.
+		// 	Calls the view's remove function, which will deactivate listeners and event handlers
+		// @input options(object): Options to control how the view is removed
+		//		@callback afterFadeout(): Optional function which can be called after a view has
+		//			faded from view, but before it is removed from the DOM.
+		options = options || {};
+		var view = this;
+		_.defaults(options, { afterFadeout : function() { }, });
+		view.$el.fadeOut(function(){
+			if (_.isFunction(options.afterFadeout)) options.afterFadeout();
+			view.remove();
+		});
+	},
+
+	render: function() {
+		// Render view HTML, add to view root element
+		if (GuruLabs.checkHtmlRenderComponents(this.$el, this.template)) {
+			if (!_.isUndefined(this.model))
+				this.$el.html(this.template(this.model.toJSON({ jstypes: true, })));
+		} else {
+			throw new Error('render: A template function has not been provided for this view');
+		}
+		return this;
+	}
+
+});
+
+
+GuruLabs.Views.SimpleView = GuruLabs.Views.BaseModelView.extend({
+	// 	Backbone.js view which can be used to render simple content models.
+
+	initialize: function(options) {
+		options = options || {};
+		this.template = options.template;
+	}
+
+});
+
+GuruLabs.Views.FormView = GuruLabs.Views.BaseView.extend({
+	// Backbone.js view which can be used to load form data into a Backbone.js model
+
+	// @property form_fieldnames (default=model field names): Names of fields from 
+	//	which form data should be copied into the model
+	// @property form_trackchanges (default=true): Preference which controls whether the 
+	//	view should track changes to the form field input.
+	// @property form_loaddata (default=true): Preference which controls whether the view
+	//	should load data from the form
+	
+	//	@signal 'form:field:load' fieldname (str), model_fieldname (str), control (jQuery Element reference):
+	//		Triggered when the data for a field managed by the form is loaded.
+	//	@signal 'form:field:track' fieldname (str), model_fieldname (str), control (jQuery Element reference):
+	//		Triggered when the track changes events for a field managed by the form are initialized.
+
+	//	@signal 'form:defaults:populate': Form signal which can be used to populate default model values.
+
+	init_formview: true,		// Toggles whether initView should be called as part of first initialization
+
+	form_fieldnames: [],		// Model fields which to populate with data
+	form_trackchanges: true, 	// Track changes to form fields
+	form_loaddata: true,		// Load data from the view form
+
+	initialize: function(options) {
+		options = options || {};
+		var mview = this;
+		_.defaults(options, {
+			init_formview: this.init_formview,
+			form_fieldnames: this.form_fieldnames,
+			form_trackchanges: mview.form_trackchanges,
+			form_loaddata: mview.form_loaddata,
+			events: _.clone(this.events || {}),
+		});
+		this.init_formview = options.init_formview;
+		this.form_trackchanges = options.form_trackchanges;
+		this.form_fieldnames = options.form_fieldnames;
+		this.form_loaddata = options.form_loaddata;
+		this.events = options.events;
+		if (this.init_formview) this.initView();
+	},
+
+	initView: function() {
+		// Load data, initialize track changes, delegate events
+		if (this.form_loaddata) this.loadFormData();
+		if (this.form_trackchanges) this.initTrackChanges();
+		// Apply events hash
+		this.delegateEvents(this.events);
+	},
+
+	getFieldInput: function(fieldname) { return this.$('[name='+fieldname+']'); },
+
+	loadFormData: function() {
+		// Copy form field data to the model. Checks to make sure that a non-default,
+		// form value is not already present
+		// @input override_data (default=false): Forcibly override the model value with
+		//	the form data, even a non-default value is present
+		var mview = this;
+		_.each(mview.form_fieldnames, function(fieldname){
+			var fcontrol = mview.getFieldInput(fieldname);
+			if (fcontrol.length > 0) {
+				var model_fieldname = fcontrol.attr(GuruLabs.api.attr_model_fieldname) || fieldname;
+				mview.model.attributes[model_fieldname] = mview.getFieldInput(fieldname).val();
+				mview.trigger('form:field:load', fieldname, model_fieldname, fcontrol);
+			}
+		});
+	},
+
+	initTrackChanges: function() {
+		var mview = this;
+		_.each(mview.form_fieldnames, function(fieldname){
+			mview.trackFormChange(fieldname, mview.getFieldInput(fieldname));
+		});
+	},
+
+	trackFormChange: function(fieldname, fcontrol, options) {
+		// Track form field changes changes 
+		
+		// @input fieldname (string): Model field name to which changes should be written
+		// @input fcontrol (jQuery element): Form field which should be watched for changes
+		
+		//	@option view_events (bool, default=true): Toggles how the view should track form
+		//		changes. When true, element events (specified in the track_events option)
+		//		will be added to the form event hash. When false, jQuery events will be used.
+		//	@option events (list, ['change']): A list of element events for which the view should 
+		//		listen for changes.
+		//	@option update_element (bool, default=true): Updates the element value when the underlying
+		//		model changes. (Providing the second half of data binding for the form.)
+		//	@option populate_defaults (bool, default=true): Toggles whether a value should be taken from another
+		//		model field to provide a default value. (Only applies to those fields with a `model-default` attribute).
+		//		 The default values are populated in response to the 'form:defaults:populate' signal.
+
+		options = options || {};
+		_.defaults(options, {
+			view_events: true, 
+			events: ['change',], 
+			update_element: true,
+			populate_defaults: true,
+		});
+		var mview = this;
+		if (fcontrol.length) {	// Ensure valid form control
+
+			var model_fieldname = fcontrol.attr(GuruLabs.api.attr_model_fieldname) || fieldname;
+
+			// Provide a default value for the field from another model field (if a value is not provided)
+			if (options.populate_defaults && fcontrol.attr(GuruLabs.api.attr_model_default)) {
+				var populate_modeldefault = function() {
+					if (!mview.model.get(model_fieldname))
+						mview.model.set(model_fieldname, mview.model.get(fcontrol.attr(GuruLabs.api.attr_model_default)));
+				}
+				this.listenTo(this, 'form:defaults:populate', populate_modeldefault);
+			}
+			
+			// Compile update function for model from field
+			var event_updatemodel = function() { mview.model.set(model_fieldname, fcontrol.val()); }
+			if (options.view_events) {
+				// Attach change events directly to the view
+				_.each(options.events, function(eventname) {
+					mview.events[eventname + ' [name='+fieldname+']'] = event_updatemodel;
+				});
+			} else {
+				// Attach change events to element
+				fcontrol.on(options.events.join(' '), event_updatemodel);
+			}
+			if (options.update_element) {
+				// Update field from model
+				this.listenTo(this.model, 'change:'+model_fieldname, function() {
+					fcontrol.val(mview.model.get(model_fieldname));
+				});
+			}
+			this.trigger('form:field:track', fieldname, model_fieldname, fcontrol);
+		}
+	}, 
+
+	populateModelDefaults: function() { this.trigger('form:defaults:populate'); }
+
+});

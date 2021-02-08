@@ -1,0 +1,788 @@
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page = OakTree.Page || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page.Search = OakTree.Page.Search || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+OakTree.Page.Search.Models.AcornContentSearch = GuruLabs.Models.BaseModel.extend({
+	//	Application model used for working with site content search widgets. The AcornContentSearch
+	//	contains properties which control the display and execution of search queries with the Acorn content API.
+
+	//	@attribute term (str): Content search term. The search term is displayed in the user interface
+	//		and is the attribute modified by view interaction.
+	//	@attribute query (str): Search query submitted to the server. The search term are typically the same
+	// 		value. Keeping them as different attributes allows for the execution fo a search query
+	//		to be delayed until the search term has been completely updated.
+	//	@attribute pending (bool): Indicates that a change has been made to the search term or filter that
+	//		affects the user interface. When true, it toggles UI components into a state which
+	//		represents that a search is being executed.
+	//	@attribute inprogress (bool): Indicates that a request is currently in progress. Should only
+	//		be modified by the executeSearch method.
+	// 	@signal (results collection) 'fetch:results:prep'. Signal triggered when the model is preparing
+	//		to retrieve content search results from the API.
+	//	@signal (results collection) 'fetch:results:success'. Signal triggered when the model has
+	//		successfully retrieved content search results from the API.
+	//	@signal (results collection) 'fetch:results:error'. Signal triggered when the model has
+	//		experienced an error when retrieving content search results from the API.
+    idAttribute: 'token',
+    results_clear_delay: 50,
+    defaults:  {
+        term: undefined,
+        query: undefined,
+        pending: false,
+        error: false,
+        results: 0,
+        additional: false,
+        render_inprogress: false,
+        dialog_render_inprogress: false,
+		order_by: '',
+        ctime_filter: null,
+		mtime_filter: null,
+        filter: {},
+    },
+
+    initialize: function(attributes, options) {
+        var smodel = this;
+
+        // Set model default options
+        _.defaults(options, _.pick(this, 'results_clear_delay', ));
+        _.extend(this, _.pick(options, 'results_clear_delay', ))
+
+        this.searchurl = options.searchurl;
+
+		// Verify required components
+		if (!this.searchurl)
+			throw new Error('Unable to initialize search mode, invalid search URL');
+
+        // Initialize parent properties
+		GuruLabs.Models.BaseModel.prototype.initialize.apply(this, [attributes, options]);
+
+		// Model options
+		this.page = options.page;
+		this.results = _.isObject(options.results) ? options.results : new OakTree.Collections.OakTreePagePaginatedCollection([]);
+
+		// Search model and results collection state management
+		this.listenTo(this, 'search:execute', this.executeSearch.bind(this));
+		this.listenTo(this, 'change:query', _.debounce(function(){
+			this.executeSearch();
+		}, smodel.results_clear_delay));
+
+		this.listenTo(this.results, 'fetch:results:success', function(rparams) {
+			smodel.set('page', rparams.page);
+			smodel.set('results', rparams.results || smodel.results.length);
+		});
+
+		this.listenTo(this.results, 'fetch:results:paginated:more', function() {
+			smodel.set('additional', true, { silent: true });
+			smodel.trigger('change:additional')
+		});
+		this.listenTo(this.results, 'fetch:results:paginated:last', function() {
+			smodel.set('additional', false, { silent: true });
+			smodel.trigger('change:additional');
+		});
+		this.listenTo(this.results, 'fetch:results:paginated:none', function() {
+			smodel.set('additional', false, {silent: true});
+			smodel.trigger('change:additional');
+		});
+
+		this.listenTo(this, 'change:query', _.debounce(function() {
+			// Clear results and ordering
+			smodel.results.clear();
+			smodel.set('results', 0);
+		}, this.results_clear_delay));
+		this.listenTo(this.results, 'remove', function(rmodel){ rmodel.retire(); });
+
+    },
+
+    buildSearchUrl: function(options) {
+		// Create a search URL containing the API target, search term
+		options = options || {};
+		_.defaults(options, { include_term: false });
+		options.json = options.json || this.toJSON();
+		_.defaults(options, _.pick(options.json, 'page', 'items'), { page: 1 });
+		if (!options.page) options.page = 1;
+
+		var query = _.extend(options.include_term ? _.pick(options.json, 'term') : {},
+			this.qsParams(options), _.pick(options, 'page', 'items'));
+		return this.searchurl+'?'+$.param(query);
+	},
+
+    qsParams: function(options) {
+		// Retrieve query string parameters for the search from the model
+		options = options || {};
+		options.json = options.json || this.toJSON();
+		var smodel = this;
+
+		return _.pick(_.pick(smodel.toJSON(), function(v,k) {
+			return _.contains(['order_by'], k);
+		}), _.identity);
+	},
+
+    loadMoreResults: function(options) {
+		// Load more search results, trigger associated signals to allow for update of application state
+		if(this.get('additional')) {
+			this.trigger('results:more:prep');
+			this.set('pending', true);
+			this.executeSearch({page: (this.get('page') || 0) + 1});
+			this.trigger('results:more:success');
+		}
+	},
+
+    executeSearch: function(options) {
+		// Retrieve search results from website
+		var smodel = this;
+		smodel.set('error', false);
+		smodel.set('inprogress', true);
+		// Search defaults
+		options = options || {};
+		_.defaults(options, { page: 1, items: 6 });
+
+		// Send search query and process results
+		if (smodel.get('query') && smodel.searchurl) {
+			smodel.results.trigger('fetch:results:prep', _.pick(options, 'page', 'items'));
+
+			// Mark search s pending, send query
+			GuruLabs.postJSON({
+				url: smodel.buildSearchUrl(_.pick(options, 'page', 'items')),
+				data: JSON.stringify({ term: smodel.get('query') }),
+				success: function(sdata, tstatus, jqxhr) {
+
+					// Retrieve page data
+					var pdata = GuruLabs.getPaginationData(jqxhr);
+					GuruLabs.parsePaginationData(smodel.results, sdata, pdata, {
+						paginated_fetch_signalname: 'fetch:results:paginated',
+					});
+
+					// Add new search results to the collection
+					smodel.results.set(_.isArray(sdata) ? sdata : [], { merge: true, remove: false, parse: true });
+
+					smodel.results.trigger('fetch:results:success', {
+						page: options.page,
+						items: sdata.length < options.items ? sdata.length : options.items,
+						results: pdata ? pdata[GuruLabs.api.pagination.result_total] : undefined,
+						ids: _.pluck(sdata, smodel.results.model.prototype.idAttribute),
+					});
+				},
+				error: function(jqxhr, tstatus, err) {
+					smodel.results.trigger('fetch:results:error', _.pick);
+					smodel.set('error', true);
+				},
+				always: function() {
+					smodel.set('pending', false);
+					smodel.set('inprogress', false);
+				}
+			});
+		}
+	},
+});
+
+
+
+OakTree.Page.Search.AcornSearchRouter = Backbone.Router.extend({
+	// Router class which manges URL based loading of the search dialolg
+
+	initialize: function(options) {
+		options = options || {};
+		var router = this;
+
+		this.view = options.view;
+
+		if (!this.view)
+			throw new Error('Unable to initialize search router, invalid search view reference');
+
+		// Update the search URL model
+		this.listenTo(this.view.model, 'search:url', function(url, options) {
+			options = options || {};
+			_.defaults(options, { replace: false });
+			router.navigate(url, options);
+		});
+	},
+
+	search: function(qs) {
+		// Read query and other parameters from the URL and use those to execute a content search
+		var router = this;
+		var execute_search = false;
+
+		// Convert query to term and filter for comparison to active term.
+		var query = GuruLabs.qs2object(qs);
+
+		// Update the query term
+		if (query.term && query.term != router.view.model.get('term')) {
+
+			// Update the search term (which is shown in the UI) and the query (which is sent to the server)
+			router.view.model.set('term', query.term);
+			router.view.model.set('query', query.term, { silent: true });
+			execute_search = true;
+		}
+
+		// Apply the changes and update the search components
+		if (execute_search) {
+			var router_execsearch_postops = function() {
+				// Check the state of the model, search view, and results dialog after
+				// retrieving results. If additional pages pending, retrieve those results.
+				// Determine the currently active pagination. If the active pagination is less than the
+				// loaded pagination, fetch additional data
+				if (query.page && query.page > (router.view.model.get('page') || 0)) {
+					router.view.listenToOnce(
+						router.view.model.results, 'fetch:results:success', router_execsearch_postops);
+					router.view.model.loadMoreResults();
+				}
+			}
+			router.view.listenToOnce(
+				router.view.model.results, 'fetch:results:success', router_execsearch_postops);
+
+			router.view.model.set('pending', true);
+			router.view.model.results.clear();
+			router.view.model.trigger('search:execute');
+		}
+
+		// Check the active dialog state, show the results dialog if not currently visible
+		if (!router.view.results_dialog && !$.magnificPopup.instance.isOpen)
+			router.view.showResultsDialog();
+	},
+});
+
+
+OakTree.Page.Search.Views.AcornSearchComputedProperties = {
+	// Computed properites that can be incorporated into a data bound view to provide
+	// binding for search results status, visibility toggles, and other convenience
+	// methods that should be determined by the underlying state of the search query.
+	// Should be added to existing view binding properties using _.extend.
+
+	search_visible: {
+		// Returns true if the search text container should be visible. The search text
+		// container is visible if a search is being executed or if results are being displayed
+		deps: ['term', 'query'],
+		get: function() {
+			return this.getBinding('term') || this.getBinding('query');
+		},
+	},
+
+	results_pending: {
+		deps: ['term', 'pending'],
+		get: function() {
+			// Returns true if the search status text should be visible as the results of the
+			// query are still visible.
+			return this.getBinding('term') && this.getBinding('pending') == true;
+		}
+	},
+
+	results_available: {
+		// Returns true if search results have been retrieved from the web application
+		deps: ['term', 'pending', 'error', 'results'],
+		get: function() {
+			return this.getBinding('term') && this.getBinding('pending') == false && !this.getBinding('error');
+		}
+	},
+
+	results_visible: {
+		// Returns true if search results were returned from the web application and
+		// have been added to the model's results collection.
+		deps: ['term', 'pending', 'error', 'results'],
+		get: function() {
+			return this.getBinding('results_available') && (this.getBinding('results') || 0) > 0;
+		}
+	},
+
+	results_empty: {
+		// Returns true if search resutls were returned from the web application and
+		// have been added to the results collection, but the result set was empty.
+		deps: ['term', 'pending', 'error', 'results'],
+		get: function() {
+			return this.getBinding('results_available') && this.getBinding('results') == 0;
+		},
+	},
+
+}
+
+
+OakTree.Page.Search.Views.AcornContentSearchViewMixin = OakTree.Views.BaseDataBoundModelView.extend({
+
+	search_selector: 'input.search',
+
+	search_update_delay: 1000,
+
+	search_submit_selector: 'input.search-submit',
+	search_results_selector: '.search-results',
+	results_showall_selector: '.search-results-all',
+	init_view: true,
+
+	initialize: function(options) {
+        // Populate defaults for view, apply to view instance, initialize
+        var sview = this;
+
+        _.defaults(options, _.pick(this, 'init_view', 'template_results_dialog_selector',
+            'template_search_result_selector', 'search_selector', 'search_submit_selector',
+            'search_results_selector', 'results_showall_selector', 'dialogView'));
+        _.extend(this, _.pick(options, 'init_view', 'pageview', 'dialogView', 'itemView', 'search_selector',
+            'search_submit_selector', 'search_update_delay', 'results_render_delay', 'search_results_selector',
+            'results_limit', 'template_results_dialog_selector', 'template_search_result_selector',
+            'template_filter_label_selector', 'results_showall_selector'));
+
+
+        this.events = this.events || {};
+
+		// Initialize parent defaults and properties
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, options);
+    },
+
+	initView: function() {
+		var sview = this;
+
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+
+        this.$search_input = this.$el.find(this.search_selector);
+		this.$search_submit = this.$el.find(this.search_submit_selector);
+		this.$search_results = this.$el.find(this.search_results_selector);
+		this.$results_showall = this.$el.find(this.results_showall_selector);
+
+		// Clear search input if it includes data
+		if (this.$search_input.val()) this.$search_input.val('');
+
+		this.$el.find(this.search_selector).each(function() {
+            var control = $(this);
+		    if('horsey' in window && sview.$el.attr(GuruLabs.api.autocomplete_suggestions_url)) {
+		       // Initialize autocomplete options
+                var hauto = horsey(this, {
+                	autoHideOnScroll: true,
+					autoHideOnScrollEl: $.magnificPopup.instance.isOpen ? $.magnificPopup.instance.wrap[0] : '',
+                	// Append horsey only in case if it connected with title bar
+					containerMaxWidth: sview.$el.hasClass('sidebar-search') ? (sview.$search_input.width() +
+						+ parseInt(sview.$search_input.css('padding-right')) +
+						+ parseInt(sview.$search_input.css('padding-left'))): '',
+                	appendTo: (!sview.$el.hasClass('sidebar-search') && !$.magnificPopup.instance.isOpen) ? sview.$el[0] : '',
+                    source: function(data, done) {
+                        // Request autocomplete suggestions from Acorn
+                        GuruLabs.postJSON({
+                            url: sview.$el.attr(GuruLabs.api.autocomplete_suggestions_url),
+                            data: JSON.stringify({ term: data.input }),
+                            success: function(sdata) { done(null, [{ list: sdata }]); },
+							error: function(jqxhr, tstatus, err) { done(null, [{ list: []}]); },
+                        });
+                    },
+                    predictNextSearch(info) {
+                        // Refresh the search term and query on change to the search input
+                        // Reset and clear any current errors
+                        sview.model.set('error', false);
+
+                        // Retrieve currently active term and udpated search term
+                        var aterm = sview.model.get('term');
+                        var sterm = sview.$search_input.val() || undefined;
+
+                        // Update model state
+                        sview.model.set('pending', !!sterm);
+                        sview.model.set('term', sterm || undefined);
+                        sview.updateSearch();
+                    }
+               });
+           }
+        });
+
+
+		// Update events hash with dynamic selector properties, bind events
+		this.events['change '+this.search_selector] = 'updateSearch';
+
+        this.delegateEvents(this.events);
+
+		// Update the search when the user stops typing, trigger a "clear" signal
+		// if the search term is cleared from the model.
+		// this.$search_input.on('keyup',
+		// 	_.debounce(this.updateSearch.bind(this), this.search_update_delay));
+		this.listenTo(this.model, 'change:term', _.debounce(function() {
+			if (!sview.model.get('term')) sview.trigger('term:clear');
+			sview.model.set('page', 0);
+		}), this.results_render_delay);
+	},
+
+
+	updateSearch: function(options) {
+		// Update search parameters
+		options = options || {};
+		_.defaults(options, {
+			term: this.$search_input.val() || undefined
+		});
+		// Update the query value with the input value, trigger appropriate changes.
+		// If force = true, silently update and manually trigger the change event.
+		this.model.set('query', options.term);
+		this.model.set('term', options.term);
+	},
+});
+
+
+OakTree.Page.Search.Views.AcornSearchItemView = OakTree.Views.BaseDataBoundModelView.extend({
+	// Content item view which allows for data binding
+
+	bindings: 'data-bind',
+	init_view: true,
+
+	initialize: function(options) {
+		options = options || {};
+
+		// View defaults and options
+		_.defaults(options, _.pick(this, 'init_view'));
+		_.extend(this, _.pick(options, 'init_view'));
+
+		// Initialize parent components
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+		// Model/view event handlers
+		this.listenTo(this.model, 'destroy', this.remove.bind(this));
+
+		// Initialize view DOM elements
+		if (this.init_view) this.initView();
+	},
+
+	initView: function() {
+		// Initialize DOM components of content
+		var cview = this;
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+	},
+
+	remove: function() {
+		this.trigger('remove:prep');
+		OakTree.Views.BaseDataBoundModelView.prototype.remove.apply(this, arguments);
+	},
+
+	bindingFilters: _.extend({}, OakTree.Views.CoreDataBindingFilters),
+});
+
+
+OakTree.Page.Search.Views.AcornContentSearchDialogView = OakTree.Page.Search.Views.AcornContentSearchViewMixin.extend({
+    bindings: 'results-data-bind',
+    search_results_selector: '.search-results',
+	search_selector: 'input.search',
+
+    init_view: true,
+	results_render_delay: 1,
+	results_render_ingprogress_delay: 1000,
+
+
+    initialize: function(options) {
+		// Populate defaults for view instance, initialize
+		var dview = this;
+		options = options || {};
+		_.defaults(options, _.pick(this, 'init_view', 'itemView', 'search_results_selector', 'search_selector',
+			'results_render_delay', ));
+		_.extend(this, _.pick(options, 'init_view', 'itemView', 'search_results_selector', 'search_selector',
+			'template_search_result', ));
+
+		// Initialize parent components
+		OakTree.Page.Search.Views.AcornContentSearchViewMixin.prototype.initialize.apply(this, [options]);
+
+		// Ensure required components of view are present
+		if (!_.isFunction(this.template_search_result))
+			throw new Error('Unable to initialize content results dialog, invalid search result JS template');
+
+		this.listenTo(this.model.results, 'fetch:results:success', function() {
+			// Increment the search URL, replace previous currently active URL in history
+			dview.model.trigger('search:url', dview.model.buildSearchUrl({ include_term: true }), { replace: true });
+		});
+
+
+		// Initialize view DOM components and events
+		if (this.init_view) this.initView();
+	},
+
+    initView: function() {
+        // Initialize view UI components
+		var dview = this;
+		OakTree.Page.Search.Views.AcornContentSearchViewMixin.prototype.initView.apply(this, arguments);
+
+		// View UI references
+		this.$search_results = this.$el.find(this.search_results_selector);
+
+
+		// Ensure required view components
+		if (!this.$search_results.length)
+			throw new Error('Invalid search results selector, unable to locate results container for dialog');
+
+		// Render search result views
+		this.listenTo(this.model.results, 'fetch:results:success',
+			_.debounce(this.renderSearchResults.bind(this), this.results_render_delay));
+		if (this.model.get('results')) this.renderSearchResults();
+
+		if(!this.$search_input.val() && this.model.get('term')){ this.$search_input.val(this.model.get("term"));}
+
+		// Initialize Foundation components
+		this.$el.foundation();
+
+		// update search when user press on search button
+		this.events['click '+this.search_submit_selector] = 'updateSearch';
+
+		// Show results dialog on enter
+		this.$search_input.on('keyup', function(event) {
+			// Process special keycode events such as enter and escape
+
+			if (event.keyCode == 13) { // Enter: Check status of the search model, show results
+				dview.updateSearch.bind(dview);
+			} else if (event.keyCode == 27) { // Escape: Clear search
+				dview.$search_input.val('');
+				dview.trigger('term:clear');
+			}
+		});
+
+		// Bind UI events
+		this.delegateEvents(this.events);
+
+		// Reset the current search page if the query is changed
+		this.listenTo(this.model, 'change:query', function() { dview.model.set('page', undefined); });
+
+    },
+
+    renderSearchResults: function(rparams) {
+		// Render search item views
+		rparams = rparams || {};
+
+		// For new collections, clear existing values before rendering
+		if (rparams.page == 1 || !rparams.page) this.trigger('render:clear');
+		this.trigger('render:prep');
+
+		// If collection IDs provided, render only provided items. Otherwise render entire collection.
+		var results;
+
+		if (rparams.ids) {
+			results = _.chain(this.model.results.filter(function(rmodel) {
+				return _.contains(rparams.ids, rmodel.id);
+			}));
+		} else { results = this.model.results }
+
+		results.each(this.renderItemView.bind(this));
+		this.trigger('render:success');
+	},
+
+	renderItemView: function(rmodel) {
+		// Initialize and return an item view for a search result
+		var iview = new this.itemView({
+			model: rmodel,
+			el: $(this.template_search_result(rmodel.toJSON()))
+		});
+
+		// Remove the content view when preparing to render new
+		// views or when clearing the search term
+		iview.listenTo(this, 'render:clear', iview.remove.bind(iview));
+		iview.listenTo(this, 'term:clear', iview.remove.bind(iview));
+		iview.listenTo(this, 'close:prep', iview.remove.bind(iview));
+
+		// Append to search results container
+		iview.$el.appendTo(this.$search_results);
+
+		return iview;
+	},
+
+	retrySearchQuery: function(event) {
+		// Retry search query
+		event.stopPropagation();
+		this.model.executeSearch();
+	},
+
+	loadMoreResults: function(event) {
+		// Load more search results, trigger associated signals to allow for update of application stater
+		event.stopPropagation();
+		this.model.loadMoreResults();
+	},
+
+
+    closeResultsDialog: function(e) {
+		// close results dialog when user push back button on mobile device
+		event.stopPropagation();
+		$.magnificPopup.close();
+	},
+
+	events: {
+		'click .content-search-retry': 'retrySearchQuery',
+		'click button.search-results-load': 'loadMoreResults',
+		'click .close-dialog-button': 'closeResultsDialog'
+	},
+
+	computeds: _.extend({}, {
+		dialog_results_visible: {
+			// Modified version of results visible that returns true if any search results have been loaded.
+			// This allows for dialog search results to remain visible while additional pages are retrieved.
+			deps: ['term', 'pending', 'error', 'results'],
+			get: function() {
+				return this.getBinding('term') && (this.getBinding('results') || 0) > 0;
+			},
+		},
+	}, OakTree.Page.Search.Views.AcornSearchComputedProperties),
+
+	bindingFilters: _.extend({}, OakTree.Views.CoreDataBindingFilters),
+
+});
+
+
+OakTree.Page.Search.Views.AcornContentSearchView = OakTree.Page.Search.Views.AcornContentSearchViewMixin.extend({
+    // Acorn site search view. Able to execute search queries against the Acorn page API, create a dialog view
+    // that is able to display (as well as filter) all results
+    bindings: 'search-data-bind',
+	search_selector: 'input.search',
+
+	search_update_delay: 1000,
+
+	search_submit_selector: 'input.search-submit',
+	search_results_selector: '.search-results',
+	results_showall_selector: '.search-results-all',
+
+    template_results_dialog_selector: '.template-results-dialog',
+	template_search_result_selector: '.template-search-result',
+
+    dialogView: OakTree.Page.Search.Views.AcornContentSearchDialogView,
+    itemView: OakTree.Page.Search.Views.AcornSearchItemView,
+
+    init_view: true,
+
+    initialize: function(options) {
+        // Populate defaults for view, apply to view instance, initialize
+        var sview = this;
+
+        _.defaults(options, _.pick(this, 'init_view', 'template_results_dialog_selector',
+            'template_search_result_selector', 'search_selector', 'search_submit_selector',
+            'search_results_selector', 'results_showall_selector', 'dialogView'));
+        _.extend(this, _.pick(options, 'init_view', 'pageview', 'dialogView', 'itemView', 'search_selector',
+            'search_submit_selector', 'search_update_delay', 'results_render_delay', 'search_results_selector',
+            'results_limit', 'template_results_dialog_selector', 'template_search_result_selector',
+            'template_filter_label_selector', 'results_showall_selector'));
+
+
+        this.events = this.events || {};
+
+		// Initialize parent defaults and properties
+		OakTree.Page.Search.Views.AcornContentSearchViewMixin.prototype.initialize.apply(this, options);
+
+		// Ensure that required components are present
+		if (!this.pageview)
+			throw new Error('Unable to initialize search view, invalid pageview reference');
+
+		// Initialize view DOM components
+		if (this.init_view) this.initView();
+
+    },
+
+    initView: function() {
+        // Initialize acorn site content search
+        var sview = this;
+
+
+        // Compile search result template
+		var $template_search_result = this.$el.find(this.template_search_result_selector);
+		if (!$template_search_result.length)
+			throw new Error('Unable to initialize content search view, invalid search result item '
+				+ 'template selector string');
+		this.template_search_result = _.template($template_search_result.text(), { variable: 'data' });
+
+
+        // Compile search dialog template
+		var $template_results_dialog = this.$el.find(this.template_results_dialog_selector);
+		if (!$template_results_dialog.length)
+			throw new Error('Unable to initialize content search view, invalid results dialog '
+				+ 'selector string');
+		this.template_results_dialog = _.template($template_results_dialog.text(), { variable: 'data' });
+
+		OakTree.Page.Search.Views.AcornContentSearchViewMixin.prototype.initView.apply(this, arguments);
+
+		 var searchui_status_check = _.debounce(function() {
+			// Check the status the search request, if not in progress clear pending flag.
+			// This fixes an issue with results being hidden to key events that do not change
+			// the search term.
+			if (_.isBoolean(sview.model.get('inprogress')) && sview.model.get('pending') && !sview.model.get('inprogress')) {
+				sview.model.set('pending', false);
+			}
+		}, sview.results_render_delay);
+
+		// Show results dialog on enter
+		this.$search_input.on('keyup', function(event){
+			// Process special keycode events such as enter and escape
+
+			if (event.keyCode == 13) { // Enter: Check status of the search model, show results
+				sview.showResultsDialog();
+			} else if (event.keyCode == 27) { // Escape: Clear search
+				sview.$search_input.val('');
+				sview.trigger('term:clear');
+			}
+			_.delay(searchui_status_check, sview.search_update_delay);
+		});
+
+		// Initialize view routes
+		this.initRouter();
+    },
+
+    initRouter: function() {
+		// Initialize the router instance for the search view
+		var sview = this;
+
+		// Create router instance which will respond to routes for the search view
+		var routes = {}
+		routes[this.model.searchurl.replace('/', '')+'?*qs'] = 'search';
+		var rclass = OakTree.Page.Search.AcornSearchRouter.extend({
+			routes: _.extend(routes,
+				OakTree.Page.Search.AcornSearchRouter.prototype.routes || {}),
+		});
+
+		// Initialize router instance
+		this.router = new rclass({ view: this });
+	},
+
+    initResultsDialog: function() {
+		// Initialize results dialog view
+
+		return new this.dialogView(_.extend(
+			_.pick(this, 'template_search_result', 'results_render_delay'), {
+				model: this.model,
+				el: $(this.template_results_dialog(this.model.toJSON())),
+				init_view: false,
+				itemView: this.itemView,
+			}));
+	},
+
+
+    showResultsDialog: function() {
+		// Show the search (all) results dialog
+		var sview = this;
+
+		if (this.model.get('term')) {
+
+			// Add client side search URL, initialize results dialog
+			this.model.trigger('search:url', this.model.buildSearchUrl({ include_term: true }));
+			this.results_dialog = this.initResultsDialog();
+
+			// Open and show the dialog
+			$.magnificPopup.open({
+				items: { src: this.results_dialog.$el },
+				type: 'inline',
+				callbacks: {
+					beforeOpen: function() {
+						// Trigger open handler events, remove dialog element/view on successful close
+						sview.results_dialog.model.trigger('results:dialog:open:prep', sview.results_dialog);
+						sview.results_dialog.trigger('open:prep');
+						sview.results_dialog.listenTo(
+							sview.results_dialog, 'close:success', sview.results_dialog.remove.bind(sview.results_dialog));
+
+					},
+					open: function() {
+						// Initialize dialog UI and trigger signals
+						sview.results_dialog.initView();
+						sview.results_dialog.model.trigger(
+							'results:dialog:open:success', sview.results_dialog);
+						sview.results_dialog.trigger('open:success');
+					},
+					beforeClose: function() {
+
+						// Trigger close prep signals
+						sview.results_dialog.model.trigger('results:dialog:close:prep', sview.results_dialog);
+						sview.results_dialog.trigger('close:prep');
+					},
+					afterClose: function() {
+
+						// Trigger close success signals, update navigation URL
+						sview.results_dialog.model.trigger('results:dialog:close:success', sview.results_dialog);
+						sview.results_dialog.trigger('close:success');
+						sview.model.trigger('search:url', '');
+						sview.results_dialog = undefined;
+					},
+				}
+			});
+		}
+
+	},
+
+});
+
+

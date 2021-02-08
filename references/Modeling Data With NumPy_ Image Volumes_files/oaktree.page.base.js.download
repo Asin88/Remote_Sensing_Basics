@@ -1,0 +1,624 @@
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+OakTree.Page = OakTree.Page || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+// Data Form Management
+
+OakTree.Page.api = _.extend(OakTree.Page.api || {}, {
+	dataform: {
+		behavior: { required: 'r', opt_out: 'oo' }
+	},
+	Leadly: {
+		url_attr: 'href-leadly',
+		behavior_attr: 'leadly-behavior', 
+		registration: {
+			impressions_attr: 'leadly-impressions', 
+			transitions_attr: 'leadly-transitions', 
+		}
+	}
+});
+
+
+OakTree.Page.Leadly = OakTree.Page.Leadly || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+OakTree.Page.Leadly.siteRegistrationNag = function(view, siteview, options) {
+	// Prompt unauthenticated users to create an account after a configurable number of views.
+	options = options || {};
+
+	if (!siteview.$apiref || !siteview.$apiref.length)
+		throw new Error('Unable to initialize Leadly registration handlers, invalid API reference');
+
+	// Retrieve Leadly prompt URL from API reference
+	var leadly_url = siteview.$apiref.attr(OakTree.Page.api.Leadly.url_attr);
+
+	if (leadly_url) {
+
+		// Disable default route
+		siteview.router.default_route_enabled = false;
+		siteview.model.set('default_route', false);
+
+		// Retrieve the dialog behavior, impressions, and number of transitions from the API reference
+		var leadly_behavior = siteview.$apiref.attr(OakTree.Page.api.Leadly.behavior_attr);
+		var leadly_impressions = parseInt(siteview.$apiref.attr(OakTree.Page.api.Leadly.registration.impressions_attr) || 0);
+		var leadly_transitions = parseInt(siteview.$apiref.attr(OakTree.Page.api.Leadly.registration.transitions_attr) || 0);
+
+		// Initialize page model for dialog
+		var dpage = new OakTree.Models.Page({ 'query': { next: window.location.pathname } });
+
+		if (leadly_transitions < leadly_impressions && !view.siteview.getBinding('user_authenticated')) {
+
+			$.magnificPopup.open({
+				items: { src: leadly_url+'?'+$.param(dpage.get('query') || {}) },
+				type: 'ajax',
+				modal: leadly_behavior == OakTree.Page.api.dataform.behavior.required,
+				callbacks: {
+					ajaxContentAdded: function() {
+						var $dcontent = $(this.content);
+						var $dmain = $dcontent.find('main');
+						dpage.set('title', $dmain.attr('data-title'));
+						var dview = new OakTree.Page.Leadly.Views.RegistrationFormView({
+							siteview: view.siteview, model: dpage, el: $dmain,
+						});
+					},
+					afterClose: function() {
+						siteview.model.set('default_route', true);
+						siteview.router.default_route_enabled = true;
+
+						dpage.retire();
+					},
+				}
+			});
+		}
+	}
+}
+
+
+OakTree.Page.initParallax = function(el, options) {
+	// 	Iniitalize parallax containers inside the provided element
+	//	@input el (jQuery element reference): Element inside of which the Parallax containers
+	//		should be initialized
+	//	@input options (object): Hash containing the options for the containers
+	options = options || {};
+	_.defaults(options, { selector: '.jarallax' });
+
+	// Initialize Parallax scrollers
+	el.find(options.selector).jarallax(_.omit(options, 'selector'));
+}
+
+
+OakTree.Page.Views.updateViewContentCallback = function(view, options) {
+	// Create a callback function to remove a view's primary element and update it with a new content element.
+
+	//	@input view (OakTree.Page.ContentView or subclass): View for which the content should be substituted
+	options = options || {};
+
+	return function($data) {
+		// Unset events, replace the content of the view element and re-initialzie
+		view.undelegateEvents();
+		view.$el.replaceWith($data);
+		view.setElement($data);
+		view.initView();
+	}
+}
+
+
+OakTree.Page.Views.BaseContentView = OakTree.Views.BaseDataBoundModelView.extend({
+	//	Data bound view used for managing the site index content features
+
+	//	@option init_view (bool, default=true): Call initView as part of the view initialization
+
+	bindings: 'content-data-bind',
+	init_view: true,
+
+	initialize: function(options) {
+		options = options || {};
+		_.defaults(options, _.pick(this, 'init_view'));
+
+		// Initialize base data bound model properties
+		_.extend(this, _.pick(options, 'init_view', 'siteview'));
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, options);
+
+		if (this.init_view) this.initView();
+	}, 
+
+	initView: function() {
+		// Initialize view components, apply databinding
+
+		// Initialize image galleries, content sliders, and parallax
+		OakTree.initImageGalleries(this.$el);
+		OakTree.initContentSliders(this.$el);
+		OakTree.initMasonryGrid(this.$el);
+		OakTree.Page.initParallax(this.$el);
+
+		// Initialize content/page data binding
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+	}
+});
+
+
+/* Oak-Tree Site Form Views */
+
+OakTree.Page.Views.DialogBaseFormView = OakTree.Page.Views.BaseContentView.extend({
+	// Data bound view used for displaying content in a popup light box.
+	// Provides support for initializing content components and handling common site workflows.
+	// Also provides hooks for submitting AJAX content and managing responses.
+
+	form_selector: 'form',
+	init_formview: true,
+
+	initialize: function(options) {
+		options = options || {};
+		var dview = this;
+
+		// Set dialog defaults
+		_.defaults(options, _.pick(this, 'form_selector', 'init_formview'));
+		_.extend(this, _.pick(options, 'form_selector', 'init_formview'));
+
+		// Initialize parent attributes
+		OakTree.Page.Views.BaseContentView.prototype.initialize.apply(this, [options]);
+
+		// Form event handlers
+		this.listenTo(this.model, 'destroy', this.remove.bind(this));
+	},
+
+	initView: function() {
+		// Initialize dialog content components
+		OakTree.Page.Views.BaseContentView.prototype.initView.apply(this, arguments);
+
+		// Initialize form components
+		if (this.init_formview) this.initForm();
+
+		// Delgate events
+		this.delegateEvents(this.events);
+	},
+
+	events: {
+		'click input[type="submit"]': 'submitForm',
+	},
+	
+	initForm: function() {
+		// Initialize form references and methods, ensure required components
+		this.$form = this.$el.find(this.form_selector);
+
+		// Ensure required form components
+		if (!this.$form.length)
+			throw new Error('Unable to initialize dialog form view, no form element available');
+		if (!this.$form.attr('action'))
+			throw new Error('Form element does not contain a valid action URL');
+		if (!this.$form.attr('method'))
+			throw new Error('Form elemetn does not contain a method type');		
+	},
+
+	submitForm: function(event) {
+		// Submit form data and process response
+		event.preventDefault();
+		var dview = this;
+
+		// Disable the submit button to prevent double submissions
+		this.$('input[type="submit"]').attr('disabled', true);
+		
+		$.ajax({
+			url: this.$form.attr('action')+'?'+$.param(dview.model.get('query') || {}),
+			data: this.$form.serialize(),
+			method: this.$form.attr('method'),
+		}).done(function(data, tstatus, jqxhr) {
+			
+			// Determine response type, render with jQuery
+			var $data = OakTree.parseResponseType(data, tstatus, jqxhr);
+			
+			// Render content from server response, trigger signals
+			dview.init_formview = false;
+			dview.model.trigger('form:submit:complete', $data);
+			dview.model.trigger('form:submit:success', $data);
+
+		}).fail(function(jqxhr, tstatus, err){
+			
+			// Clear events, parse  new content from server, update Backbone view
+			dview.undelegateEvents();
+			var $data = $(jqxhr.responseText);
+			dview.model.trigger('form:submit:complete', $data);
+			dview.model.trigger('form:submit:error', $data);
+		});
+	}
+});
+
+
+OakTree.Page.Leadly.Views.RegistrationFormView = OakTree.Page.Views.DialogBaseFormView.extend({
+	// Data bound view used for displaying a registration message and form view in a popup.
+	// Provides methods for registring a user and updating the page session with the user 
+	// authentication information and credentials after login.
+
+	initialize: function(options) {
+		options = options || {};
+		var dview = this;
+
+		// Update the content of the form after failed submission
+		this.listenTo(this.model, 'form:submit:error', 
+			OakTree.Page.Views.updateViewContentCallback(dview));
+
+		// Update the user instance and close the dialog
+		this.listenTo(this.model, 'form:submit:success', function($data){
+			dview.siteview.model.set($data.user);
+			$.magnificPopup.close();
+		});
+
+		// Initialize parent attributes
+		OakTree.Page.Views.DialogBaseFormView.prototype.initialize.apply(this, [options]);
+	}
+});
+
+
+OakTree.Views.DataBoundModelFormView = OakTree.Views.BaseDataBoundModelView.extend({
+	// Data bound view which can be used to manage client model forms that submit
+	// their data to an API driven backend.
+	init_view: true, 
+	formerror_selector: 'small.error',
+
+	initialize: function(options) {
+		options = options || {};
+		_.defaults(options, 'init_view', 'formerror_selector');
+
+		// Initialize base data bound model properties
+		_.extend(this, _.pick(options, 'init_view', 'template_formerror', 'formerror_selector'));
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+		if (!_.isFunction(this.template_formerror))
+			throw new Error('Invalid form error template, must be a function');
+
+		// Model signals
+		this.listenTo(this.model, 'change', this.update_modified.bind(this));
+		this.listenTo(this.model, 'form:prep', this.clearFormErrors.bind(this));
+		this.listenTo(this.model, 'form:errors', this.formErrors.bind(this));
+
+		if (this.init_view) this.initView();
+	},
+
+	initView: function() {
+		// Initialize view components to interact with DOM, set model attributes related
+		// to view state.
+		this.model.set('modified', false, { silent: true });
+
+		// Initialize view components, apply databinding
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+	},
+
+	update_modified: function() {
+		// Update the model's internal 'modified' property
+		var cattrs = this.model.changedAttributes();
+		if (cattrs && _.omit(cattrs, 'modified', 'name'))
+			this.model.set('modified', true);
+	},
+
+	clearFormErrors: function() {
+		this.$el.find(this.formerror_selector).remove();
+	},
+
+	formErrors: function(ferrors) {
+		// Locate the form field associated with the errors and render the form field list
+		var fview = this;
+
+		_.each(ferrors, function(errors, fname) {
+
+			// Retrieve field for the model attribute
+			var $field = fview.$el.find('[name='+fname+']');
+			if ($field.length && errors) {
+
+				// Render error message and add to DOM
+				_.each(errors, function(e){
+					$(fview.template_formerror(e)).insertAfter($field);
+				});
+			}
+		});
+	},
+
+});
+
+
+/* Page Content */
+
+OakTree.Page.Views.ContentView = OakTree.Page.Views.BaseContentView.extend({
+	
+	initView: function() {
+		OakTree.Page.Views.BaseContentView.prototype.initView.apply(this, arguments);
+
+		// Initialize Leadly handlers
+		OakTree.Page.Leadly.siteRegistrationNag(this, this.siteview);
+	}
+});
+
+
+/* Recent Content */
+
+OakTree.Page.Models.RecentContent = OakTree.Models.ApplicationContentModel.extend({
+	// Application data model which can be used to load/display data about recently published content
+});
+
+
+OakTree.Page.Views.RecentContentView = OakTree.Views.CollectionItemRenderedBaseView.extend({
+	// Blog content view used for generating recent content lists
+	
+	tagName: 'card',
+	className: 'collection-item cell',
+	bindingFilters: _.extend({}, OakTree.Views.CoreDataBindingFilters),
+});
+
+
+OakTree.Page.Views.RecentContentCollectionView = OakTree.Views.CollectionBaseView.extend({
+	// Data bound view which can be used to manage collection data and display the results.
+	// Provides data bindings for working with DOM state based on model representation. Other methods
+	// in the view can be used to fetch data in a uniform manner on init.
+
+	itemViewPrototype: OakTree.Page.Views.RecentContentView,
+	
+	template_listitem_selector: '.template-content-summary',
+	data_selector: '.sample-data',
+
+	initialize: function(options) {
+		// Initialize view options
+		options = options || {};
+		_.defaults(options, _.pick(this, 'itemViewPrototype', 'template_listitem_selector', 'data_selector'));
+		_.extend(this, _.pick(options, 'itemViewPrototype', 'template_listitem_selector', 'data_selector'));
+
+		OakTree.Views.CollectionBaseView.prototype.initialize.apply(this, [options]);
+	},
+
+	initView: function() {
+		// Initialize DOM and UI components
+
+		// Compile JavaScript templates
+		if (!this.itemView) {
+			var $template_listitem = this.$el.find(this.template_listitem_selector);
+			if (!$template_listitem.length)
+				throw new Error('Invalid list item template selector, unable to locate source element');
+			this.template_listitem = _.template($template_listitem.text(), { variable: 'data' });
+
+			// Create list item view from prototype
+			this.itemView = this.itemViewPrototype.extend({
+				template: this.template_listitem,
+			});
+		}
+
+		// Check for pre-loaded data and load to collection (if present, avoid fetching remotely)
+		var $data = this.$el.find(this.data_selector);
+		if ($data.length) {
+			this.fetch_data = false;
+			this.collection.set(JSON.parse($data.text()), { parse: true });
+		}
+
+		// Initialize data binding for the collection
+		OakTree.Views.CollectionBaseView.prototype.initView.apply(this, arguments);
+	},
+
+	events: {
+		'click .collection-items-load': 'loadMoreResults',
+	},
+
+	dataFetchParams: function(options) {
+		// Increment the page counter on each subsequent request
+		options = options || {};
+		_.defaults(options, { page: (this.model.get('page') || 0)+1 });
+
+		return options;
+	},
+
+	collectionFetchParams: function(options) {
+		// Preserve items in the collection
+		options = options || {}
+		_.defaults(options, { remove: false, merge: true });
+
+		return options
+	},
+
+	loadMoreResults: function(e) {
+		// Load more colleciton results
+		e.preventDefault();
+		this.fetchData();
+	},
+
+	computeds: _.extend({}, OakTree.Views.CollectionListViewComputedProperties),
+});
+
+
+OakTree.Page.initRecentContentViews = function(pageview, options) {
+	// Initialize recent content collection views for a blog page
+	options = options || {}
+	_.defaults(options, {
+		selector: '.recent-content',
+		model: OakTree.Page.Models.RecentContent,
+		collection: OakTree.Collections.OakTreePaginatedCollection,
+		stateView: OakTree.Page.Views.RecentContentCollectionView,
+		url_data_attr: 'href-data',
+		name_data_attr: 'data-name',
+	});
+
+	pageview.$el.find(options.selector).each(function(){
+		var $control = $(this);
+
+		// Initialize community data model and view
+		var ciew = new options.stateView({
+
+			model: new options.model({}, { dataurl: $control.attr(options.url_data_attr )}),
+			collection: new options.collection([], {
+				name: $control.attr(options.name_data_attr),
+				dataurl: $control.attr(options.url_data_attr),
+			}),
+			pageview: pageview,
+			el: $control,
+		});
+	})
+}
+
+
+OakTree.Page.Views.FeaturedContentView = OakTree.Views.CollectionItemRenderedBaseView.extend({
+	// Blog content view used for generating recent content lists
+
+	tagName: 'div',
+	className: 'swiper-slide cell',
+	bindingFilters: _.extend({}, OakTree.Views.CoreDataBindingFilters),
+});
+
+
+OakTree.Page.Views.FeaturedContentCollectionView = OakTree.Views.CollectionBaseView.extend({
+	// Data bound view which can be used to manage collection data and display the results.
+	// Provides data bindings for working with DOM state based on model representation. Other methods
+	// in the view can be used to fetch data in a uniform manner on init.
+
+	itemViewPrototype: OakTree.Page.Views.FeaturedContentView,
+
+	template_listitem_selector: '.template-featured-content-item',
+	data_selector: '.sample-data',
+
+	initialize: function(options) {
+		// Initialize view options
+		options = options || {};
+
+		_.defaults(options, _.pick(this, 'itemViewPrototype', 'template_listitem_selector', 'data_selector'));
+		_.extend(this, _.pick(options, 'itemViewPrototype', 'template_listitem_selector', 'data_selector'));
+
+		OakTree.Views.CollectionBaseView.prototype.initialize.apply(this, [options]);
+	},
+
+	initView: function() {
+		// Initialize DOM and UI components
+
+		// Compile JavaScript templates
+		var $template_listitem = this.$el.find(this.template_listitem_selector);
+		if (!$template_listitem.length)
+			throw new Error('Invalid list item template selector, unable to locate source element');
+		this.template_listitem = _.template($template_listitem.text(), { variable: 'data' });
+
+		// Create list item view from prototype
+		this.itemView = this.itemViewPrototype.extend({
+			template: this.template_listitem,
+		});
+
+		// Check for pre-loaded data and load to collection (if present, avoid fetching remotely)
+		var $data = this.$el.find(this.data_selector);
+		if ($data.length) {
+			this.fetch_data = false;
+			this.collection.set(JSON.parse($data.text()), { parse: true });
+		}
+
+		// Initialize data binding for the collection
+		OakTree.Views.CollectionBaseView.prototype.initView.apply(this, arguments);
+
+		// Initialize swiper when content card will rendered
+		this.$swiper = this.$el.find('.swiper-container');
+        if (!this.$swiper.length)
+        	throw new Error('Unable to find valid swiper container for featured content slider');
+        var cview = this;
+
+		setTimeout(function(){
+			var mySwiper = new Swiper ('.swiper-container', {
+	 			// Optional parameters
+   	 			loop: true,
+
+    			// Navigation arrows
+    			navigation: {
+					nextEl: '.swiper-button-next',
+      				prevEl: '.swiper-button-prev',
+    			},
+  			});
+		}, 1000);
+
+	},
+
+	computeds: _.extend({}, OakTree.Views.CollectionListViewComputedProperties),
+});
+
+
+OakTree.Page.initFeaturedContentViews = function(pageview, options) {
+	// Initialize featured content collection views for a blog page
+	options = options = {};
+	_.defaults(options, {
+		selector: '.featured-content',
+		model: OakTree.Page.Models.RecentContent,
+		collection: OakTree.Collections.OakTreePaginatedCollection,
+		stateView: OakTree.Page.Views.FeaturedContentCollectionView,
+		url_data_attr: 'href-data',
+		name_data_attr: 'data-name'
+	});
+
+	pageview.$el.find(options.selector).each(function() {
+		var $control = $(this);
+		//initialize content data model and view
+
+		var cview = new options.stateView({
+
+			model: new options.model({}, { dataurl: $control.attr(options.url_data_attr)}),
+			collection: new options.collection([], {
+				name: $control.attr(options.name_data_attr),
+				dataurl: $control.attr(options.url_data_attr),
+			}),
+			pageview: pageview,
+			el: $control
+		});
+	});
+};
+
+
+OakTree.Page.Views.ToolbarSavedView = OakTree.Views.BaseDataBoundModelView.extend({
+    // Toolbar view which allows for toggling the saved statis of a property
+
+    bindings: 'toolbar-saved-data-bind',
+    comment_id: undefined,
+    label_saved_selector: '.label-saved',
+
+    initialize: function(options) {
+        options = options || {};
+        // Set options for the view
+        _.defaults(options, _.pick(this, 'label_saved_selector'));
+        _.extend(this, _.pick(options, 'label_saved_selector'));
+
+        this.events = this.events || {};
+
+        OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+        this.initView();
+    },
+
+    initView: function() {
+        // Initialize UI components and DOM interaction
+
+        // DOM UI references
+        this.$label_saved = this.$el.find(this.label_saved_selector);
+        if (!this.$label_saved.length)
+            throw new Error('Unable to initialize saved comment view, invalid saved label reference');
+
+        // Initialize data binding
+        OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+
+        // Delegate DOM events
+        this.events['click .toolbar-save'] = 'saveToggle';
+
+        this.delegateEvents(this.events);
+
+    },
+
+    saveToggle: function(event) {
+        // if saved call remove trigger else add
+        this.model.get('saved') ? this.model.trigger('toolbar:event:save:remove') : this.model.trigger('toolbar:event:save:add');
+    },
+
+    computeds: {
+		saved_count_label: function() {
+			// Computed property that return a context appropriate label based on value of the `saved_count` property.
+			return this.getBinding('saved_count') ? this.getBinding('saved_count') : '';
+		},
+
+        not_saved: function(){
+            //  Computed property that serves as a boolean flag opposite the  model `saved` property.
+            //  Returns false if 'saved' is true
+            return this.getBinding('saved') ? false : true;
+        },
+
+        label_saved: function() {
+            //  Computed property that returns a context appropriate label based on the value
+            //  of the 'saved' property. 'Save' if 'saved' is false, 'Saved' if 'saved is true.
+            return this.getBinding('saved') ?
+                this.$label_saved.attr('data-label-saved') : this.$label_saved.attr('data-label-not-saved');
+        }
+    },
+
+});

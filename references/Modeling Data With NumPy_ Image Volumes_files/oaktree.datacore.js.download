@@ -1,0 +1,159 @@
+// Core data models for Oak-Tree frontend applications
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+
+// API codes for core data models
+OakTree.api = _.extend(OakTree.api || {}, {
+	
+	// HTML URL attributes
+	title_attr: 'data-title',
+	settingsurl: 'href-settings',
+	settingsurl_json: 'href-settings-json',
+	detailsurl: 'href-details',
+
+	// HTML auth attributes
+	auth_username_attr: 'auth-username',
+	auth_email_attr: 'auth-email',
+	auth_displayname_attr: 'auth-name',
+	auth_firstname_attr: 'auth-first-name',
+	auth_lastname_attr: 'auth-last-name',
+	auth_phone_attr: 'auth-phone',
+	auth_avatar_attr: 'auth-avatar',
+	auth_address1_attr: 'auth-address1',
+	auth_address2_attr: 'auth-address2',
+	auth_city_attr: 'auth-city',
+	auth_zipcode_attr: 'auth-zipcode',
+	auth_country_attr: 'auth-country',
+
+	auth_username_anon: 'anon',	
+
+	// HTML dataform attributes
+	dataform_url_attr: 'data-formurl',
+	dataform_behavior_attr: 'data-form-behavior',
+	saveurl: 'href-save-create',
+});
+
+
+OakTree.Models.User = GuruLabs.Models.BaseModel.extend({
+	// Oak-Tree user model
+	
+	idAttribute: 'username',
+	
+	initialize: function(attributes, options) {
+		// Initialize model
+
+		options = options || {};
+		_.defaults(options, _.pick(this, 'idAttribute'));
+		this.idAttribute = options.idAttribute;
+
+		GuruLabs.Models.BaseModel.prototype.initialize.apply(this, [attributes, options]);
+	}
+});
+
+
+OakTree.Models.Page = GuruLabs.Models.BaseModel.extend({
+	// Page model
+
+	initialize: function(attributes, options) {
+		options = options || {};
+
+		// MOdel options and attributes
+		_.extend(this, _.pick(options, 'dataform_url', 'dataform_behavior'))
+	},
+});
+
+
+OakTree.Models.SavedPage = OakTree.Models.Page.extend({
+    idAttribute: 'token',
+	dataname: undefined,
+
+	initialize: function(attributes, options) {
+		options = options || {};
+
+		_.extend(this, _.pick(options, 'dataname'));
+
+		OakTree.Models.Page.prototype.initialize.apply(this, [attributes, options]);
+
+		GuruLabs.createTrackedObjectProperty(this, 'saveurl', { signalname: 'url:save'});
+		this.saveurl = options.saveurl;
+
+		if(!this.dataname) {
+        	throw new Error('Unable to initialize saved page view, dataname is required attribute');
+		}
+		this.listenTo(this, 'toolbar:event:save:add', _.debounce(this.createSaved.bind(this)));
+		this.listenTo(this, 'toolbar:event:save:remove', _.debounce(this.removeSaved.bind(this)));
+	},
+
+    removeSaved: function() {
+        // remove comment from saved by user
+        var smodel = this;
+        $.ajax({
+            url: this.saveurl + '/' + this.id,
+            type: 'DELETE',
+            success: function(data) {
+                smodel.set('saved', false);
+                if (smodel.get('saved_count') !== undefined) {
+					smodel.set('saved_count', smodel.get('saved_count') - 1);
+				}
+                smodel.trigger('save:remove:success');
+            }
+        });
+
+    },
+
+    createSaved: function() {
+        // add comment to saved by user
+        var smodel = this;
+
+        var data = {};
+
+        data[this.dataname] = this.id;
+
+        GuruLabs.postJSON({
+            url: this.saveurl,
+            data: JSON.stringify(data),
+            success: function(data) {
+				smodel.set('saved', true);
+				if (smodel.get('saved_count') !== undefined) {
+					smodel.set('saved_count', smodel.get('saved_count') + 1);
+				}
+                smodel.trigger('save:add:success');
+            }
+        });
+    },
+});
+
+OakTree.Models.SavedContentCollectionItemModel = OakTree.Models.SavedPage.extend({
+	dataname: 'page',
+
+	initialize: function(attributes, options) {
+		options = options || {};
+		_.extend(options, _.pick(this, 'dataname'));
+
+		if(options.id) this.id = options.id;
+
+		OakTree.Models.SavedPage.prototype.initialize.apply(this, [attributes, options]);
+		OakTree.Models.CollectionItemBaseModel.prototype.initialize.apply(this, [attributes, options]);
+	},
+
+	parse: function(sresponse, options) {
+		var attributes = OakTree.Models.CollectionItemBaseModel.prototype.parse.apply(this, [sresponse, options]);
+
+		if (_.isUndefined(attributes.saved)) attributes.saved = false;
+		if (_.isUndefined(attributes.saved_count)) attributes.saved_count = 0;
+
+		if(sresponse[OakTree.api.saveurl]) {
+			options.saveurl = sresponse[OakTree.api.saveurl];
+		}
+
+		options.id = attributes.id;
+
+		return attributes;
+	},
+
+	toJson: function() {
+		return OakTree.Models.CollectionItemBaseModel.prototype.toJson.apply(this, []);
+	}
+
+});
+

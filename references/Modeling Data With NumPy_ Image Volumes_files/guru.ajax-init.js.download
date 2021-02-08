@@ -1,0 +1,29 @@
+// Retrieve CSRF Token for Ajax Requests
+var csrftoken = $.cookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function getParameterByName(name) {
+	var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+// Setup Ajax Requests to add the CSRF token to the headers
+$.ajaxSetup({
+    crossDomain: false, 
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+// Convenience method for setting cookies
+function setPrefCookie(cookie_name, cookie_value) {
+    var edate = new Date();
+    edate.setTime(edate.getTime() + (30*24*60*60*1000)); // Expire in 30 days
+    $.cookie(cookie_name, cookie_value, {expires: edate});
+}

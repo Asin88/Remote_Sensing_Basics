@@ -1,0 +1,825 @@
+// Oak-Tree Base Helper methods, models, and collections
+// Requires: Oak-Tree Datacore
+var OakTree = OakTree || _.clone(GuruLabs.namespace_structure, { deep: true });
+var s = s || {};
+if (s) _.mixin(s.exports());
+
+OakTree.api = _.extend(OakTree.api || {}, {
+	datetime: {
+		month_names_short: {
+			1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun', 
+			7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec',
+		},
+		month_names_long: {
+			1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 
+			7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December',
+		}
+	}
+})
+
+
+OakTree.elementFromDomEvent = function(event, options) {
+	// Retrieve an element from a DOM event
+	//	@input event (DOM event): Event from which the element should be retrieved
+	//	@input options (object): Objects hash
+	//	@option selector (str): Optional selector string which can be used to determine if the event.target
+	//		is the desired control via conrol.is. If not, the selector is used to try and locate the control
+	//		via the jQUery control.parents method.
+	options = options || {};
+	var control = $(event.target);
+	if (options.selector) {
+		if (!control.is(options.selector)) control = control.parents(options.selector);
+		if (control.length == 0)
+			throw new Error('elementFromDomEvent: Unable to locate the desired element for ' + options.selector);
+	}
+	return control;
+}
+
+
+OakTree.urlFromDomEvent = function(event, options) {
+	// 	Helper method which can be used for retrieving a URL from a DOM element.
+
+	//	@input event (DOM event): Event associated with the operation
+	//	@input options (options hash): Options associated with the operation
+
+	//	@option url_attr (str, default='href'): Element attribute from which the model URL should be copied.
+	//	@option selector (str): Optional selector string which can be used to determine if the event.target is
+	//		the desired control via control.is. If not, the selector is used to try and locate the control
+	//		via the jQuery control.parents method.
+	options = options || {};
+	_.defaults(options, { url_attr: 'href' });
+	var control = OakTree.elementFromDomEvent(event, options);
+	if (control.attr(options.url_attr)) {
+		return control.attr(options.url_attr)
+	} else 
+		throw new Error('Unable to retrieve URL from event, target element does not contain'
+			+ 'a valid '+options.url_attr+' property');
+}
+
+
+OakTree.parseResponseType = function(data, tstatus, jqxhr) {
+	// 	Parse the provided response data to an appropirate type. HTML content is subsequently
+	//	rendered with jQuery.
+	var $data;
+
+	// Determine response type, render with jQuery
+	var ct = jqxhr.getResponseHeader('content-type') || '';
+	if (ct.indexOf('html') > -1) $data = $(data);
+	else if (ct.indexOf('json') && _.isString(data)) $data = JSON.parse(data);
+	else if (ct.indexOf('json') && _.isObject(data)) $data = data;
+
+	return $data;
+}
+
+
+OakTree.Views.BaseModelView = GuruLabs.Views.BaseModelView.extend({
+	//	Backbone.js view used as the foundation of OakTree views. Includes an enhanced render
+	//	method which checks for an initView function, and invokes it if present.
+	
+	render: function() {
+		// Render view HTML, initialize the view
+		GuruLabs.Views.BaseModelView.prototype.render.apply(this, arguments);
+		if (_.isFunction(this.initView)) this.initView();
+		return this;
+	},
+});
+
+
+OakTree.Views.CoreDataBindingFilters = {
+	// Binding filters commonly used in DataBoundModelViews
+	
+	display_dollars: function(val) {
+		// Formats the provided value to a currency string using the current system locale
+		return val ? GuruLabs.label_dollars(val) : '&mdash;';
+	},
+
+	display_thousands_indicator: function(val) {
+		// Formats the provided value to a string with culturally appropriate thousdans and decimal indicator
+		var d = Number(val.toFixed());
+		return d.toLocaleString();
+	},
+
+	display_whole_number: function(val) {
+		// Rounds the provided value to a whole number
+		return _.isNumber(val) ? val.toFixed(0) : null;
+	},
+
+	display_month_short: function(val) {
+		// Return the short month name for the provided date (if the object is a date), otherwise
+		// it returns the value.
+		return _.isDate(val) ? OakTree.api.datetime.month_names_short[val.getMonth()] : val;
+	},
+
+	display_month_long: function(val) {
+		// Return the long month name for the provided date (if the object is a date), otherwise
+		// it returns the value.
+		return _.isDate(val) ? OakTree.api.datetime.month_names_long[val.getMonth()] : val;
+	},
+
+	display_day: function(val) {
+		// Retrieve the day of the month from the provided date, otherwise it returns the value.
+		return _.isDate(val) ? val.getDate() : val;
+	},
+
+	display_date: function(val) {
+		// Display the date in the standard Oak-Tree format
+		return _.isDate(val) ? val.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : val;
+	},
+}
+
+
+OakTree.Views.BaseDataBoundModelView = OakTree.Views.BaseModelView.extend({
+	//	Epoxy.js view which can be used for setting up two-way model/view data bindings.
+	//	@property bindings (default='data-bind')	: Selector used to locate and apply data
+	//		bindings for the view
+	//	@property init_databinding (bool, default=true)
+	bindings: 'data-bind',
+	init_databinding: true,
+	
+	initialize: function(options) {
+		// Initialize view options and properties
+		options = options || {};
+		_.defaults(options, _.pick(this, 'bindings', 'init_databinding'));
+		this.bindings = options.bindings;
+		this.init_databinding = options.init_databinding;
+
+		// View events
+		if (this.model)
+			this.listenTo(this.model, 'destroy', this.removeBindings.bind(this));		// Remove bindings on model destruction
+	},
+
+	initView: function() {
+		// Initialize data binding for the view
+		if (this.init_databinding) this.applyBindings();
+	},
+
+	bindingHandlers: {
+		multiselectCheckbox: {
+			// Track changes to a set of checkbox controls, aggregate the respective values
+			// into a single array and set the resulting array as a model property.
+			
+			init: function($element, value, context, bindings) {
+				var binding = this;
+
+				// Initialize event handling for checkboxes that are children of
+				// of the bound element
+				this.$el.on('change', '*', function(event) {
+					event.stopPropagation();
+					binding.$el.trigger(binding.evt);
+				});
+			},
+
+			set: function($element, value) {
+				// Set the values of the checkboxes managed by the handler upon model change
+
+				if (_.isArray(value)) {
+					
+					// Retrieve currently selected checkbox values
+					cvalue = $element.find('input:checkbox:checked').map(function(){
+						return $(this).val();
+					}).get();
+
+					// Uncheck selected boxes that are no longer included in the value list
+					_.each(_.difference(cvalue, value), function(v) {
+						$element.find(':checkbox[value="'+v+'"]').prop('checked', false);
+					});
+
+					// Loop through checkbox controls in the multi-select and ensure that the
+					// the checkbox is selected if the value is present in the array
+					_.each(value, function(v) {
+						$element.find(':checkbox[value="'+v+'"]').prop('checked', true);
+					});
+				}
+			},
+
+			get: function($element, currentValue, event) {
+				// Retrieve the values of all currently checked checkboxes
+				return $element.find('input:checkbox:checked').map(function(){
+						return $(this).val();
+					}).get();
+			},
+		}
+	}
+});
+Backbone.Epoxy.View.mixin(OakTree.Views.BaseDataBoundModelView.prototype);
+
+
+/* Content and Content Collection Views */
+
+OakTree.Models.ApplicationContentModel = GuruLabs.Models.ApplicationModel.extend({
+	// Data model which can be used oto load/display data associated with a piece of content.
+	// Inherits from application model and should be used for data management application
+	// state only.
+
+	defaults: {
+		pending: true,
+		error: false,
+		results: false,
+		additional: false,
+		collection_count: 0,
+	},
+});
+
+
+OakTree.Models.CollectionItemBaseModel = GuruLabs.Models.ApplicationModel.extend({
+	// Data model used to diplsay data about an item in a data collection.
+	// Provides a custom parse method to extract thumbnail and image properties from an images attribute array.
+
+	idAttribute: 'token',
+
+	initialize: function(attributes, options) {
+		options = options || {};
+		this.detailsurl = options.detailsurl;
+		
+		GuruLabs.Models.ApplicationModel.prototype.initialize.apply(this, [attributes, options]);
+	},
+
+	parse: function(sresponse, options) {
+		// Parse common content attributes and components
+
+		options = options || {};
+		var attributes = GuruLabs.Models.ApplicationModel.prototype.parse.apply(
+			this, [_.omit(sresponse, OakTree.api.detailsurl), options]);
+
+		// Parse image URL and image thumbnail URL from the attributes
+		if (!sresponse.cover && sresponse.images && _.isArray(sresponse.images) && sresponse.images.length) {
+			attributes.cover = sresponse.images[0];
+			attributes.url_image = attributes.cover.url;
+			attributes.url_thumbnail = attributes.cover.url_thumbnail;
+		} else if (sresponse.cover) {
+			attributes.url_image = _.isObject(sresponse.cover) ? sresponse.cover.url : sresponse.cover;
+			attributes.url_thumbnail = attributes.cover.url_thumbnail || attributes.url_image;
+		}
+
+		// Retrieve details URL from the server attributes
+		if (sresponse[OakTree.api.detailsurl] && sresponse[OakTree.api.detailsurl] != options.detailsurl) 
+			options.detailsurl = sresponse[OakTree.api.detailsurl]
+
+		// Parse standard date/time fields to date objects
+		GuruLabs.object_str2date(attributes, ['ctime', 'mtime']);
+
+		return attributes;
+	},
+
+	toJSON: function() {
+		var mjson = GuruLabs.Models.ApplicationModel.prototype.toJSON.apply(this, arguments);
+		if (this.detailsurl) mjson[OakTree.api.detailsurl] = this.detailsurl;
+
+		return mjson
+	}
+});
+
+
+OakTree.Collections.OakTreePaginatedCollection =  GuruLabs.Collections.PaginatedBaseModelCollection.extend({
+	// Collection of Oak-Tree items
+	
+	model: OakTree.Models.CollectionItemBaseModel,
+
+	initialize: function(models, options) {
+		options = options || {};
+		GuruLabs.Collections.PaginatedBaseModelCollection.prototype.initialize.apply(this, [models, options]);
+
+		// Collection name and URL options
+		this.dataurl = options.dataurl;
+	},
+
+	url: function() {
+		if (_.isUndefined(this.dataurl))
+			throw new Error('Unable to provide url, no data URL specified for the collection');
+		return this.dataurl;
+	}
+});
+
+
+OakTree.Models.PageCollectionItemBaseModel = OakTree.Models.CollectionItemBaseModel.extend({
+	// Base model for wagtail pages
+	idAttribute: 'id',
+});
+
+OakTree.Collections.OakTreePagePaginatedCollection = OakTree.Collections.OakTreePaginatedCollection.extend({
+	model: OakTree.Models.PageCollectionItemBaseModel,
+});
+
+
+OakTree.Views.CollectionItemRenderedBaseView = OakTree.Views.BaseDataBoundModelView.extend({
+	// Base view which can be used to render/display collection items
+
+	tagName: 'li',
+	className: 'collection-item',
+	bindings: 'collection-item-data-bind',
+
+	render_view: true,
+
+	initialize: function(options) {
+		options = options || {};
+
+		// View defaults and options
+		_.defaults(options, _.pick(this, 'render_view'));
+		_.extend(this, _.pick(options, 'render_view', 'collectionView'));
+
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+		// Model/view event handlers
+		this.listenTo(this.model, 'destroy', this.remove.bind(this));
+		if (this.collectionView) {
+			this.listenTo(this.collectionView, 'remove:prep', this.remove.bind(this));
+		}
+
+		// Initialize view DOM elements
+		if (this.render_view) this.render();
+	},
+
+	initView: function() {
+		// Initialzie components of item
+		var ivew = this;
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+	},
+});
+
+
+
+OakTree.Views.CollectionBaseView = OakTree.Views.BaseDataBoundModelView.extend({
+	// Data bound view used for managing collection data. Provides data bindings for
+	// working with DOM state based on model representation. Other methods in the view 
+	// can be used to fetch data in a uniform manner on init.
+
+	//	@abstract dataFetchParams: Abstract method that can be used to inject URL parameters.
+	//		into a collection's "fetch" data argument.
+	//		@returns object of URL param keys and their values. Example: {'include-images': true }
+
+	bindings: 'collection-data-bind',
+	init_view: true,
+	fetch_data: true,
+
+	initialize: function(options) {
+		// Initialize view options
+		options = options || {};
+		_.defaults(options, _.pick(this, 'init_view', 'fetch_data'));
+		_.extend(this, _.pick(options, 'init_view', 'fetch_data', 'collection'));
+		var cview = this;
+
+		// Ensure required components of the view are present
+		if (!this.collection)
+			throw new Error('Unable to initialize collection view, invalid collection reference');
+
+		// Set initial model state properties associated with collection to allow for 
+		// data binding related to the model work without errors
+		this.listenTo(this.model, 'collection:reset', function(){
+			cview.model.set({ 
+				collection_count: this.collection.length, 
+				additional: null, page: null, results: null, pending: null, error: null
+			});
+		});
+		this.model.trigger('collection:reset');
+
+		// Initialize view base properties
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, [options]);
+
+		// Update model state properties associated with collection
+		this.listenTo(this.collection, 'count:update', function(){
+			cview.model.set('collection_count', cview.collection.length);
+		});
+		this.listenTo(this.collection, 'fetch:always', function() {
+			cview.collection.trigger('count:update');
+		});
+		this.listenTo(this.collection, 'fetch:paginated', function(c, d, pagedata) {
+			cview.model.set('page', parseInt(pagedata[GuruLabs.api.pagination.page]));
+			cview.model.set('results', parseInt(pagedata[GuruLabs.api.pagination.page_last] || 0));
+		});
+		this.listenTo(this.collection, 'fetch:paginated:more', function() {
+			cview.model.set('additional', true, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+		this.listenTo(this.collection, 'fetch:paginated:last', function() {
+			cview.model.set('additional', false, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+		this.listenTo(this.collection, 'fetch:paginated:none', function(c, d, pagedata) {
+			cview.model.set('page', 1);
+			cview.model.set('additional', false, { silent: true });
+			cview.model.trigger('change:additional');
+		});
+
+		// Initialize base view and UI components
+		if (this.init_view) this.initView();
+	},
+
+	initView: function() {
+		// Retrieve data from API
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+
+		if (this.fetch_data) this.fetchData();
+	},
+
+	fetchData: function() {
+		// Retrieve community collection data from the server. Set common properties
+		// related to data retrieval and trigger collection signals.
+		var cview = this;
+		cview.model.set({ pending: true, results: false, error: false });
+
+		// Fetch data options: add URL parameters to the data attribute
+		var foptions = {
+			data: _.isFunction(cview.dataFetchParams) ? cview.dataFetchParams() : {},
+			success: function() {
+
+				// Update pending and results properties of model
+				cview.model.set({ pending: false, results: true, error: false });
+				cview.collection.trigger('fetch:init:success');
+			},
+			error: function() {
+
+				// Update pending and results properties of models
+				cview.model.set({ pending: false, results: false, error: true });
+			}
+		}
+
+		// Add collection handling options
+		if (_.isFunction(cview.collectionFetchParams))
+			_.extend(foptions, cview.collectionFetchParams());
+
+		this.collection.fetch(foptions);
+	}
+
+});
+
+
+OakTree.Views.CollectionListViewComputedProperties = {
+	// Computed properties that can be incoporated into a data bound view to provide
+	// binding for collection counts and status. Should be added to existing view binding properties
+	// using extend.
+
+	collection_results_available: {
+		// Returns true if collection results have been retrieved from the web application
+		deps: ['pending', 'error', 'results'],
+		get: function() {
+			return this.getBinding('pending') == false && !this.getBinding('error');
+		}
+	},
+
+	collection_results_visible: function() {
+		// Returns true when collection results are available (request is not pending, and items in collection)
+		var pending = this.getBinding('pending');
+		var ccount = this.getBinding('collection_count');
+
+		return !pending && ccount > 0;
+	},
+	collection_results_empty: function() {
+		// Returns true if the collection results are empty (request is not pending, and the length of the collection is 0)
+		var pending = this.getBinding('pending');
+		var error = this.getBinding('error');
+		var ccount = this.getBinding('collection_count') || 0;
+
+		return !pending && !error && ccount == 0;
+	}
+}
+
+
+OakTree.Views.BaseDataBoundCollectionView = OakTree.Views.CollectionBaseView.extend({
+	// Epoxy.js view which can be used for initializing a colleciton of models.
+	// The view can also be used with a controller model.
+	
+	itemView: OakTree.Views.BaseDataBoundModelView,
+
+	initialize: function(options) {
+		OakTree.Views.CollectionBaseView.prototype.initialize.apply(this, options);
+	},
+
+	applyBindings: function() {
+		OakTree.Views.CollectionBaseView.prototype.applyBindings.apply(this, arguments);
+	}
+});
+
+
+/* Oak-Tree Site View */
+
+OakTree.initSiteView = function(options) {
+	// Initialize site view model
+
+	//	@option model (OakTree.Models.User, default=new User): User model reference
+	//		to be bound to the site view.
+	//	@option el (jQuery element reference, default=$('body')): Reference to the 
+	//		element which should be used as the element of the site view.
+	//	@option apiref (jQuery element reference, default=$('api')): Reference to the 
+	//		element which should be used as the site api reference. Data, such as the
+	//		username, email, and display name are loaded from the api reference.
+	options = options || {};
+	_.defaults(options, {
+		el: $('body'),
+		apiref: $('api'),
+		model: new OakTree.Models.User({ username: OakTree.api.auth_username_anon }),
+	});
+
+	return new OakTree.Views.SiteView(options);
+}
+
+
+OakTree.SiteRootRouter = Backbone.Router.extend({
+	// Router class which manages URL based loading of core site resources
+	
+	routes: { '': 'default' },
+
+	initialize: function(options) {
+		options = options || {};
+		var router = this;
+
+		this.siteview = options.siteview;
+		if (!this.siteview)
+			throw new Error('Unable to initialize site root router, invalid site view reference');
+	},
+
+	default: function(path) {
+		// If default_route property in the site model is true
+		if ($.magnificPopup.instance.isOpen && this.siteview.model.get('default_route')) $.magnificPopup.close();
+	}
+});
+
+
+OakTree.Views.SiteView = OakTree.Views.BaseDataBoundModelView.extend({
+	// 	Data bound view used for managing site features: login, logout, registration,
+	//	and site-wide databinding
+
+	//	@option init_view (bool, default=true): Call initView as part of the view initialization
+	//	@option load_authdata (bool, default=true): Attempt to load user auth data from the
+	//		APi reference as part of the view initialization routine
+
+	bindings: 'site-data-bind',
+	init_view: true,
+	load_authdata: true,
+
+	initialize: function(options) {
+		options = options || {};
+		_.defaults(options, _.pick(this, 'init_view', 'bindings', 'load_authdata'));
+
+		// Initialize base data bound model properties
+		this.bindings = options.bindings;
+		OakTree.Views.BaseDataBoundModelView.prototype.initialize.apply(this, options);
+		this.$apiref = options.apiref;
+		this.init_view = options.init_view;
+		this.load_authdata = options.load_authdata;
+
+		// Verify required view properties
+		if (!this.$apiref || !this.$apiref.length)
+			throw new Error('Unable to initialize site view, invalid API reference');
+
+		if (this.init_view) this.initView();
+	},
+
+	initView: function() {
+		// Initialize view components, apply databinding
+		if (this.load_authdata) this.loadAuthData();
+		OakTree.Views.BaseDataBoundModelView.prototype.initView.apply(this, arguments);
+
+		// Initialize router
+		this.initRouter();
+
+		// Initialize foundation components for the view
+		this.$el.foundation();
+	},
+
+	initRouter: function() {
+		// Initialize root client-router for the site
+		this.router = new OakTree.SiteRootRouter({ siteview: this });
+	},
+
+	loadAuthData: function() {
+		// Retrieve auth user data from the API reference
+		var authdata = {
+			username: this.$apiref.attr(OakTree.api.auth_username_attr) || OakTree.api.auth_username_anon,
+			email: this.$apiref.attr(OakTree.api.auth_email_attr),
+			name: this.$apiref.attr(OakTree.api.auth_displayname_attr),
+			first_name: this.$apiref.attr(OakTree.api.auth_firstname_attr),
+			last_name: this.$apiref.attr(OakTree.api.auth_lastname_attr),
+			phone_number: this.$apiref.attr(OakTree.api.auth_phone_attr),
+			avatar: this.$apiref.attr(OakTree.api.auth_avatar_attr),
+			address1: this.$apiref.attr(OakTree.api.auth_address1_attr),
+			address2: this.$apiref.attr(OakTree.api.auth_address1_attr),
+			city: this.$apiref.attr(OakTree.api.auth_city_attr),
+			country: this.$apiref.attr(OakTree.api.auth_country_attr),
+			zipcode: this.$apiref.attr(OakTree.api.auth_zipcode_attr),
+
+		}
+		this.model.set(authdata);
+	},
+
+	computeds: {
+		anonymous_user: function() {
+			// Returns true if the user has not yet logged in, false if authenticated.
+			return !this.getBinding('username') || this.getBinding('username') == OakTree.api.auth_username_anon
+				? true : false;
+		},
+
+		user_authenticated: function() {
+			// Returns true if the user is authenticated to the site, false otherwise
+
+			// Ensure that a valid username is associated with the model and that it is not 'anon'
+			return this.getBinding('username') && this.getBinding('username') != OakTree.api.auth_username_anon
+				? true : false;
+		},
+
+		user_displayname: function() {
+			// Returns an appropriate label for the user's name. If available, use's the model's `name` property
+			// with a fallback to `username`
+			return this.getBinding('name') || this.getBinding('username');
+		}
+	}
+});
+
+
+OakTree.initImageGalleries = function(el, options) {
+	// 	Initialize image galleries inside the provided element
+	//	@input el (jQuery element reference): Element inside of which the galleries should
+	//		be initialized.
+	//	@input options (object): Hash containing the options for the galleries
+	options = options || {};
+	_.defaults(options, {
+		selector: '.image-gallery',
+		delegate: 'a',
+		type: 'image',
+		mainClass: 'mfp-with-zoom',
+		gallery: { enabled: true },
+		image: { titleSrc: 'img-title' },
+	});
+	el.find(options.selector).each(function(){
+		$(this).magnificPopup(
+			_.pick(options, 'delegate', 'type', 'mainClass', 'gallery', 'image'));
+	});
+}
+
+
+OakTree.initContentSliders = function(el, options) {
+	// Initialize content sliders inside the provided element
+	//	@input el (jQuery element reference): Element inside of which the galleries should
+	//		be initialized.
+	//	@input options (object): Hash containing the options for the galleries
+	//	@callback post_init (function): Callback invoked after each slider has been initialized.
+	options = options || {};
+	_.defaults(options, {
+		selector: '.acorn-content-slider',
+		arrowsNav: true,
+		controlNavigation: null,
+		keyboardNavEnabled: true,
+		controlsInside: true,
+		imageScaleMode: 'fill',
+		autoScaleSlider: true,
+		transitionType: 'fade',
+	});
+	el.find(options.selector).each(function(){
+		var control = $(this);
+		var slider = control.royalSlider(_.omit(options, 'selector', 'post_init')).data('royalSlider');
+
+		// Invoke post_init function
+		if (_.isFunction(options.post_init)) options.post_init(slider, control);
+	});
+}
+
+
+
+OakTree.initMasonryGrid = function(el, options) {
+	// Initialize Isotype Masonry grids within the provided element
+	options = options || {};
+	_.defaults(options, {
+		gridSelector: '.masonry-grid',
+		itemSelector: '.grid-item',	
+	});
+
+	return el.find(options.gridSelector).isotope(_.pick(options, 'itemSelector', 'columnWidth'));
+}
+
+
+OakTree.Views.CollectionDialogViewMixin = {
+	// 	View mixin which contains methods for opening and closing Magnific popup. Includes
+	//	signals that can be used for data binding and management of collection view lifecycles.
+
+	initCollectionDialog: function() {
+		//	Initialize collection dialog view. The default implementation throws an error.
+		//	and must be initialized in child views.
+		throw new Error('initCollectionDialog must be initialized in child views');
+	},
+
+	showCollectionDialog: function(options) {
+		// Show the collection dialog
+		options = options || {};
+		var cview = this;
+
+		// Initialize results dialog
+		this.dialog = this.initCollectionDialog();
+
+		// Open and show the dialog
+		$.magnificPopup.open({
+			items: { src: this.dialog.$el },
+			type: 'inline',
+			callbacks: {
+				beforeOpen: function() {
+
+					// Trigger open handler events, remove dialog element/view on successful close
+					cview.dialog.model.trigger('collection:dialog:open:prep', cview.dialog);
+					cview.dialog.trigger('dialog:open:prep');
+					cview.dialog.listenTo(cview.dialog, 'close:success', cview.dialog.remove.bind(cview.dialog));
+				},
+				open: function() {
+
+					// Initialize dialog UI and trigger signals
+					cview.dialog.model.trigger('dialog:open:success', cview.dialog);
+					cview.dialog.trigger('open:success');
+				},
+				beforeClose: function() {
+
+					// Trigger close prep signals
+					cview.dialog.model.trigger('dialog:close:prep', cview.dialog);
+					cview.trigger('close:prep');
+				},
+				afterClose: function() {
+
+					// Trigger close success signals, update navigation URL, remove dialog view reference
+					cview.dialog.model.trigger('dialog:close:success', cview.dialog);
+					cview.dialog.trigger('close:success');
+					cview.dialog = undefined;
+				}
+			}
+		});
+	},
+}
+
+
+OakTree.Views.CollectionBaseListDialogView = OakTree.Views.CollectionBaseView.extend({
+	// 	Data bound view which can be used to manage collection data and display the results in 
+	//	a dialog. Provides data bindings for working with DOM state based on model representation.
+	//	Other methods can be used to open a dialog view and load more content and convenience 
+	// 	methods for rendering a subset of content in a list.
+
+	//	@abstract itemViewInitOptions (@input rmodel, model instance): Abstract method
+	//		that can be used to inject options into an item view at the time that it is initialized.
+	//		@returns object of view arguments
+
+	collection_item_list_selector: '.collection-item-list',
+	itemlist_limit: 4,
+	dynamic_render: true,
+
+	initialize: function(options) {
+		// Initialize view options
+		options = options || {};
+		_.defaults(options, _.pick(this, 'dialogView', 'itemView', 'collection_item_list_selector', 
+			'itemlist_limit', 'dynamic_render'));
+		_.extend(this, _.pick(options, 'dialogView', 'itemView', 'collection_item_list_selector', 
+			'itemlist_limit', 'dynamic_render'));
+
+		OakTree.Views.CollectionBaseView.prototype.initialize.apply(this, [options]);
+	},
+
+	initView: function() {
+		// Initialize view DOM bindings and events
+
+		// View UI references
+		this.$collection_item_list = this.$el.find(this.collection_item_list_selector);
+		if (!this.$collection_item_list.length)
+			throw new Error('Unable to initialize collection state view, invalid item list reference');
+
+		// Ensure that valid itemView and dialogView classes are present
+		if (!_.isFunction(this.itemView))
+			throw new Error('Unable to initialize collection list view, invalid itemView class reference');
+		if (!_.isFunction(this.dialogView))
+			throw new Error('Unable to initialize collection dialog view, invalid dialogView class reference');
+
+		// Collection list event handlers
+		if (this.dynamic_render) {
+			// Render collection items after successful remote fetch			
+			this.listenTo(this.collection, 'fetch:init:success', this.renderItemList.bind(this));
+		}
+
+		OakTree.Views.CollectionBaseView.prototype.initView.apply(this, arguments);
+	},
+
+	renderItemList: function() {
+		// Render collection list items
+		this.trigger('render:clear');
+		this.trigger('render:prep');
+		var ulimit;
+
+		// Limit the number of results that will be rendered if a limit is defined on the view
+		if (this.itemlist_limit) {
+			ulimit = this.collection.length > this.itemlist_limit ?
+				this.itemlist_limit : this.collection.length;
+		} else { ulimit = this.collection.length; }
+
+		// Render item list
+		_.each(this.collection.slice(0, ulimit), this.renderItemView.bind(this));
+		this.trigger('render:success');
+	},
+
+	renderItemView: function(rmodel) {
+		// Initialize item list view, add signal handlers to manage lifecycle
+		var voptions = _.extend({ model: rmodel, collectionView: this, }, 
+			_.isFunction(this.itemViewInitOptions) ? this.itemViewInitOptions(rmodel) : {});
+		var iview = new this.itemView(voptions);
+		
+		// Remove the item view when preparing to render new views
+		iview.listenTo(this, 'render:clear', iview.remove.bind(iview));
+		
+		// Append to the collection item list
+		iview.$el.appendTo(this.$collection_item_list);
+		return iview;
+	},
+
+	computeds: _.extend({}, OakTree.Views.CollectionListViewComputedProperties),
+});
+_.extend(OakTree.Views.CollectionBaseListDialogView.prototype, OakTree.Views.CollectionDialogViewMixin);

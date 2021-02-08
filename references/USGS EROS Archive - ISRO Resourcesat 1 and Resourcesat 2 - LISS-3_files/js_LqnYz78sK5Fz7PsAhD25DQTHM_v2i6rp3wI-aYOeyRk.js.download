@@ -1,0 +1,422 @@
+/**
+ * Created by: 
+ */
+
+(function($) {
+  // Some globals (for this scope)
+  var map;
+  var vector;
+  var vectorDataSource;
+
+  Drupal.behaviors.usgs_um = {
+    
+    /**
+     * Set/Replace BaseLayer
+     */
+    setBaseLayer : function() {
+      var bm_val = $("input[name='nm-radio-basemap']:checked").val();
+
+      map.removeLayer(map.getLayers().getArray()[0]);
+
+      if(bm_val == 'osm') {
+        baseMap = new ol.layer.Tile({
+          id : 'some_id',
+          name: 'usgs_um_base_layer',
+          source: new ol.source.OSM()
+        });
+      } else {
+      	var url_basemap = "";
+      	if(bm_val.substring(0, 4) == "USGS") {
+      		url_basemap = "https://basemap.nationalmap.gov/arcgis/rest/services/" + bm_val + "/MapServer/tile/{z}/{y}/{x}";
+      	} else if(bm_val.substring(0, 4) == "ESRI") {
+        	// [WR-2939]
+      		url_basemap = "http://services.arcgisonline.com/ArcGIS/rest/services/" + bm_val.substring(4) + "/MapServer/tile/{z}/{y}/{x}";
+      	} else {
+      		url_basemap = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}";
+      	}
+      	
+        baseMap = new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: url_basemap
+          }),
+          visible: true,
+          minResolution: 4
+        });
+      }
+
+      map.getLayers().insertAt(0, baseMap);
+    },
+      
+    /**
+     * Toggle Custom Panels - by Id
+     */
+    panelToggle: function (id) {
+      var openPanel = false;
+      // Toggle active class on all buttons.
+      $('.ol-control-button').each(function() {
+        $(this).removeClass('active');
+      });
+      if (id == "id-button-details") {
+        $("#id-panel-basemap").hide();
+        var el_div = $("#id-panel-details");
+      } else if (id == "id-button-basemap") {
+        $("#id-panel-details").hide();
+        var el_div = $("#id-panel-basemap");
+      } else {
+        return;
+      }
+      console.log(el_div);
+      // Figure out if panel is already shown and set variable.
+      if (!$(el_div).is(':visible')) {
+        $(el_div).show();
+        openPanel = true;
+      } else {
+        $(el_div).hide();
+        openPanel = false;
+      }
+      var el_width = el_div.width();
+      console.log(openPanel);
+      if (openPanel) {
+        $("#id-ol-custom").css('right', (el_width + 20) + 'px');
+        $('#'+id).addClass('active').blur();
+      } else {
+        $("#id-ol-custom").css('right', '.5em');
+        $('#'+id).removeClass('active').blur();
+      }
+    },
+      
+    /**
+     * Toggle Custom Panels - by Id
+     */
+    panelsHide: function () {
+      $("#id-panel-details").hide();
+      $("#id-panel-basemap").hide();
+      $("#id-ol-custom").css({'right':'.5em'});
+    },
+
+    /**
+     * Panel show - by Id
+     */
+    panelShow: function (id) {
+      Drupal.behaviors.usgs_um.panelsHide();
+      Drupal.behaviors.usgs_um.panelToggle(id);
+    },
+    
+    /**
+     * Set Vector Layer Styles
+     */
+    styleFunction: function(feature) {
+      var styles = {
+        'Point': new ol.style.Style({
+          image: new ol.style.Icon(({
+            scale: .5,
+            anchor: [1.0, 1.0],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            src: '/sites/all/modules/custom/usgs_um/images/science_project.png'
+          }))
+        }),
+        'LineString': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'green',
+            width: 3
+          })
+        }),
+        'MultiLineString': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'green',
+            width: 3
+          })
+        }),
+        'MultiPoint': new ol.style.Style({
+          image: new ol.style.Icon(({
+            scale: 0.5,
+            anchor: [0.5, 1.0],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            src: '/sites/all/modules/custom/usgs_um/images/science_project.png'
+          }))
+        }),
+        'MultiPolygon': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'yellow',
+            width: 3
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 0, 0.1)'
+          })
+        }),
+        'Polygon': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'blue',
+            lineDash: [4],
+            width: 3
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(0, 0, 255, 0.1)'
+          })
+        }),
+        'GeometryCollection': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'magenta',
+            width: 3
+          }),
+          fill: new ol.style.Fill({
+            color: 'magenta'
+          }),
+          image: new ol.style.Circle({
+            radius: 10,
+            fill: null,
+            stroke: new ol.style.Stroke({
+              color: 'magenta'
+            })
+          })
+        }),
+        'Circle': new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'red',
+            width: 3
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(255,0,0,0.2)'
+          })
+        })
+      };
+      //
+      return styles[feature.getGeometry().getType()];
+    },
+    
+    /**
+     * Set Vector Layer
+     */
+    setVectorLayer: function(jsSearchData) {
+      //
+      vectorDataSource = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(jsSearchData, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:900913'
+        })
+      });
+      //
+      vector = new ol.layer.Vector({
+        source: vectorDataSource,
+        style: Drupal.behaviors.usgs_um.styleFunction
+      });
+      //
+      return vector;
+    },
+    
+    /**
+     * Features from GIS Widget, and GeoJSON Handler
+     **/
+    createFeatures: function() {
+      // Rebuild Vector Layer
+      map.removeLayer(map.getLayers().getArray()[1]);
+      vector = Drupal.behaviors.usgs_um.setVectorLayer(js_geojson_data);
+      map.getLayers().insertAt(1, vector);
+      
+      // Fit to extent
+      map.getView().fit(vector.getSource().getExtent(), {
+        size: map.getSize(), 
+        maxZoom: 10
+      });
+      
+      map.on('click', function(evt){
+        var feature = map.forEachFeatureAtPixel(evt.pixel,
+          function(feature, layer) {
+            if (feature) {
+              console.log(feature);
+              // Open Details panne
+              Drupal.behaviors.usgs_um.panelShow('id-button-details');
+              // Fill out list content
+              // Thumbnail
+              var listItem = feature.get('thumbnail') ? ('<img src="' + feature.get('thumbnail') + '" alt="Feature\'s image" />') : ''; 
+              listItem += feature.get('title') ? ('<h4 >' + feature.get('title') + '</h4>') : '';;
+              // Url
+              var linkUrl = feature.get('link_url') ? feature.get('link_url') : '';
+              var linkTitle = feature.get('link_title') ? feature.get('link_title') : '';
+              if(linkUrl != '' && linkTitle != '') {
+                listItem += '<p><a href ="' + linkUrl + '">' + linkTitle + '</a></p>';
+              } else {
+                if(linkUrl != '') {
+                  listItem += '<p><a href ="' + linkUrl + '">Feature\'s URL</a></p>';
+                }
+              }
+              // Description
+              listItem += feature.get('description') ? ('<p>' + feature.get('description') + '</p>') : '';
+              if (listItem != '') $('#id-panel-details .results').removeClass('no-results').html(listItem);
+            }
+            else {
+              $('#id-panel-details .results').addClass('no-results').text('No data point selected. Click on a pin on the map to see more information.');
+            }
+          }
+        );
+      });
+    },    
+
+    /**
+     * WMS Handler
+     * 
+     * TODO: Might create Layer selector - similar to the one for GIS Widget
+     * 
+     **/
+    createWMS: function() {
+      // Node should contain WMS Capability URL, not the WMS URL itself
+      var WMSUrl = js_geojson_data['features'][0]['properties']['url']; //var WMSUrl = data['features'][0]['properties']['url'] + "?service=wms&request=getcapabilities&version=1.3.0";
+      // Alt Text
+      var mapAltText = js_geojson_data['metadata']['map_alt_text'];
+      //
+      var layerNames = [];
+      var layerTitles = [];
+      var boundingBox=[];
+      var xmlBBox;    
+      $.when($.ajax({
+        type: "GET",
+        async: true,
+        url: WMSUrl,
+        dataType: "xml",
+        success: function(xml) {
+          $(xml).find('Layer').each(function(){
+            layerNames.push($(this).children("Name").text());
+            layerTitles.push($(this).children("Title").text());
+          });
+          //
+          xmlBBox = $(xml).find('Capability').children('Layer').children('BoundingBox');
+          //
+          boundingBox.push(parseFloat(xmlBBox.attr("minx")));
+          boundingBox.push(parseFloat(xmlBBox.attr("miny")));
+          boundingBox.push(parseFloat(xmlBBox.attr("maxx")));
+          boundingBox.push(parseFloat(xmlBBox.attr("maxy")));
+        }
+      })).done(function(){
+        // Prepare Data Layer
+        var dataLayers = new ol.Collection;
+        for (var i = 0; i < layerNames.length; i++){
+          if (layerNames[i] !== ''){
+            var dataLayer = new ol.layer.Tile({
+              source: new ol.source.TileWMS({
+                title: layerTitles[i],
+                url: js_geojson_data['features'][0]['properties']['url'],
+                params: {'LAYERS': layerNames[i], 'TILED': true},
+                serverType: 'geoserver'
+              }),
+            });
+            dataLayers.push(dataLayer);
+          }
+        }
+        // Rebuild WMS Group Layer
+        map.removeLayer(map.getLayers().getArray()[1]);
+        var layersGroup = new ol.layer.Group({
+          layers: dataLayers
+        });
+        map.getLayers().insertAt(1, layersGroup);
+        // Reproject BBOX
+        var bb_ll = ol.proj.transform([ boundingBox[0], boundingBox[1] ], 'EPSG:4326', 'EPSG:900913');
+        var bb_ur = ol.proj.transform([ boundingBox[2], boundingBox[3] ], 'EPSG:4326', 'EPSG:900913');
+        var extent = [ bb_ll[0], bb_ll[1], bb_ur[0], bb_ur[1] ];
+        // Map fit to WMS extent
+        map.getView().fit(extent);
+      });
+    },
+    
+    /**
+     * KML Handler
+     **/
+    createKML: function() {
+      // Load KML from string, and Re-project it to Web Mercator projection
+      var features = new ol.format.KML().readFeatures(js_geojson_data.metadata.kml_content, {
+        dataProjection: ol.proj.get('EPSG:4326'),
+        featureProjection: ol.proj.get('EPSG:900913')
+      });
+
+      // Init KML source
+      var kml_vector_source = new ol.source.Vector({});
+      kml_vector_source.addFeatures(features);
+
+      // Init KML vector layer
+      var kml_vector = new ol.layer.Vector({
+        source: kml_vector_source,
+        visible: true
+      });
+
+      // Rebuild Vector Layer
+      map.removeLayer(map.getLayers().getArray()[1]);
+      map.getLayers().insertAt(1, kml_vector);
+      
+      // Map fit to KML extent
+      var kml_bbox = js_geojson_data.metadata.kml_bbox;
+      // Init BBOX
+      var bb_ll = ol.proj.transform([ kml_bbox.minx, kml_bbox.miny ], 'EPSG:4326', 'EPSG:900913');
+      var bb_ur = ol.proj.transform([ kml_bbox.maxx, kml_bbox.maxy ], 'EPSG:4326', 'EPSG:900913');
+      var extent = [ bb_ll[0], bb_ll[1], bb_ur[0], bb_ur[1] ];
+      // Fit
+      map.getView().fit(extent);
+    },
+    
+    /**
+     * Main Method 
+     */
+    attach : function(context, settings) {
+      // On modal shown
+      $('#mapContainerModal').on('shown.bs.modal', function (e) {
+        // Init params
+        if(js_geojson_data != null) {
+          var mapType = js_geojson_data['metadata']['map_type'];
+          var mapTitle = js_geojson_data['metadata']['title'];
+          var mapDescription = js_geojson_data['metadata']['description'];
+        } else {
+          var mapType = null;
+        }
+        
+        // Check if map has been initialized, and do it - if not
+        if($("#map-um").attr("title") == "map-first") {
+          $("#map-um").attr("title", "map-next");
+          $('#map-title').append(mapTitle);
+          $('#map-description').append('<p>' + mapDescription + '</p>');
+          // Map Init
+          map = new ol.Map({
+            controls: ol.control.defaults({
+              zoom: true,
+              attribution: true,
+              rotate: true
+            }).extend([
+              new ol.control.FullScreen()
+            ]),
+            layers: [
+              new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                  url: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}"
+                }),
+                visible: true,
+                minResolution: 4
+              })
+            ],
+            target: 'map-um',
+            view: new ol.View({
+              center: [0, 0],
+              zoom: 2
+            })
+          });
+        }
+        
+        // Switch by map type
+        switch(mapType) {
+          case 'single':
+            Drupal.behaviors.usgs_um.createFeatures();
+            break;
+          case 'json':
+            Drupal.behaviors.usgs_um.createFeatures();
+            break;
+          case 'wms':
+            Drupal.behaviors.usgs_um.createWMS();
+            break;
+          case 'kml':
+            Drupal.behaviors.usgs_um.createKML();
+            break;
+        }
+      });
+      
+    }
+  };
+}(jQuery));
+;

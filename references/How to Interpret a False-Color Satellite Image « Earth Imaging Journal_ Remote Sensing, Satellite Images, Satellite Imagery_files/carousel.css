@@ -1,0 +1,345 @@
+/* @override http://themes.siiimple.com/urbannews-testing/wp-content/themes/urbannews/framework/css/carousel.css?ver=3.4.2 */
+
+/** base carousel **/
+
+.carousel ul {
+	position: absolute;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.no-js .carousel ul {
+	position: static;
+}
+
+.carousel .mask {
+	position: relative;
+	overflow: hidden;
+}
+
+.carousel .mask h2 {
+	margin-bottom: 5px;
+	line-height: 22px;
+}
+
+.carousel .mask h2 a {
+	font-weight: 700;
+}
+
+.carousel .mask h2 a:hover {
+	color: #fff !important;
+	background: #ff9100 !important;
+}
+
+.carousel ul li p {
+	font-size: 14px;
+	line-height: 20px;
+}
+
+
+#sections-photo.carousel ul li:hover a.photo-gallery.extend,#sections-photo.carousel ul li:hover a.page-link,#sections-video.carousel ul li:hover a.photo-gallery.extend,#sections-video.carousel ul li:hover a.page-link  {
+	display: block;
+}
+/*SECTIONS PHOTO*/
+
+#sections-photo {
+	min-height: 320px;
+}
+
+#sections-photo.carousel ul li {
+	float: left;
+	width: 205px;
+	height: 150px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	position: relative;
+}
+
+/*SECTION VIDEO*/
+
+#sections-video.carousel ul li {
+	float: left;
+	width: 102px;
+	height: 102px;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+
+
+#sections-video.carousel ul li a.various.fancybox.iframe {
+	z-index: 20;
+}
+
+
+
+#sections-video.carousel ul li:hover a.page-link {
+	left: 15%;
+	bottom: 35%;
+}
+
+#sections-video.carousel ul li:hover a.photo-gallery.extend{
+	left: 51%;
+	bottom: 35%;
+}
+
+p.more {
+	position: absolute;
+	bottom: -2px;
+	font-size: 12px;
+	left: 40%;
+}
+
+#sections-video {
+	padding-bottom: 0px;
+}
+
+/*HOVER LINKS*/
+
+a.photo-gallery.extend {
+	position: absolute;
+	bottom: 40%;
+	background: rgba(0,0,0,.6);
+	color: #fff;
+	left: 52%;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	font-weight: normal !important;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-size: 12px;
+	display: none;
+}
+
+a.page-link {
+	position: absolute;
+	bottom: 40%;
+	left: 35%;
+	font-weight: normal !important;
+	background: rgba(0,0,0,.6);
+	color: #fff;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-weight: normal;
+	font-size: 12px;
+	display: none;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+}
+
+.play-icon {
+	background:url(../images/play.png)no-repeat;
+	position: absolute;
+	height: 24px;
+	width: 24px;
+	bottom: 10px;
+	left: 10px;
+	z-index: 2;
+}
+
+.img-icon {
+	background:url(../images/img-vid.png)no-repeat;
+	position: absolute;
+	height: 24px;
+	width: 24px;
+	bottom: 10px;
+	left: 10px;
+	z-index: 2;
+}
+
+a.photo-gallery.extend:hover,a.page-link:hover {
+	background: #ff9100;
+	color: #fff !important;
+	
+	-webkit-transition: all 0.3s linear;
+	-moz-transition: all 0.3s linear;
+	-o-transition: all 0.3s linear;
+	-ms-transition: all 0.3s linear;
+	transition: all 0.3s linear;
+}
+
+#sections-video.carousel ul li:hover .icon-eye {
+	background: #ff9100;
+}
+
+/*SECTIONS LATEST*/
+
+#sections-latest {
+	position: relative;
+}
+
+#sections-latest .mask {
+	width: 680px !important;
+}
+
+#sections-latest .mask ul {
+	height: 680px;
+}
+
+#sections-latest.carousel .pagination-links {
+		top: -39px;
+}
+
+#sections-latest.carousel ul li {
+	float: left;
+	display: inline;
+	width: 207px;
+	min-height: 206px;
+	position: relative;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-bottom: 20px;
+	margin-right: 20px;
+}
+
+#sections-latest.carousel ul li h2 {
+	
+	position: absolute;
+	width: 190px;
+	padding-right: 10px;
+	padding-left: 7px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	position: absolute;
+	line-height: 24px;
+	bottom: 3px;
+	z-index: 2;
+
+}
+
+#sections-latest.carousel ul li h2 a {
+	color: #fff;
+	font-size: 14px;
+	padding: 3px;
+	background: rgba(0, 0, 0, .75);
+}
+
+#sections-latest.carousel ul li img {
+	width: 100%;
+	height: auto !important;
+	float: left;
+	margin-right: 20px;
+	
+}
+
+
+/*PAGINATION*/
+
+.carousel .pagination-links {
+	list-style: none;
+	margin: 0px 0 0 0;
+	position: absolute;
+	top: -40px;
+	background: #fff;
+	right: 0px;
+	text-align: center;
+	padding: 0px 0px 0px;
+}
+
+.carousel .pagination-links li {
+	display: inline;
+	margin: 0 6px;
+}
+
+.carousel .pagination-links li a {
+	font-size: 11px;
+	color: #343434;
+	font-weight: 700;
+	font-family:'HelveticaNeue-Light',Arial,Helvetica Neue,sans-serif !important;
+}
+
+.carousel .pagination-links li a:hover {
+	text-decoration: none;
+}
+
+.carousel .pagination-links li.current a {
+	color: #ff9100;
+}
+
+.carousel .disabled {
+	color: #ccc;
+	cursor: default;
+}
+
+#sections-photo, #sections-video {
+	position: relative;
+}
+
+.prev {
+	position: absolute;
+	left: 0px;
+	bottom: -5px;
+	display: none;
+	text-indent: -9999px;
+	background-image: url(../images/left.png);
+	height: 30px;
+	width: 30px;
+}
+
+.prev:hover {
+	background: #eee url(../images/left.png);
+}
+
+.prev.disabled {
+	opacity: .5;
+	border-radius: 20px;
+	border: 1px solid #eee;
+}
+
+.next.disabled {
+	opacity: .5;
+	border-radius: 20px;
+	border: 1px solid #eee;
+}
+
+.next:hover {
+	//background: #eee url(../images/right.png);
+}
+
+.next {
+	//position: absolute;
+	//right: 0px;
+	//bottom: -5px;
+	//display: none;
+	//text-indent: -9999px;
+	//background-image: url(../images/right.png);
+	//height: 30px;
+	//width: 30px;
+}
+
+/** my carousel 3 **/
+
+#sections-photo .mask {
+	width: 440px;
+}
+
+#sections-quote .mask {
+	width: 420px;
+}
+
+
+/*SECTIONS VIDEO*/
+
+#sections-video {
+	min-height: 214px !important;
+}
+
+#sections-video .mask {
+	width: 431px;
+}
+
+#sections-video.carousel ul li {
+	float: left;
+	width: 100px;
+	height: 100px;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+
+#sections-video.carousel ul li img {
+	max-width: 100%;
+	height: auto;
+}

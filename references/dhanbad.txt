@@ -1,0 +1,4 @@
+Right top corner Asanbani 23.85448486.502279
+Right bottom corner Fakiradih 23.750193, 86.502279
+Left top corner 23.854484, 86.365582
+Left bottom corner 23.750193, 86.365582

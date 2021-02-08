@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)https://oak-tree.tech/blog/numpy-image-volumes -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<!-- Royal Slider CSS -->
+<link rel="stylesheet" href="./Modeling Data With NumPy_ Image Volumes_files/royalslider.css">
+<link rel="stylesheet" href="./Modeling Data With NumPy_ Image Volumes_files/rs-minimal-white.css">
+
+<!-- Swiper Slider CSS and JS-->
+<script async="" src="./Modeling Data With NumPy_ Image Volumes_files/mtc.js.download"></script><script type="text/javascript" async="" defer="" src="./Modeling Data With NumPy_ Image Volumes_files/matomo.js.download"></script><script src="./Modeling Data With NumPy_ Image Volumes_files/swiper.js.download"></script>
+<link rel="stylesheet" href="./Modeling Data With NumPy_ Image Volumes_files/swiper.css">
+
+<!-- Oak-Tree Core Libraries -->
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jquery-min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/underscore-min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/underscore.string.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/backbone-min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/backbone.epoxy.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/foundation.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jquery.cookie.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/guru.ajax-init.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/base.models.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/base.views.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jquery.magnific-popup.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jquery.royalslider.min.js.download"></script>
+
+<!-- Oak-Tree Core Components -->
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.datacore.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.base.js.download"></script>
+
+
+
+
+
+<!-- Acorn Meta/Options -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta property="og:url" content="https://oak-tree.tech/blog/numpy-image-volumes">
+
+<meta property="og:title" content="Modeling Data With NumPy: Image Volumes">
+<meta property="og:description" content="In many types of medical imaging studies, such as CT and MRI, there is a sequence of stacked images acquired. These stacks can be ordered and worked with as a cohesive volume. In this article, we look at how to do so with NumPy in Python.">
+<meta property="og:image" content="https://objects-us-east-1.dream.io/acorn/original_images/ct.chest-series-enhnaced.png">
+
+
+<meta property="og:type" content="article">
+
+
+<title>Modeling Data With NumPy: Image Volumes</title>
+
+
+
+
+<link rel="stylesheet" href="./Modeling Data With NumPy_ Image Volumes_files/wgtcontent.font-awesome.css">
+<link rel="stylesheet" href="./Modeling Data With NumPy_ Image Volumes_files/acorn.css">
+
+
+
+<!-- Custom Site CSS Overrides -->
+<style>footer.page {
+    padding-bottom: 1rem;
+    background-color: #f1f5f5;
+    font-size: 0.9rem;
+    
+    color: #333333;
+    margin: auto;
+    margin-top: 100px;
+    margin-bottom: 0 !important;
+    z-index: +1;
+}
+
+footer.page a {
+    color: #333333;
+    padding-top: 0.45rem; padding-bottom: 0.45rem;
+    line-height: 1.33;
+}
+
+footer.page h4, footer.page h5, footer.page h6 {
+    text-transform: uppercase;
+    color: #333333;
+    font-weight: 400;
+}
+
+
+footer.page h4, footer.page h5 {
+    margin-bottom: 1rem;
+}
+
+footer.page h5 {
+    position: relative;
+}
+
+footer.page h5:after {
+    content: "";
+    position: absolute;
+    left: 0px;
+    bottom: -5px;
+    height: 2px;
+    border-top: 1.5px solid #333333;
+    z-index: +1;
+    width: 100%;
+}
+
+footer.page h6 {
+    margin-top: 0.75rem;
+}
+
+footer.page h6 { margin-bottom: 0.33rem; }
+
+footer .treeline{
+    background-repeat: repeat-x;
+    background-position-y: bottom;
+    background-position-x: -139px;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: -2px;
+}
+.treeline.first{
+    height: 160px;
+    background-color: #fefefe;
+    min-width:1600px;
+}
+.mauticform-post-success .mauticform-innerform{
+    display:none;
+}
+.mauticform-post-success .mauticform-message{
+    display:block;
+}
+.treeline.newsletter{
+    width: 100%;
+    background-color: #363636;
+    color: #f1f5f5;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.treeline p{
+    text-align:center;
+}
+.mauticform_wrapper{
+    max-width: 600px;
+    margin: auto;
+}
+.treeline-input{
+    background-color: transparent;
+    border-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 3rem;
+    caret-color: #f1f5f5;
+    color: #f1f5f5;
+    padding-left: 1rem;
+}
+.treeline-input:focus{
+    background-color: transparent;
+}
+.treeline-page-wrapper{
+    display: inline-flex !important;
+    width: 100%;
+}
+.treeline-email{
+    flex-grow: 2;
+    width: 100%;
+    border-color: #f1f5f5 !important;
+}
+.treeline-button{
+    height: 3rem;
+    width: 9rem;
+    padding: 0 !important;
+    border-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    background-color: #f1f5f5 !important;
+    border-color: #f1f5f5 !important;
+    color: #1779ba !important;
+    /*padding-top: 0 !important;
+    padding-bottom: 0 !important;*/
+    cursor: pointer;
+    /*font-variant: all-small-caps;
+    font-size: 1.2rem;*/
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+}
+.treeline-button:hover{
+    box-shadow: 0 0 5px #cacaca;
+    border: 1px solid #8a8a8a;
+}
+.treeline .mauticform-row{
+    margin-bottom: 0;
+}
+.treeline.second{
+    height: 200px; 
+    background-color: #363636;
+    transform: scale(-1, 1);
+    min-width:1600px;
+}
+.mauticform-message{
+    padding-top: 20px;
+    text-align: center;
+    font-size: 1.25em;
+    color: #3adb76;
+    height: 49.3px;
+    display:none;
+}</style><style>#acorn-loader {
+	z-index: 10000;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 100vh;
+	background-color: #2a2a2e;
+	width: 100vw;
+	visibility: visible;
+	opacity: 1;
+	
+	/* Logo */
+	background-image: url(https://objects-us-east-1.dream.io/acorn/documents/oaktre-logo.ng-general.2019-0131.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+	
+}
+#acorn-loader.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1s, opacity 1s ease-out;
+}</style><style>.mauticform-button.btn.btn-default {
+    width: 100% !important;
+    background-color: #1779ba !important;
+    
+    font-family: "Open Sans", "Helvetica Neue", Helvetica;
+    font-size: 1.25rem;
+    font-weight: normal;
+    color: white !important;
+    
+    padding-top: 1rem !important; padding-bottom: 1rem !important;
+}</style><style>main.index-content .background-media-block.video .foreground-content-medium  {
+    background-color: #15223875;
+}
+
+main.index-content h1 {
+    margin-top: 5rem;
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
+@media print, screen and (min-width: 40em) {
+    main.index-content h1 {
+        margin-top: 1.35rem;
+        font-size: 3.33rem;
+    }
+}
+    
+@media print, screen and (min-width: 60em) {
+    main.index-content h1 {
+        font-size: 4rem;
+    }
+}
+.background-media-block h1{
+    font-variant-caps: all-petite-caps;
+    line-height: 90%;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 7px #555;
+}
+.background-media-block h5{
+    text-shadow: 1px 1px 3px #333;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .background-media-block.jarallax.video {
+        min-height: 50vh; } }
+@media print, screen and (min-width: 40em) {
+    .background-media-block.jarallax.video {
+        min-height: 820px; } }
+        
+@media screen and (max-width: 39.9375em) {
+    .background-media-block.jarallax.image {
+        min-height: 50vh; } }
+@media print, screen and (min-width: 40em) {
+    .background-media-block.jarallax.image {
+        min-height: 620px; } }
+        
+/*        
+.mauticform-page-wrapper{
+    display: inline-flex !important;
+    width: 100%;
+}
+#mauticform_labnotesmailinglistclassicsitefooter_email{
+    width: 100%;
+}
+#mauticform_input_labnotesmailinglistclassicsitefooter_email{
+    background-color: white;
+    border-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-color: black !important;
+    height: 3rem;
+    caret-color: black;
+    color: black !important;
+    padding-left: 1rem;
+    margin: 0;
+}
+#mauticform_input_labnotesmailinglistclassicsitefooter_sign_up{
+    height: 3rem;
+    min-width: 7rem;
+    padding: 0 !important;
+    border-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-left-width: 0;
+    background-color: #f1f5f5 !important;
+    border-color: black !important;
+    color: #1779ba !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    cursor: pointer;
+    font-variant: all-small-caps;
+    font-size: 1.2rem;
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+}
+#mauticform_input_labnotesmailinglistclassicsitefooter_email::placeholder{
+    color: black !important;
+}
+*/</style><style>.title-bar{
+    background-color: #FFF;
+    color: #363636;
+    border-bottom: 1px solid #f1f5f5;
+}
+.title-bar a{
+    color: #363636;
+}
+.title-bar a:hover{
+    color: #1a1a1a;
+}
+.title-bar .dropdown.menu{
+    background-color: #FFF;
+    color: #363636;
+}
+.title-bar .menu li.menuitem a{
+    padding: 1rem 2rem;
+}
+
+.menu .active > a{
+    color: inherit;
+}
+.title-bar li.is-active > a{
+    color: #1a1a1a !important;
+}
+
+.is-dropdown-submenu{
+    top: 54px !important;
+    border: 1px solid #f1f5f5 !important;
+    background-color: #fff !important;
+    color: #1a1a1a !important;
+}
+.is-dropdown-submenu a{
+    color: #1a1a1a !important;
+}
+
+.icon-label.medium{
+    display:none;
+}
+.dropdown.menu > li.is-dropdown-submenu-parent > a{
+    padding-right: 1rem;
+}
+
+.title-bar input.search {
+    box-shadow: rgb(51, 51, 51) 0px 2px 2px -2px !important;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    color: #63666A;
+    border-bottom: thin solid #63666A !important;
+    border-top: none !important; border-left: none !important; border-right: none !important;
+}
+
+.title-bar .header-search input[type="text"].search :focus {
+    border-bottom: 2px solid #00549F !important;
+}
+
+.header-search .sey-container {
+    margin-top: 0.65rem !important;
+}
+
+.title-bar a {
+    color: #63666A;
+}
+.title-bar .menu li.menuitem a{
+    padding: 1rem 1rem !important;
+}
+.title-bar a.icon-lg-label-med.spacer-right-1rem{
+    margin-left: 1rem;
+}</style><style>.background-media-block, .background-primary-dark-045a-blur, .background-img + .category-info-container, .feature-image + .feature-text-container{
+    text-shadow: 1px 1px 7px #555;
+}</style><style>h2 {
+    color: #00549F;
+    font-weight: 600;
+}
+
+h3 {
+    color: #E87722;
+    font-weight: 600;
+}
+
+h4 {
+    color: #63666A;
+    font-weight: 600;
+}
+p{
+    /*margin-top: 6px;*/
+}
+main icon {
+    color: #888B8D;
+}
+
+.background-media-block h2, .background-media-block h3, .background-media-block h4, .background-media-block icon {
+    color: white;
+}
+
+.text-white * {
+    color: white !important;
+}
+
+.section-color-background *, .acorn-color-bg * {
+    color: inherit !important;
+}
+
+.text-light * {
+    color: inherit !important;
+}
+
+/* Code Block Tweak */
+.codehilite {
+    padding: 16px;
+    border: 1px solid #eee;
+    margin-bottom: -16px;
+}
+@media print, screen and (max-width: 40em) {
+    .codehilite {
+        border-right-width: 0px;
+        border-left-width: 0px;
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+}
+
+.background-primary-dark-075a-blur h2, .background-primary-dark-075a-blur h3, .background-primary-dark-075a-blur h4 {
+    color: white;
+}</style>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="./Modeling Data With NumPy_ Image Volumes_files/pygments.autumn.css">
+<link rel="stylesheet" type="text/css" href="./Modeling Data With NumPy_ Image Volumes_files/motion-ui.css">
+
+
+
+<link rel="shortcut icon" href="https://objects-us-east-1.dream.io/acorn/images/oaktree-logo.2e16d0ba.fill-32x32.png">
+
+
+<!-- Interactive Page Content -->
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jarallax.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jarallax-video.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/jarallax-element.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/masonry.pkgd.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/isotope.pkgd.min.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/horsey.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/motion-ui.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.page.base.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.site-search.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.acorn.page.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/oaktree.category.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/marked.min.js.download"></script>
+
+<script type="text/javascript" src="./Modeling Data With NumPy_ Image Volumes_files/mautic-form.js.download"></script><meta class="foundation-mq"><link rel="stylesheet" type="text/css" href="./Modeling Data With NumPy_ Image Volumes_files/modal.min.css"></head>
+
+<body>
+<div class="off-canvas-wrapper">
+
+<!-- Off Canvas Navigation -->
+<div class="off-canvas position-right is-transition-push is-closed" id="acorn-nav-menu" data-off-canvas="" aria-hidden="true" data-e="peq09b-e">
+
+
+<ul class="vertical menu spacer-left-1rem spacer-top-1rem spacer-right-1rem text-white">
+
+
+
+
+
+
+<li class="menuitem"><a href="https://oak-tree.tech/accounts/profile/">Account</a></li>
+
+
+
+
+
+
+
+<li class="menuitem  spacer-left-1rem"><a class="no-padding-left" href="https://oak-tree.tech/solutions">Solutions</a></li>
+
+<li class="menuitem  spacer-left-1rem"><a class="no-padding-left" href="https://oak-tree.tech/training">Training</a></li>
+
+<li class="menuitem active spacer-left-1rem"><a class="no-padding-left" href="https://oak-tree.tech/blog">Lab Notes</a></li>
+
+
+
+
+<li class="menuitem"><a href="https://code.oak-tree.tech/">Code Server</a></li>
+
+<li class="menuitem"><a href="https://messaging.oak-tree.tech/">Messaging</a></li>
+
+</ul>
+</div><div class="js-off-canvas-overlay is-overlay-fixed"></div>
+
+<div class="off-canvas-content" data-off-canvas-content="">
+
+
+
+<nav class="title-bar">
+<div class="title-bar-left grid-x align-middle" style="z-index:inherit">
+
+
+
+<a class="cell shrink" href="https://oak-tree.tech/"><h1 class="no-margin-bottom"><img class="center" src="./Modeling Data With NumPy_ Image Volumes_files/oaktree-logo.ng-general-small.2020-0708.svg"></h1></a>
+<div class="cell auto"></div>
+
+<div class="cell shrink hide-for-small-only" site-data-bind="toggle:anonymous_user"><ul class="menu dropdown align-for-left">
+
+	<!-- Registration/Login Options -->
+	<li class="menuitem" site-data-bind="toggle:anonymous_user"><a href="https://oak-tree.tech/accounts/registration?">Signup</a></li>
+	<li class="menuitem" site-data-bind="toggle:anonymous_user"><a href="https://oak-tree.tech/accounts/login?">Login</a></li>
+
+</ul></div>
+
+
+
+<div class="cell shrink show-for-medium">
+<ul class="dropdown menu align-for-left show-for-medium">
+
+
+<li class="menuitem "><a href="https://oak-tree.tech/solutions">Solutions</a></li>
+
+<li class="menuitem "><a href="https://oak-tree.tech/training">Training</a></li>
+
+<li class="menuitem active"><a href="https://oak-tree.tech/blog">Lab Notes</a></li>
+
+</ul>
+</div>
+
+
+
+
+
+<div class="cell show-for-medium shrink">
+    <a class="icon-lg-label-med spacer-right-1rem" data-open="header-search-overlay" aria-controls="header-search-overlay" aria-haspopup="true" tabindex="0"><icon class="far icon-fa-search medium"></icon></a>
+
+    
+</div>
+</div>
+
+<div class="shrink" style="z-index:inherit">
+	<ul class="dropdown menu align-right" data-dropdown-menu="" role="menubar" data-e="tsz71t-e">
+		
+
+		
+
+<li role="menuitem"><a class="icon-lg-label-med" data-toggle="acorn-nav-menu" aria-expanded="false" aria-controls="acorn-nav-menu">
+	<icon class="far icon-fa-compass medium large-small"></icon>
+	<span class="show-for-large icon-label medium spacer-left-05rem spacer-right-033rem">Menu</span>
+</a></li>
+
+		
+
+<!-- User Links -->
+<li class="show-for-medium is-dropdown-submenu-parent opens-left" site-data-bind="toggle:user_authenticated" role="menuitem" aria-haspopup="true" aria-label="
+		
+	" style="display: none;"><a class="icon-lg-label-med" data-toggle="user-links">
+		<icon class="far icon-fa-user medium"></icon>
+	</a>
+
+<ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menu">
+	<li class="menu-item padding-x-1rem spacer-bottom-05rem medium is-submenu-item is-dropdown-submenu-item" style="white-space: nowrap;" role="menuitem">
+		<span>Welcome </span>
+		<span class="spacer-left-05rem" site-data-bind="text:user_displayname">anon</span>
+		<span>!</span>
+	</li>
+	<hr class="spacer-bottom-05rem">
+	<li class="menu-item is-submenu-item is-dropdown-submenu-item" site-data-bind="toggle:user_authenticated" role="menuitem" style="display: none;"><a href="https://oak-tree.tech/accounts/profile">
+		<icon class="far icon-fa-cogs spacer-right-05rem"></icon>
+		<span>User Profile</span>
+	</a></li>
+	<li class="menu-item is-submenu-item is-dropdown-submenu-item" site-data-bind="toggle:user_authenticated" role="menuitem" style="display: none;"><a href="https://oak-tree.tech/accounts/logout">
+		<icon class="far icon-fa-sign-out spacer-right-05rem"></icon>
+		<span>Sign Out</span>
+	</a></li>
+</ul></li></ul></div>
+
+	
+</nav></div>
+
+
+
+
+
+
+<main class="page-content" data-title="Modeling Data With NumPy: Image Volumes">
+
+
+
+
+
+
+
+<header class="cover-image" style="background-image: url(https://objects-us-east-1.dream.io/acorn/original_images/ct.chest-series-enhnaced.png);"></header>
+
+
+<div class="grid-container layout-columns">
+<div class="grid-x grid-padding-x grid-padding-y spacer-bottom-1rem">
+<div class="cell hide-for-small-only medium-2">
+
+
+
+<div class="large-12 medium-12 small-12 spacer-top-3rem text-center author-widget">
+<div class="user-avatar" style="background-image: url(&#39;https://objects-us-east-1.dream.io/acorn/user_information/1_avatar.png&#39;)"></div>
+<div style="margin-top:1rem;"><author><b>Rob Oakes</b></author></div>
+
+<div style="line-height:2rem;"><published><b>Apr 06, 2020</b></published></div>
+
+</div>
+
+
+
+
+</div><div class="cell auto">
+
+
+
+
+
+
+<section class="grid-container grid-x no-padding content-footer spacer-bottom-15rem spacer-top-1rem"><div class="large-12 medium-12 small-12 content-tags meta-collection">
+
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Scientific Computing" href-data="/blog/api/content/tag/166">
+    <span class="meta-collection-view tag-view-button">Scientific Computing</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Data Modeling" href-data="/blog/api/content/tag/167">
+    <span class="meta-collection-view tag-view-button">Data Modeling</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Image Processing" href-data="/blog/api/content/tag/168">
+    <span class="meta-collection-view tag-view-button">Image Processing</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="NumPy" href-data="/blog/api/content/tag/169">
+    <span class="meta-collection-view tag-view-button">NumPy</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Medical Imaging" href-data="/blog/api/content/tag/170">
+    <span class="meta-collection-view tag-view-button">Medical Imaging</span>
+</div>
+
+
+<script class="template-content-item" type="x-template">
+
+
+<div class="container">
+	<% if (data.url_image) { %>
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+	</header><% } %>
+	<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+		<div class="cell small-12" style="min-height: 250px;">
+			<% if (data.title) { %><h5 class="medium"><%- data.title %></h4><% }; %>
+			<div class="content-meta spacer-bottom-1rem">
+				<% if (data.ctime) { %><published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)"></published><% }; %>
+				<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+				<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+			</div>
+			<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+				<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+				<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small></<% }; %>
+			</div><% }; %>
+		</div>
+		<% if (data.url) { %><div class="cell small-12">
+			<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+		</div><% }; %>
+	</section>
+</div></script>
+<script class="template-meta-dialog" type="x-template">
+
+<section class="grid-container meta-dialog background-darkgray text-white padding-x-2rem"><div class="grid-x grid-padding-x fluid">
+	<nav id="cell small-12" collection-data-bind="toggle:dialog">
+		<h3 class="spacer-top-1rem spacer-left-1rem spacer-bottom-15rem" collection-data-bind="toggle:collection_results_visible">
+			<div>
+				<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+				<span>Content tagged with </span>
+				<span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span>
+			</div>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:error">
+			<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+			<span>Unable to content tagged with </span><span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span><span> due to an error</span>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:collection_results_empty">
+			<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+			<span>No articles found for </span><span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span>
+		</h3>
+	</nav>
+	<section class="cell small-12" collection-data-bind="toggle:dialog">
+		<div class="collection-item-list grid-x grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 spacer-bottom-1rem recent-content" collection-data-bind="collection:$collection"></div>
+
+		<button type="button" class="collection-items-load cell small-12 medium-6 large-4 button ghost large"
+			collection-data-bind="toggle:additional">Load More</button>
+	</section>
+
+</div></section></script>
+
+</div></section>
+
+
+
+<div class="grid-container spacer-top-1rem"><div class="grid-x"><div class="cell small-12">
+<h1>Modeling Data With NumPy: Image Volumes</h1>
+</div></div></div>
+<div class="grid-container"><div class="grid-x spacer-bottom-15rem "><div class="cell small-12 medium-12 large-12"><summary class="page-summary text-secondary">
+In many types of medical imaging studies, such as CT and MRI, there is a sequence of stacked images acquired. These stacks can be ordered and worked with as a cohesive volume. In this article, we look at how to do so with NumPy in Python.
+</summary></div></div></div>
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>In many applications, image data can be combined to create three-dimensional scenes or data volumes. Such data is acquired in a host of different ways: <a href="https://en.wikipedia.org/wiki/Photosynth">using pictures taken of an object</a> from different perspectives, using special sensors <a href="https://oceanservice.noaa.gov/facts/lidar.html">such as LIDAR</a>, or by medical imaging processes like <a href="https://en.wikipedia.org/wiki/Magnetic_resonance_imaging">MRI</a> or <a href="https://en.wikipedia.org/wiki/CT_scan">CT</a>.</p><p>Three dimensional data derived from images can be used in many interesting ways, such as:</p><ul><li>more accurate inspection of components at manufacturing sites</li><li><a href="https://www.ted.com/talks/ben_kacyra_ancient_wonders_captured_in_3d?language=en">allowing us to see forgotten ruins covered by the jungle</a></li><li>providing powerful ways for surgeons to more accurately plan and execute complex operations and verify that treatment was successful</li><li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0002961007000487">improving the performance and accuracy of robotic surgery</a></li></ul><p>and many more.</p><p>Python in general, and NumPy in specific has become important in working with volumetric image data. In this article, we will look at ways in which you can use NumPy to work with a stack of CT images as a cohesive dataset, use features of NumPy such as boolean masks to improve the contrast, and show how to visualize the data as a series.</p><p><i>This article is Part 4 of a larger series showing how NumPy can be used to model data for machine learning and visualization. If you have not already done so, checkout</i> <a href="https://oak-tree.tech/blog/numpy-images"><i>Part 1</i></a><i>, which provides an overview of NumPy and how to work with image data.</i> <i>A Jupyter notebook with the code in the article can be downloaded</i> <a href="https://oak-tree.tech/documents/157/example-py.data-modeling.image-volumes.2020-0403.ipynb"><i>here</i></a><i>.</i> <i>A Docker environment with NumPy, Pandas, and other dependencies needed to run the code can be found</i> <a href="https://oak-tree.tech/blog/big-data-lab-environment"><i>here</i></a><i>.</i></p></div>
+</div></div>
+<div class="grid-container layout-columns">
+<div class="grid-x grid-padding-x grid-padding-y spacer-bottom-1rem">
+<div class="cell small-12 medium-auto">
+
+
+<div class="grid-container spacer-bottom-15rem"><div class="grid-x grid-padding-x"><div class="cell small-12"><div>
+    <iframe src="./Modeling Data With NumPy_ Image Volumes_files/blaise_aguera_y_arcas_how_photosynth_can_connect_the_world_s_images.html" width="560" height="316" frameborder="0" scrolling="no" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+</div>
+</div></div></div>
+<p><i>Volumetric data can be created through the use of thousands of images taken from slightly different perspectives. Microsoft's PhotoSynth was one of the first image processing systems capable of using millions of images in its models.</i></p>
+
+<div class="grid-container spacer-bottom-15rem"><div class="grid-x grid-padding-x"><div class="cell small-12"><div>
+    <iframe src="./Modeling Data With NumPy_ Image Volumes_files/ben_kacyra_ancient_wonders_captured_in_3d.html" width="560" height="316" frameborder="0" scrolling="no" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+</div>
+</div></div></div>
+<p><i>Because it is able to penetrate the tree canopy, imaging methods like LIDAR can be used to create detailed maps of the jungle. The cultural treasures found by archeologists mapping parts of Guatemala was more than anyone expected.</i></p></div><div class="cell small-12 medium-auto">
+
+
+<figure>
+<img alt="Point Cloud of Cathedral Generated from LIDAR" class="fullwidth" height="711" src="./Modeling Data With NumPy_ Image Volumes_files/cathedral-point-cloud.width-1200.jpg" width="1024">
+<figcaption>Point cloud of a cathedral acquired from LIDAR scans.</figcaption>
+
+</figure>
+
+<figure>
+<img alt="Three Dimensional Volume Created from Stacked CT Images" class="fullwidth" height="509" src="./Modeling Data With NumPy_ Image Volumes_files/cat.stacked-volume.width-1200.jpg" width="616">
+<figcaption>Chest and abdomen model created from a set of CT slices.</figcaption>
+
+</figure></div>
+</div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h2>Medical Imaging Crash Course</h2><p>For this example, we will be using a set of CT images. Computed Tomography is a special type of x-ray imaging in which a narrow beam of radiation is quickly rotated around the body, producing a signal that is processed by a computer to create a a series of cross-sectional images (or slices) of the body. Because of how it is acquired and the ability to stack the slices, a CT scan has more information than a traditional (two-dimensional) x-ray.</p><p>When working with CT scans, you typically acquire and stack the images starting at a patient's feet and moving toward the head. CT scans have only a single channel of data, which makes them similar to grayscale images. Because the image is based on x-ray diffraction, the color (or intensity) of the image will be based on how dense the part of the body through which the x-ray passed was. Less dense tissue -- such as lung (which is mostly air), fat, or water -- will appear dark. More dense tissue -- such as muscle and bone -- will appear light.</p></div>
+</div></div>
+<div class="grid-container layout-columns">
+<div class="grid-x grid-padding-x grid-padding-y spacer-bottom-1rem">
+<div class="cell small-12 medium-auto"><h4>Anatomy Primer for Medical Imaging</h4><p>To help us navigate the medical images we will be working with, it can be helpful to be familiar with the terminology of "views," since they relate to how images are acquired and navigated. Medical images are often described in terms of an "anatomical plane." While acquired in one plane, it is standard practice to re-sample and segment the views to other anatomical planes to allow doctors and researchers to look at the information from multiple perspectives.</p><p>The three most important anatomic planes are:</p><ul><li>Sagittal or median plane (also called the longitudinal or anteroposterior), which divides the body into left and right parts.</li><li>Coronal or frontal plane (vertical) divides the body into dorsal and ventral (back and front, or posterior and anterior)</li><li>Transverse or axial plane (lateral, horizontal) divides the body into cranial and caudal (head and feet)</li></ul><p>CT images are only acquired in the axial plane. The dataset we will use in this article is of the upper abdomen and lower chest.</p></div><div class="cell small-12 medium-auto">
+
+
+<figure>
+<img alt="Brain: Transverse Plane" class="fullwidth" height="1323" src="./Modeling Data With NumPy_ Image Volumes_files/brain-transverse.width-1200.png" width="1200">
+<figcaption>Transverse. Plane Brain as viewed from below, this is an example of the transverse plane. CT is normally acquired in the transverse plane.</figcaption>
+
+</figure>
+
+<figure>
+<img alt="Brain: Sagittal Plane" class="fullwidth" height="881" src="./Modeling Data With NumPy_ Image Volumes_files/brain-sagittal.width-1200.png" width="1200">
+<figcaption>Sagittal Plane. Brain cut in half through the midsection, this is an example of the sagittal plane.</figcaption>
+
+</figure></div>
+</div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h2>Working With Images Volumes in NumyPy</h2><p>Like we've done previously, we will use NumPy to work with our imaging data and create the volume. This will require:</p><ul><li>Setting up dependencies needed for working with medical images and configuring the visualization tools we use in our analysis.</li><li>Fetching a compressed archive of images from a remote source, extracting the data from an archive, and loading it to a NumPy array.</li><li>Sample individual slices from the image for visualization in Python to determine what types of transforms should be performed.</li><li>Create a panel figure to inspect the image series as a whole to ensure data consistency.</li><li>Utilize simple techniques, such as a threshold to improve tissue contrast in the image.</li><li>Creating a second panel figure to inspect the results.</li></ul><h4>Medical Imaging Data Formats</h4><p>In comparison to the standard types of image formats -- JPEG, PNG, GIF -- that you may be familiar with, medical images use a special format called "Digital Imaging and Communications in Medicine" or DICOM. Since many traditional image processing libraries lack support for DICOM, we need to use a special library to read and parse the data.</p><p>There are many Python libraries that can load DICOM. Some of the most popular include <a href="http://pydicom.readthedocs.io/"><code>pydicom</code></a> and the <a href="https://itk.org/">Insight Toolkit (ITK)</a>. In this article, we will continue to use the <code>imageio</code> library which seen previously.</p></div>
+</div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h3>Import Dependencies</h3><p>The codeblock below imports NumPy, SciKit-Learn, Seaborn, and other libraries. Some of the lmodules -- such as <code>requests</code>, <code>io.BytesIO</code>, <code>seaborn</code>, <code>imageio</code>, and <code>matplotlib</code> -- we have <a href="https://oak-tree.tech/blog/numpy-images">seen</a> <a href="https://oak-tree.tech/blog/numpy-digits">previously</a>. Others are new:</p><ul><li><a href="https://scikit-image.org/"><code>skimage</code></a> provides a set of image processing tools built on top of <code>sklearn</code></li><li><a href="https://scikit-image.org/docs/dev/api/skimage.exposure.html"><code>skimage.exposure</code></a> includes image processing algorithms which can help with modify the brightness and contrast (the exposure) of an image.</li><li><a href="https://scikit-image.org/docs/dev/auto_examples/applications/plot_morphology.html"><code>skimage.morphology</code></a> includes tool which can help to find the shape or morphology of features in an image. This includes such tasks as detecting boundaries or skeletons of objects.</li></ul></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># NumPy and plotting tools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+
+<span class="c1"># Utilities for working with remote data</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+
+<span class="c1"># Image processing shortcuts</span>
+<span class="kn">import</span> <span class="nn">imageio</span>
+
+<span class="c1"># SciKit-Image tools for working with the image data</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">exposure</span>
+<span class="kn">import</span> <span class="nn">skimage.morphology</span> <span class="kn">as</span> <span class="nn">morp</span>
+<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">rank</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h3>Retrieve Data and Unpack to NumPy Array</h3><p>Because medical imaging series can contain hundreds or thousands of files, it is common to create a single "archive" with all of the files and metadata about them kept together. The data we will be using has been packaged a zip archive.</p><p>The code in the listing below uses the <a href="https://docs.python.org/2/library/zipfile.html"><code>zipfile</code></a> module to allow us to work with the individual files inside of the archive and unpack them to NumPy. Specifically, we:</p><ol><li>Use <code>requests</code> to fetch the zip archive from the website where it is store.</li><li>Unpack the content of the request to a BytesIO file-like object and initialize a <code>ZipFile</code> instance so that it can be read and its contents accessed.</li><li>Once the data has been unpacked from the <code>ZipFile</code>, we use <code>imageio</code> to load raw pixel data to a NumPy array as part of a comprehension.<ol><li>Within the comprehension we iterate over the names of the files, which we retrieve using <code>namelist</code></li><li>We then retrieve a file-like object using the <code>open</code> method of the zip file archive <code>ct_fdata</code> that can be read by <code>imageio.imread</code>.</li></ol></li></ol></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Retrieve zip archive from website, create stream</span>
+<span class="n">ctr</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="s1">'https://oak-tree.tech/documents/156/example.lung-ct.volume-3d.zip'</span><span class="p">)</span>
+<span class="n">ctzip</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="c1"># Create a  data in preparation of processing</span>
+<span class="n">ct_fdata</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">ctzip</span><span class="p">)</span>
+
+<span class="c1"># Load archived folder of DICOM image data</span>
+<span class="c1"># The comprehension iterates through images and loads them to a stacked</span>
+<span class="c1"># NumPy array. The</span>
+<span class="n">ct_idata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">ct_fdata</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">ct_fdata</span><span class="o">.</span><span class="n">namelist</span><span class="p">()])</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>Once the data has been retrieved, we can check the <code>shape</code> of the NumPy array to ensure that it matches our expectation. There should be 99 layers of slices that are 512 pixels by 512 pixels.</p></div>
+</div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h3>Visualize CT Scan</h3><p>Once the image data has been loaded, a good next step is to inspect the data and make decisions about what processing (if any) should be done.</p></div>
+</div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h4>Single Image</h4><p>The code listing below pulls a single slice from the middle of the stack and renders it as a <code>matplotlib</code> figure.</p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Show one sample image from the archive</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ct_idata</span><span class="p">[</span><span class="mi">15</span><span class="p">,:,:],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gray</span><span class="p">)</span>
+
+<span class="c1"># The coloring of the image is controlled by the plt.cm.gray.</span>
+<span class="c1"># While color levels can be useful to visualize specific parts</span>
+<span class="c1"># of an image, using gray helps with inspection in this type</span>
+<span class="c1"># of a processing workflow.</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x"><div class="small-12 medium-12 large-12 cell">
+	<figure class="captioned-image">
+		
+
+<figure>
+<img alt="Figure: Unenhanced Slice from a CT Scan" class="fullwidth" height="833" src="./Modeling Data With NumPy_ Image Volumes_files/ct.chest-slice.width-1200.jpg" width="922">
+<figcaption>Single image from the CT volume. The image is from the middle of the chest, with the heart and lungs visible.</figcaption>
+
+</figure>
+	</figure>
+</div></div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h4>Image Series</h4><p>The single image represents a pretty standard, unprocessed scan. It was selected more or less at random from the stack and happens to come from about mid-level in the chest. While completely adequate, it could be enhanced before being passed to a radiologist for reading or to a machine learning algorithm for segmentation. One common enhancement is to improve the contrast between different tissue types, such as bone and muscle. <i>While some distinction between the tissues is visible in this image, it is subtle.</i></p><p>Before performing such processing, however, it is important to make sure that the images in the series are uniform. While CT is a pretty consistent imaging modality, it is not uncommon to get differences in pixel intensity between the layers. The quickest way to make such determinations is to sample the images in the scan and generate a panel plot with many images side-by-side.</p><p>The code in the listing below creates a helper method to manage visualization of the series. It takes a NumPy array with the data series and outputs a panel plot with a specified number of rows and columns.</p><ul><li>Because we only want to visualize part of the series, the method includes a parameter to control the size of the step: <code>sstep</code>. It also provides a second parameter to control the number of columns the panel image should have: <code>fcols</code>.</li><li>From the panel and the size of the image series, the number of rows is calculated as <code>frows</code>. <i>If you haven't seen it before,</i> <code><i>//</i></code><i> is the operator for integer division in Python 3.</i></li><li>The individual panels in the diagram are created using the <code>matplotlib.pyplot.subplot</code> method. Each iteration through the sequence moves the figure to the next panel in the sequence.</li><li>The image is displayed using <code>imshow</code>, again utilizing the grayscale color map.</li></ul></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Helper method to generate panel series of CT image data</span>
+
+<span class="k">def</span> <span class="nf">display_series</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">sstep</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fcols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gray</span><span class="p">):</span>
+    <span class="sd">''' Create a sample panel to inspect the provided series as a whole.</span>
+<span class="sd">        Samples images from the sequence based on the provided step.</span>
+<span class="sd">        @input sstep (int, default=5): Number of images to skip when creating the</span>
+<span class="sd">            series panel graphic.</span>
+<span class="sd">        @input fcols (int, default=3): Number of columns to display in the</span>
+<span class="sd">            panel graphic.</span>
+<span class="sd">    '''</span>
+    <span class="n">frows</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="n">sstep</span><span class="o">//</span><span class="n">fcols</span> <span class="o">+</span> <span class="mi">1</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">idata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sstep</span><span class="p">)):</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">frows</span><span class="p">,</span> <span class="n">fcols</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sub</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">idata</span><span class="p">[</span><span class="n">idx</span><span class="p">,:,:],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>Next we use the method to visualize the raw data.</p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Create a sample panel to inspect the series as a whole</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">display_series</span><span class="p">(</span><span class="n">ct_idata</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x"><div class="small-12 medium-12 large-12 cell">
+	<figure class="captioned-image">
+		
+
+<figure>
+<img alt="Figure: Series of Images from a Raw Chest CT Scan" class="fullwidth" height="1253" src="./Modeling Data With NumPy_ Image Volumes_files/ct.chest-series.width-1200.png" width="1030">
+<figcaption>Sample images from a raw CT series.</figcaption>
+
+</figure>
+	</figure>
+</div></div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>The series as a whole has "poor contrast." Pixel values are dark and the relative difference between types of tissue is small. The general pixel distribution between the slices, however, is consistent. This is a good candidate to enhance by increasing the contrast.</p><p>SciKit-Image includes a number of routines that can be used to optimize the image. Before applying any of them, looking at the pixel intensity histogram would be helpful in understanding the distribution of values before making choices.</p><p>The histogram can be quickly generated by flattening the whole volume and creating a Seaborn <a href="https://seaborn.pydata.org/generated/seaborn.distplot.html">distplot</a>. <i>When working with a sequence of images, calculations and adjustments should be made on the volume as a whole.</i></p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Plot histogram intensity for the entire volume. Working on the entire</span>
+<span class="c1"># volume is desirable because it will allow for a uniform transform.</span>
+<span class="n">ct_idata_flat</span> <span class="o">=</span> <span class="n">ct_idata</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">ct_px_min</span> <span class="o">=</span> <span class="n">ct_idata_flat</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">ct_px_max</span> <span class="o">=</span> <span class="n">ct_idata_flat</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">ct_idata_flat</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'Pixel Intensities'</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'Min: </span><span class="si">%s</span><span class="s1">, Max: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">ct_px_min</span><span class="p">,</span> <span class="n">ct_px_max</span><span class="p">),</span>
+          <span class="n">loc</span><span class="o">=</span><span class="s1">'right'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'grey'</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x"><div class="small-12 medium-12 large-12 cell">
+	<figure class="captioned-image">
+		
+
+<figure>
+<img alt="Figure: Histogram of pixel intensities from a CT volume" class="fullwidth" height="631" src="./Modeling Data With NumPy_ Image Volumes_files/ct.pixel-distribution.width-1200.png" width="687">
+<figcaption>Histogram of pixel intensities from the CT volume. There are two spikes, one near -1000 and another near 0. This is due to a deliberate normalization of the CT data that (probably) occurred during acquisition.</figcaption>
+
+</figure>
+	</figure>
+</div></div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><h3>Improving Contrast</h3><p>Within CT images, the pixel values will often range from -1024 HU to 3000 HU. -1000 is no (or very minimal) defraction, associated with air. +3000 is associated with very high density objects, metal or contrast agent. Body tissues are somewhere in-between.</p><p>The histogram shows that there is a huge set of pixels corresponding to air and a second set corresponding to tissue. Removing the air and high contrast pixels would allow for the tissue contrast to increase. As a rule of thumb, gray-scale images look better when the left-hand edge of the useful pixel values are mapped to black and the right-hand edge of useful pixels is mapped to white. Re-mapping to this range is called "windowing" or "leveling." When done programmatically, it is sometimes called "contrast stretching."</p><p>In this part of the article, we will contrast stretch by doing a couple of things. First, we are going to throw away data we don't care about: very bright pixels and shades of gray currently encoded by air. Then, we will re-map the values so that there is more spread between the different tissue types.</p><h4>Using a Threshold</h4><p>We can throw away the useless data by creating a threshold with two cutoff points. While there are a lot of ways this might be implemented, here we will generate a boolean mask from the NumPy array selecting for values between two bounds: a lower bound and an upper bound.</p><p>From visual inspection of the histogram, air values seem to be less than -250. High contrast pixels appear to be above 1000 in intensity (or 1250, just to prevent the inadvertent exclusion of meaningful data).</p><p>As part of our processing, after we generate the mask, we will then shift all values by 1024 (the minimum value in the distribution) so that air (black) starts at 0. <b>If the values are not shifted, when the boolean mask is applied all values will become 0. At present, "0" is in the middle of the tissue values.</b></p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Apply contrast stretching to the image</span>
+<span class="n">ct_px_cutoff_lower</span> <span class="o">=</span> <span class="o">-</span><span class="mi">250</span>
+<span class="n">ct_px_cutoff_upper</span> <span class="o">=</span> <span class="mi">1250</span>
+
+<span class="c1"># Create threshold mask by applying lower/upper cutoffs</span>
+<span class="n">ct_bpfilter</span> <span class="o">=</span> <span class="p">(</span><span class="n">ct_idata</span> <span class="o">&gt;</span> <span class="n">ct_px_cutoff_lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ct_idata</span> <span class="o">&lt;</span> <span class="n">ct_px_cutoff_upper</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>With mask in hand, we can then do the shifting, apply the mask to values outside of our desired range (which sets their values to 0), and feed the resulting array into <code>exposure.rescale_intensity</code> which will increase the contrast between the new values.</p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Shift range of all values based on the minimum.</span>
+<span class="c1"># This sets the "air" reference to 0.</span>
+<span class="n">ct_idata1</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">ct_idata</span><span class="o">+</span><span class="nb">abs</span><span class="p">(</span><span class="n">ct_px_min</span><span class="p">))</span> <span class="o">*</span> <span class="n">ct_bpfilter</span><span class="p">,</span>
+    <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="mi">550</span><span class="p">,</span> <span class="n">ct_px_cutoff_upper</span><span class="o">+</span><span class="nb">abs</span><span class="p">(</span><span class="n">ct_px_min</span><span class="p">)))</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>To see the results of the transformation, we can visualize the series using the same helper from earlier.</p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Visualize the resulting transformation</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">display_series</span><span class="p">(</span><span class="n">ct_idata1</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x"><div class="small-12 medium-12 large-12 cell">
+	<figure class="captioned-image">
+		
+
+<figure>
+<img alt="Figure: Series of Images from a Processed (Contrast Stretching) Chest CT Scan" class="fullwidth" height="1052" src="./Modeling Data With NumPy_ Image Volumes_files/ct.chest-series-enhnaced.width-1200.png" width="1128">
+<figcaption>Results of contrast stretching on the CT volume.</figcaption>
+
+</figure>
+	</figure>
+</div></div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>The processed images show better differentiation between the tissue types. It's easier to distinguish one type of soft tissue -- skin, fat, and muscle (for example) -- from others. The effects of the transforms become more obvious if we visualize the histogram of the transformed volume.</p></div>
+</div></div>
+
+
+<div class="grid-container spacer-bottom-2rem"><div class="codehilite"><pre><span></span><span class="c1"># Visualize the new histogram</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">ct_idata1</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+</pre></div>
+</div>
+
+
+
+<div class="grid-container"><div class="grid-x"><div class="small-12 medium-12 large-12 cell">
+	<figure class="captioned-image">
+		
+
+<figure>
+<img alt="Figure: Histogram of pixel intensities from a CT volume after enhancement" class="fullwidth" height="588" src="./Modeling Data With NumPy_ Image Volumes_files/ct.pixel-distribution-enhanced.width-1200.png" width="707">
+<figcaption>Histogram of pixel intensities from the CT volume after enhancement. As compared to the original image, most high-contrast pixels have been removed and the range of the tissue values has been spread.</figcaption>
+
+</figure>
+	</figure>
+</div></div></div>
+
+<div class="grid-container"><div class="grid-x">
+	<div class="small-12 medium-12 large-12 cell"><p>While this is a good start, even with the processing we've done the difference between tissues is still subtle. We could further stretch the contrast and apply other types of filters and max to further suppress artifact and noise. Nevertheless, we've taken a good first step.</p></div>
+</div></div>
+
+
+
+
+
+
+<section class="grid-container grid-x no-padding content-footer spacer-bottom-15rem spacer-top-1rem"><div class="large-12 medium-12 small-12 content-tags meta-collection">
+
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Scientific Computing" href-data="/blog/api/content/tag/166">
+    <span class="meta-collection-view tag-view-button">Scientific Computing</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Data Modeling" href-data="/blog/api/content/tag/167">
+    <span class="meta-collection-view tag-view-button">Data Modeling</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Image Processing" href-data="/blog/api/content/tag/168">
+    <span class="meta-collection-view tag-view-button">Image Processing</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="NumPy" href-data="/blog/api/content/tag/169">
+    <span class="meta-collection-view tag-view-button">NumPy</span>
+</div>
+
+<div class="label secondary spacer-bottom-05rem meta-item tag-container text-white" data-name="Medical Imaging" href-data="/blog/api/content/tag/170">
+    <span class="meta-collection-view tag-view-button">Medical Imaging</span>
+</div>
+
+
+<script class="template-content-item" type="x-template">
+
+
+<div class="container">
+	<% if (data.url_image) { %>
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+	</header><% } %>
+	<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+		<div class="cell small-12" style="min-height: 250px;">
+			<% if (data.title) { %><h5 class="medium"><%- data.title %></h4><% }; %>
+			<div class="content-meta spacer-bottom-1rem">
+				<% if (data.ctime) { %><published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)"></published><% }; %>
+				<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+				<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+			</div>
+			<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+				<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+				<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small></<% }; %>
+			</div><% }; %>
+		</div>
+		<% if (data.url) { %><div class="cell small-12">
+			<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+		</div><% }; %>
+	</section>
+</div></script>
+<script class="template-meta-dialog" type="x-template">
+
+<section class="grid-container meta-dialog background-darkgray text-white padding-x-2rem"><div class="grid-x grid-padding-x fluid">
+	<nav id="cell small-12" collection-data-bind="toggle:dialog">
+		<h3 class="spacer-top-1rem spacer-left-1rem spacer-bottom-15rem" collection-data-bind="toggle:collection_results_visible">
+			<div>
+				<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+				<span>Content tagged with </span>
+				<span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span>
+			</div>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:error">
+			<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+			<span>Unable to content tagged with </span><span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span><span> due to an error</span>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:collection_results_empty">
+			<% if (GuruLabs.getObjectPath(data, 'icon.icon')) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon spacer-right-1rem" ></icon><% }; %>
+			<span>No articles found for </span><span class="text-secondary spacer-left-05rem" collection-data-bind="text:name"></span>
+		</h3>
+	</nav>
+	<section class="cell small-12" collection-data-bind="toggle:dialog">
+		<div class="collection-item-list grid-x grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 spacer-bottom-1rem recent-content" collection-data-bind="collection:$collection"></div>
+
+		<button type="button" class="collection-items-load cell small-12 medium-6 large-4 button ghost large"
+			collection-data-bind="toggle:additional">Load More</button>
+	</section>
+
+</div></section></script>
+
+</div></section>
+
+
+
+<section class="grid-container grid-x no-padding spacer-top-3rem spacer-bottom-2rem">
+
+
+
+<div class="small-8 large-6 no-padding">
+    <div class="grid-x no-padding author-widget">
+        <div class="small-5 large-4">
+           <div class="user-avatar" style="background-image: url(&#39;https://objects-us-east-1.dream.io/acorn/user_information/1_avatar.png&#39;)"></div>
+        </div>
+        <div class="small-7 large-8">
+            <h5 class="spacer-top-05rem">
+            	<author class="block bold">Rob Oakes</author>
+            	<published class="block">Apr 06, 2020</published>
+            </h5>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- more by author -->
+<div class="hide-for-small-only show-for-large large-6 text-center more-by-author meta-item" data-name="Rob Oakes" href-data="/blog/api/content/author/1">
+    <a class=" button spacer-top-05rem expanded large meta-collection-view">
+        <span>More Articles by</span>
+        <span>Rob Oakes</span>
+    </a>
+
+    <script class="template-content-item" type="x-template">
+
+
+<div class="container">
+	<% if (data.url_image) { %>
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+	</header><% } %>
+	<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+		<div class="cell small-12" style="min-height: 250px;">
+			<% if (data.title) { %><h5 class="medium"><%- data.title %></h4><% }; %>
+			<div class="content-meta spacer-bottom-1rem">
+				<% if (data.ctime) { %><published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)"></published><% }; %>
+				<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+				<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+			</div>
+			<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+				<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+				<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small></<% }; %>
+			</div><% }; %>
+		</div>
+		<% if (data.url) { %><div class="cell small-12">
+			<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+		</div><% }; %>
+	</section>
+</div></script>
+    <script class="template-meta-dialog" type="x-template">
+
+
+<section class="grid-container meta-dialog background-darkgray text-white padding-x-2rem"><div class="grid-x grid-padding-x fluid">
+
+
+<nav class="cell grid-x author-widget spacer-top-2rem spacer-bottom-1rem">
+	<div class="cell small-4 medium-3 large-2" collection-data-bind="toggle:collection_results_visible">
+		<div class="user-avatar"
+		    style="background-image: url('https://objects-us-east-1.dream.io/acorn/avatar_images/avatar_5d1d030f-869a-46ae-b839-9a302d289251_Horses.jpg')"></div>
+	</div>
+	<div class="cell small-8 medium-9 large-10 spacer-top-1rem" collection-data-bind="toggle:collection_results_visible">
+		<h3><span>More Articles by </span>
+			<author class="spacer-left-05rem text-secondary">Rob Oakes</author>
+		</h3>
+	</div>
+</nav>
+
+
+<section class="cell small-12" collection-data-bind="toggle:dialog">
+	<div class="collection-item-list grid-x grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 spacer-bottom-1rem recent-content" collection-data-bind="collection:$collection"></div>
+
+	<button type="button" class="collection-items-load cell small-12 medium-6 large-4 button ghost large"
+		collection-data-bind="toggle:additional">Load More</button>
+</section>
+
+</div></section></script>
+</div>
+
+
+
+
+
+</section>
+
+
+<!--  page categories      -->
+
+
+
+<section class="grid-container grid-x no-padding content-footer spacer-bottom-1rem spacer-top-1rem content-categories meta-collection ">
+    <div class="cell small-3 medium-4"><hr></div>
+    <div class="cell small-6 medium-4 fluid text-center">
+	    <h3 class="medium spacer-bottom-2rem">Categories</h3>
+    </div>
+    <div class="cell small-3 medium-4"><hr></div>
+
+    <div class="grid-x grid-padding-x large-12">
+    
+    
+    <div class="cell auto text-center meta-item category-info-container" data-name="Big Data" data-icon-prefix="far" data-icon="database" data-description="BIg Data technologies allow you to conquer the modern information flood." href-data="/blog/api/content/category/im4ErigIe6DXnFQz"><h6 class="meta-collection-view category-view-button" s="">
+         <icon class="far icon-fa-database xlarge"></icon> 
+         <div class="spacer-top-05rem">Big Data</div> 
+    </h6></div>
+    
+    
+    
+    <div class="cell auto text-center meta-item category-info-container" data-name="Data Science" data-icon-prefix="far" data-icon="chart-bar" data-description="Data Science lets us understand how we interact with and explore our world." href-data="/blog/api/content/category/nzPc1N7wVgnk4gMd"><h6 class="meta-collection-view category-view-button" s="">
+         <icon class="far icon-fa-chart-bar xlarge"></icon> 
+         <div class="spacer-top-05rem">Data Science</div> 
+    </h6></div>
+    
+    
+    
+    <div class="cell auto text-center meta-item category-info-container" data-name="Data Visualization" data-icon-prefix="far" data-icon="chart-line" data-description="When we see data, we find patterns and relationships that cannot be located in any other way." href-data="/blog/api/content/category/yOdMQugJDdaqtkfp"><h6 class="meta-collection-view category-view-button" s="">
+         <icon class="far icon-fa-chart-line xlarge"></icon> 
+         <div class="spacer-top-05rem">Data Visualization</div> 
+    </h6></div>
+    
+    
+    
+    <div class="cell auto text-center meta-item category-info-container" data-name="Python Programming" data-icon-prefix="fab" data-icon="python" data-description="Python is a general purpose programming language with some of the best data libraries available anywhere." href-data="/blog/api/content/category/ZHolByBpT7cRRPTL"><h6 class="meta-collection-view category-view-button" s="">
+         <icon class="fab icon-fa-python xlarge"></icon> 
+         <div class="spacer-top-05rem">Python Programming</div> 
+    </h6></div>
+    
+    
+    </div>
+
+    
+    <script class="template-content-item" type="x-template">
+
+
+<div class="container">
+	<% if (data.url_image) { %>
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+	</header><% } %>
+	<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+		<div class="cell small-12" style="min-height: 250px;">
+			<% if (data.title) { %><h5 class="medium"><%- data.title %></h4><% }; %>
+			<div class="content-meta spacer-bottom-1rem">
+				<% if (data.ctime) { %><published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)"></published><% }; %>
+				<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+				<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+			</div>
+			<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+				<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+				<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small></<% }; %>
+			</div><% }; %>
+		</div>
+		<% if (data.url) { %><div class="cell small-12">
+			<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+		</div><% }; %>
+	</section>
+</div></script>
+    <script class="template-meta-dialog" type="x-template">
+
+
+<section class="grid-container meta-dialog background-darkgray text-white padding-x-2rem"><div class="grid-x grid-padding-x fluid">
+	<nav id="cell small-12" collection-data-bind="toggle:dialog">
+		<h3 class="spacer-top-1rem spacer-left-1rem spacer-bottom-15rem" collection-data-bind="toggle:collection_results_visible">
+			<div>
+				<% if (data.icon) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon" ></icon><% }; %>
+				<span class="spacer-left-1rem" collection-data-bind="text:name"></span>
+			</div>
+			<small class="light" collection-data-bind="text:description"></small>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:error">
+			<% if (data.icon) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon" ></icon><% }; %>
+			<span class="spacer-left-1rem">Unable to retrieve articles for  </span><span collection-data-bind="text:name"></span><span> due to an error</span>
+		</h3>
+		<h3 class="spacer-top-1rem spacer-left-1rem" collection-data-bind="toggle:collection_results_empty">
+			<% if (data.icon) { %><icon class="<%- data.icon.prefix %> icon-fa-<%- data.icon.icon %> large-icon" ></icon><% }; %>
+			<span class="spacer-left-1rem">No articles found for </span><span collection-data-bind="text:name"></span>
+		</h3>
+	</nav>
+	<section class="cell small-12" collection-data-bind="toggle:dialog">
+		<div class="collection-item-list grid-x grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 spacer-bottom-1rem recent-content" collection-data-bind="collection:$collection"></div>
+
+		<button type="button" class="collection-items-load cell small-12 medium-6 large-4 button ghost large"
+			collection-data-bind="toggle:additional">Load More</button>
+	</section>
+
+</div></section>
+</script>
+    
+</section>
+
+</div>
+</div></div>
+
+
+
+
+<section class="recent-content spacer-bottom-1rem background-white large-12 small-12" href-data="/blog/api/content/similar/92"><div class="grid-x">
+	<div class="cell small-12 medium-2 medium-offset-1 spacer-top-large-05rem"></div>
+	<div class="cell small-12 medium-6 fluid text-center">
+		<h3 class="medium spacer-bottom-2rem"></h3>
+		<h4 collection-data-bind="toggle:pending" style="display: none;">Loading</h4>
+		<h4 collection-data-bind="toggle:collection_results_empty" style="display: none;">Unable to find related content</h4>
+	</div>
+	<div class="cell hide-for-small-only medium-2 spacer-top-large-05rem "></div>
+
+	
+
+	<div class="cell small-12 large-10 large-offset-1 fluid "><div class="card-grid grid-x grid-padding-x grid-padding-y grid-margin-x fluid small-up-1 medium-up-2 large-up-3" collection-data-bind="collection:$collection">
+	<card class="collection-item cell">
+
+
+<div class="container">
+	
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(/content/api/images/533/large);"></div>
+	</header>
+	<section class="grid-x grid-margin-x grid-padding-x ">
+		<div class="cell small-12" style="min-height: 250px;">
+			<h5 class="medium">Modeling Data With NumPy: Images</h5>
+			<div class="content-meta spacer-bottom-1rem">
+				<published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)">Mar 28, 2020</published>
+				<span class="text-secondary"> | </span> 
+				<author class="spacer-left-033rem">Rob Oakes</author>
+			</div>
+			<div class="content-overview spacer-bottom-1rem">
+				<div class="content-summary spacer-bottom-1rem">NumPy is one of the fundamental packages used for data science, machine learning, and numerical computing within Python. In this article, we introduce NumPy and look at how it can be used to model data.</div><!--
+				
+			</div-->
+		</div>
+		<div class="cell small-12">
+			<a href="https://oak-tree.tech/blog/numpy-images" target="_blank"><span class="medium">Read More</span></a>
+		</div>
+	</div></section>
+</div></card><card class="collection-item cell">
+
+
+<div class="container">
+	
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(/content/api/images/546/large);"></div>
+	</header>
+	<section class="grid-x grid-margin-x grid-padding-x ">
+		<div class="cell small-12" style="min-height: 250px;">
+			<h5 class="medium">Modeling Data With NumPy: Recognizing Hand-written Digits</h5>
+			<div class="content-meta spacer-bottom-1rem">
+				<published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)">Apr 1, 2020</published>
+				<span class="text-secondary"> | </span> 
+				<author class="spacer-left-033rem">Rob Oakes</author>
+			</div>
+			<div class="content-overview spacer-bottom-1rem">
+				<div class="content-summary spacer-bottom-1rem">Many machine learning questions include a sizable number of decisions about how you structure (or model) the data. In this article, we look at how to structure image data to classify handwritten digits using SciKit-Learn.</div><!--
+				
+			</div-->
+		</div>
+		<div class="cell small-12">
+			<a href="https://oak-tree.tech/blog/numpy-digits" target="_blank"><span class="medium">Read More</span></a>
+		</div>
+	</div></section>
+</div></card><card class="collection-item cell">
+
+
+<div class="container">
+	
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(/content/api/images/542/large);"></div>
+	</header>
+	<section class="grid-x grid-margin-x grid-padding-x ">
+		<div class="cell small-12" style="min-height: 250px;">
+			<h5 class="medium">Modeling Data With NumPy: Tabulated/Structured Data</h5>
+			<div class="content-meta spacer-bottom-1rem">
+				<published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)">Mar 31, 2020</published>
+				<span class="text-secondary"> | </span> 
+				<author class="spacer-left-033rem">Rob Oakes</author>
+			</div>
+			<div class="content-overview spacer-bottom-1rem">
+				<div class="content-summary spacer-bottom-1rem">The simplest form of structured data encountered in many types of data analytics is that of "tabulated" or structured data. This article shows how NumPy can be used to ingest and inspect data from a structured text file.</div><!--
+				
+			</div-->
+		</div>
+		<div class="cell small-12">
+			<a href="https://oak-tree.tech/blog/numpy-structured-data" target="_blank"><span class="medium">Read More</span></a>
+		</div>
+	</div></section>
+</div></card></div></div>
+
+	<div class="cell small-12 medium-8 medium-offset-2 large-4 large-offset-4 fluid text-center spacer-top-2rem" collection-data-bind="toggle:additional" style="">
+		<button type="button" class="collection-items-load button button-white large expanded">Load More</button>
+	</div>
+
+	<script class="template-content-summary" type="x-template">
+
+
+<div class="container">
+	<% if (data.url_image) { %>
+	<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+	</header><% } %>
+	<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+		<div class="cell small-12" style="min-height: 250px;">
+			<% if (data.title) { %><h5 class="medium"><%- data.title %></h4><% }; %>
+			<div class="content-meta spacer-bottom-1rem">
+				<% if (data.ctime) { %><published class="spacer-right-033rem" collection-item-data-bind="text:display_date(ctime)"></published><% }; %>
+				<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+				<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+			</div>
+			<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+				<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+				<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small></<% }; %>
+			</div><% }; %>
+		</div>
+		<% if (data.url) { %><div class="cell small-12">
+			<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+		</div><% }; %>
+	</section>
+</div></script>
+	
+</div></section>
+
+
+
+</main>
+
+<!-- including comments panel-->
+
+
+<div class="comments-container grid-x"><div class="off-canvas position-right background-white large-5 medium-7 small-12 is-transition-overlap is-closed" id="acorn-comment-nav" data-off-canvas="" aria-hidden="true" data-e="gupx9u-e">
+    <div class="grid-x">
+        <div class="small-12 text-right spacer-top-05rem spacer-right-05rem">
+            <span class="fal icon-fa-times comment-close-dialog"></span>
+        </div>
+    </div>
+    <div class="comments" comments-data-bind="toggle:dialog" style="display: none;">
+
+        <div class="spacer-left-15rem spacer-right-15rem"><div class="grid-container grid-x">
+            <div class="comments-header grid-container grid-x no-padding large-12 small-12">
+                <div class="comment-label">
+                    <h4 style="display: inline-block">Comments</h4>
+                    <h5 class="text-secondary" style="display: inline-block; height: inherit; margin-left: 0.5rem;" comment-create-data-bind="text:commentsCount">0</h5>
+                </div>
+                
+                <a href="https://oak-tree.tech/accounts/login?next=/blog/numpy-image-volumes" class="small-12 large-12" style="display:block">
+                <textarea class="comment-text-placeholder comment-create-not-active" placeholder="Share your thoughts." style="cursor:pointer;"></textarea>
+                </a>
+                
+                
+
+
+            </div>
+        </div></div>
+
+        <div class="grid-container"><ul class="tabs" data-tabs="" id="comment-tabs" role="tablist" data-e="r95rq3-e">
+            <li class="tabs-title reader-picks-tab" data-name="reader-picks" comments-data-bind="toggle: readerPicksActive" role="presentation" style="display: none;">
+                <a href="https://oak-tree.tech/blog/numpy-image-volumes#reader-picks" aria-selected="false" role="tab" aria-controls="reader-picks" id="reader-picks-label" tabindex="-1"><span class="tabs-label">Reader picks</span></a>
+            </li>
+            <li class="tabs-title is-active all-comments-tab" data-name="all-comments" role="presentation">
+                <a href="https://oak-tree.tech/blog/numpy-image-volumes#all-comments" aria-selected="true" role="tab" aria-controls="all-comments" id="all-comments-label" tabindex="0"><span class="tabs-label">All Comments</span></a>
+            </li>
+        </ul></div>
+
+        <div class="tabs-content" data-tabs-content="comment-tabs">
+            <div id="all-comments" class="spacer-left-15rem spacer-right-15rem spacer-top-2rem all-comment-results tabs-panel is-active" role="tabpanel" aria-labelledby="all-comments-label">
+
+            </div>
+            <div id="reader-picks" class="spacer-left-15rem spacer-right-15rem spacer-top-2rem reader-picks-comment-results tabs-panel" role="tabpanel" aria-labelledby="reader-picks-label" aria-hidden="true">
+            </div>
+        </div>
+
+        <div class="grid-x grid-container align-center">
+            
+
+<div class="cell small-8 medium-6 large-3" comments-data-bind="toggle:pending" style="display: none;">
+	<h5 class="spacer-top-1rem spacer-bottom-1rem no-margin-bottom">Loading</h5>
+</div>
+		    
+
+<div class="cell small-12 text-center" comments-data-bind="toggle:error" style="display: none;">
+	<div class="spacer-top-1rem spacer-bottom-05rem">Unable to retrieve data due to an error</div>
+	<a class="data-fetch-retry spacer-top-1rem">
+		<icon class="far icon-fa-redo spacer-right-05rem"></icon>
+		<span class="indicator-label">Retry</span>
+	</a>
+</div>
+		    
+
+<div class="cell small-10 medium-8 large-5" comments-data-bind="toggle:collection_results_empty" style="display: none;">
+	<h5 class="spacer-top-1rem spacer-bottom-1rem">No results found</h5>
+</div>
+        </div>
+
+        <div class="grid-x grid-container align-center">
+            <button type="button" class="small-10 medium-8 cell large-8 collection-items-load button ghost medium" comments-data-bind="toggle:additional" style="display: none;">Load more</button>
+        </div>
+    </div>
+
+    <div class="comment-details" comments-data-bind="toggle:details" style="display: none;">
+        <div class="grid-x grid-container spacer-left-033rem spacer-bottom-1rem">
+            <span class="close-comment-details">Back to All Comments</span>
+        </div>
+        <div class="comment-item-details grid-container"></div>
+    </div>
+
+    <script class="template-comment" type="x-template">
+
+
+<div class="grid-x"><div class="large-12 small-12 medium-12" style="min-height: 100px;">
+    <div class="small-12 medium-12 large-12 comment-header"><div class="grid-container grid-x no-padding">
+        <% if(data.avatar) { %>
+         <div class="small-1 large-1 medium-1 text-center">
+             <img class="user-avatar" src="<%- data.avatar %>"></div>
+        <% } else { %>
+        <div class="small-1 large-1 medium-1 text-center"><div class="user-avatar text-white">
+            <% if(data.nickname) {%><div style="padding-top: 0.3rem"><%- data.nickname.toUpperCase()[0] %></div> <% } %>
+        </div></div>
+        <%} %>
+
+        <div class="user-info large-10 medium-10 small-10 spacer-left-033rem">
+            <% if(data.nickname) { %> <div style="line-height:1.5rem; font-size: 16px; font-weight: bold;"><%- data.nickname %></div><% } %>
+            <div style="line-height:1rem; font-size: 14px; font-weight: 100;">
+                <% if(data.location){ %> <span class="text-secondary"><%- data.location %> |</span><% } %>
+                <span class="text-secondary open-comment-details"><% if(data.timestamp){ %> <%- data.timestamp %> <% } else { %> just now <% } %></span>
+            </div>
+
+        </div>
+    </div></div>
+
+    <div class="small-12 comment-body spacer-top-05rem spacer-left-033rem"><div class="grid-container grid-x no-padding">
+        <div class="small-12 medium-10 large-10 large-offset-1 comment-summary">
+        </div>
+    </div></div>
+
+    <div class="small-12 comment-footer spacer-top-1rem spacer-left-033rem"><div class="grid-container grid-x no-padding">
+        <div class="small-12 medium-10 large-10 large-offset-1">
+            <a class="comment-reply text-small" comment-data-bind="toggle: showReplyButton"
+                href="/accounts/login" >Reply</a>
+            <a class="comment-responses-count text-small" comment-data-bind="toggle: showRepliesButton, text: responsesCount"></a>
+            <a class="comment-responses-link text-small" comment-data-bind="toggle: showResponseLink, text: responseLinkText"></a>
+            <span class="recommend-button"><a class="text-small " style="font-weight: normal"
+                href="/accounts/login">
+                <span toolbar-saved-data-bind="text:saved_count_label"></span>
+                <span class='label-saved'
+                    data-label-not-saved="Recommend" data-label-saved="Recommended"
+                        toolbar-saved-data-bind="text:label_saved"></span>
+            </a></span>
+            <div class="response-textarea spacer-top-1rem">
+                
+
+
+            </div>
+        </div>
+    </div></div>
+
+    <% if(!data.parent) { %>
+    <div class="comment-responses large-offset-1  spacer-bottom-1rem" comment-data-bind="toggle:showResponses">
+        <div class="spacer-top-2rem spacer-left-033rem responses-collection all-comment-results">
+        </div>
+
+        <div class="grid-x grid-container align-center">
+            
+
+<div class="cell small-8 medium-6 large-3" comments-data-bind="toggle:pending">
+	<h5 class="spacer-top-1rem spacer-bottom-1rem no-margin-bottom">Loading</h5>
+</div>
+            
+
+<div class="cell small-12 text-center" comments-data-bind="toggle:error">
+	<div class="spacer-top-1rem spacer-bottom-05rem">Unable to retrieve data due to an error</div>
+	<a class="data-fetch-retry spacer-top-1rem">
+		<icon class="far icon-fa-redo spacer-right-05rem"></icon>
+		<span class="indicator-label">Retry</span>
+	</a>
+</div>
+            
+
+<div class="cell small-10 medium-8 large-5" comments-data-bind="toggle:collection_results_empty">
+	<h5 class="spacer-top-1rem spacer-bottom-1rem">No results found</h5>
+</div>
+        </div>
+
+        <div class="grid-x align-center spacer-top-05rem">
+            <button type="button" class="small-10 medium-8 cell large-8 collection-items-load button ghost medium"
+                comments-data-bind="toggle:additional">View more replies</button>
+        </div>
+    </div>
+    <% } %>
+
+</div></div>
+
+<% if (!data.parent) { %>
+    <hr class="comment-separator">
+<% } %>
+</script>
+</div><div class="js-off-canvas-overlay is-overlay-fixed"></div>
+</div>
+
+
+
+<script src="./Modeling Data With NumPy_ Image Volumes_files/comments.base.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/comments.datacore.js.download"></script>
+<script src="./Modeling Data With NumPy_ Image Volumes_files/comments.main.js.download"></script>
+
+
+
+
+
+
+
+<footer class="page spacer-bottom-rem spacer-bottom-15rem">
+<div class="grid-x">
+    <div class="small-12 treeline first" style="background-image:url(https://objects-us-east-1.dream.io/acorn/documents/oaktree-treeline.dark.fitted.svg)"></div>
+    <div class="treeline newsletter">
+        <p>RISE TO THE NEXT LEVEL | Keep up to date by subscribing to Oak-Tree.</p>
+        
+        <div id="mauticform_wrapper_oaktreenewsletterform" class="mauticform_wrapper">
+            <form autocomplete="false" role="form" method="post" action="https://marketing.oak-tree.tech/form/submit?formId=5" id="mauticform_oaktreenewsletterform" data-mautic-form="oaktreenewsletterform" enctype="multipart/form-data" target="mauticiframe_oaktreenewsletterform">
+                <div class="mauticform-error" id="mauticform_oaktreenewsletterform_error"></div>
+                <div class="mauticform-message" id="mauticform_oaktreenewsletterform_message"></div>
+                <div class="mauticform-innerform">
+        
+                    
+                  <div class="treeline-page-wrapper mauticform-page-1" data-mautic-form-page="1">
+        
+                    <div id="mauticform_oaktreenewsletterform_email_address" class="mauticform-row treeline-email mauticform-field-1">
+                        <input id="mauticform_input_oaktreenewsletterform_email_address" name="mauticform[email_address]" value="" placeholder="Email Address" class="treeline-input" type="email">
+                        <span class="mauticform-errormsg" style="display: none;"></span>
+                    </div>
+        
+                    <div id="mauticform_oaktreenewsletterform_submit" class="mauticform-row mauticform-button-wrapper mauticform-field-2">
+                        <button type="submit" name="mauticform[submit]" id="mauticform_input_oaktreenewsletterform_submit" value="" class="treeline-button btn btn-default">Subscribe</button>
+                    </div>
+                    </div>
+                </div>
+        
+                <input type="hidden" name="mauticform[formId]" id="mauticform_oaktreenewsletterform_id" value="5">
+                <input type="hidden" name="mauticform[return]" id="mauticform_oaktreenewsletterform_return" value="">
+                <input type="hidden" name="mauticform[formName]" id="mauticform_oaktreenewsletterform_name" value="oaktreenewsletterform">
+        
+                <input type="hidden" name="mauticform[messenger]" id="mauticform_oaktreenewsletterform_messenger" value="1"></form>
+        </div>
+
+        <!--<script type="text/javascript" src="//marketing.oak-tree.tech/form/generate.js?id=5"></script>-->
+        <script type="text/javascript">
+            if (typeof MauticSDKLoaded == 'undefined') {
+                var MauticSDKLoaded = true;
+                var head            = document.getElementsByTagName('head')[0];
+                var script          = document.createElement('script');
+                script.type         = 'text/javascript';
+                script.src          = 'https://marketing.oak-tree.tech/media/js/mautic-form.js';
+                script.onload       = function() {
+                    MauticSDK.onLoad();
+                };
+                head.appendChild(script);
+                var MauticDomain = 'https://marketing.oak-tree.tech';
+                var MauticLang   = {
+                    'submittingMessage': "Please wait..."
+                }
+            }
+        </script>
+    </div>
+    <div class="small-12 treeline second" style="background-image:url(https://objects-us-east-1.dream.io/acorn/documents/oaktree-treeline.light.fitted.svg)"></div>
+</div>
+<div class="grid-container layout-columns">
+	<div class="grid-x grid-padding-x grid-padding-y spacer-bottom-1rem">
+	<div class="cell small-12 medium-3 show-for-medium">
+
+<figure class="vector-image">
+	<img src="./Modeling Data With NumPy_ Image Volumes_files/oaktree-logo.ng-general-small.2020-0708.svg" style="width: 165px; height: 165px;">
+</figure>
+</div><div class="cell small-12 medium-3">
+
+<h5>Solutions &amp; Services</h5>
+
+<ul class="vertical menu">
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/solutions">Solutions &amp; Services</a></li>
+
+<li>
+
+</li><li><a href="https://storefront.oak-tree.tech/">Products &amp; Publications</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/solutions/acorn">Acorn</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/solutions/lab-console">Lab Console</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/training">Technical Training</a></li>
+
+</ul>
+
+</div><div class="cell small-12 medium-3">
+
+<h5>Discover Oak-Tree</h5>
+
+<ul class="vertical menu">
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/blog">Blog</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/blog/ml-models">Machine Learning &amp; Artificial Intelligence</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/solutions/machine-vision">Machine Vision</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/blog/blockchain-overview">Blockchain</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/solutions/contact-form">Contact</a></li>
+
+</ul>
+
+</div><div class="cell small-12 medium-3">
+
+<h5>Resources</h5>
+
+<ul class="vertical menu">
+
+<li>
+
+</li><li><a href="https://code.oak-tree.tech/">Code Server</a></li>
+
+<li>
+
+</li><li><a href="https://messaging.oak-tree.tech/">Messaging &amp; Chat</a></li>
+
+<li>
+
+</li><li><a href="https://oak-tree.tech/engineering-internal">Software Engineering</a></li>
+
+</ul>
+<span style="font-size:1.5rem">
+    <a href="https://www.linkedin.com/company/oaktree-tech"><icon class="fab icon-fa-linkedin icon-fa"></icon></a>
+    <a href="https://twitter.com/TechOaktree"><icon class="fab icon-fa-twitter-square icon-fa"></icon></a>
+    <a href="https://github.com/Oak-Tree-Tech"><icon class="fab icon-fa-github-square icon-fa"></icon></a>
+</span>
+</div><div class="cell small-12 medium-9">
+
+<p><i>© 2020 OAK-TREE TECHNOLOGIES</i></p>
+</div>
+	</div>
+</div>
+
+</footer>
+
+
+
+
+
+<script src="./Modeling Data With NumPy_ Image Volumes_files/simple-content.main.js.download"></script>
+
+
+
+
+
+<script>var _paq = window._paq || [];
+/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+var u="//tracking.oak-tree.tech/";
+_paq.push(['setTrackerUrl', u+'matomo.php']);
+_paq.push(['setSiteId', '1']);
+var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+})();</script><script>(function(w,d,t,u,n,a,m){w['MauticTrackingObject']=n;
+    w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)},a=d.createElement(t),
+    m=d.getElementsByTagName(t)[0];a.async=1;a.src=u;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://marketing.oak-tree.tech/index.php/mtc.js','mt');
+
+mt('send', 'pageview');</script><script>window.addEventListener("load", function(){
+    $("#acorn-loader").addClass("hidden")
+});</script>
+
+
+
+
+
+
+
+</div>
+
+
+<api href-static="" none="" href-comment-create="/comments/api/page/92" auth-user-id="None" href-save-create="/comments/api/page/92/favorites" href-comments-count="/comments/api/page/92/count"></api>
+
+
+
+
+<div class="reveal-overlay"><div id="header-search-overlay" data-reveal="" data-close-on-click="true" data-animation-in="slide-in-down" data-animation-out="slide-out-up" role="dialog" aria-hidden="true" data-yeti-box="header-search-overlay" data-resize="header-search-overlay" data-e="3qv63v-e">
+        <nav class="grid-x title-bar">
+            <div class="large-6 medium-6 show-for-medium shrink site-search header-search" href-autocomplete="/content/api/search/autocomplete" href-search="/content/api/search">
+                <input class="search" type="text" search-data-bind="value:term" placeholder="Search Oak-Tree" autocomplete="off">
+                <script class="template-search-result" type="x-template">
+
+
+<card class="collection-item cell">
+	<div class="container">
+		<% if (data.url_image) { %>
+		<header class="cell small-12"><div class="thumbnail" style="background-image: url(<%= data.url_image %>);"></div>
+		</header><% } %>
+		<section class="grid-x grid-margin-x grid-padding-x <% if (!data.url_image) { %>spacer-top-15rem<% } %>">
+			<div class="cell small-12" style="min-height: 250px;">
+				<% if (data.title) { %><h4 class="medium"><%- data.title %></h4><% }; %>
+				<div class="content-meta spacer-bottom-1rem">
+					<% if (data.ctime) { %><published class="spacer-right-033rem" data-bind="text:display_date(ctime)"></published><% }; %>
+					<% if (data.author && data.ctime) { %><span class="text-secondary"> | </span> <% }; %>
+					<% if (data.author) { %><author class="spacer-left-033rem"><%- data.author %></author><% }; %>
+				</div>
+				<% if (data.summary || data.search_description) { %><div class="content-overview spacer-bottom-1rem">
+					<% if (data.summary)  { %><div class="content-summary spacer-bottom-1rem"><%- data.summary %></div></<% }; %>
+					<% if (data.search_description)  { %><small class="content-search-description"><%- data.search_description %></small><% }; %>
+				</div><% }; %>
+			</div>
+			<% if (data.url) { %><div class="cell small-12">
+				<a href="<%= data.url %>" target="_blank"><span class="medium">Read More</span></a>
+			</div><% }; %>
+		</section>
+	</div>
+</card></script>
+                <script class="template-results-dialog" type="x-template">
+
+
+
+<section class="grid-container search-dialog background-darkgray text-white" style="padding: 0px;"
+		 href-autocomplete="/content/api/search/autocomplete" 
+		 href-search="/content/api/search" 
+		 data-csrf="MAaXIYfwPhelBna02R06dn2On38p9G6CsIhmMYJVA8SBO3HYy6D4u9XqTjmQocXK" >
+	<div class="search-background-image"
+		 style="background: linear-gradient(rgba(24, 25, 28, 0.57),rgba(24, 25, 28, 0.57)), url(https://objects-us-east-1.dream.io/acorn/images/airplane-wing-mountains.min-1600x1600.jpg); background-repeat: no-repeat; background-size: cover; background-position: center;">
+		<div class="grid-y align-center-middle" style="min-height: 20vh;">
+			<div class="cell" style="width: 100%;">
+				<div class="grid-container grid-x">
+					
+					<div class="cell small-12 medium-8 large-8 large-offset-1 medium-offset-1 fluid">
+						<input class="search" type="text" results-data-bind="value:term"
+							   placeholder="Search Oak-Tree" 
+							    autofocus/>
+					</div>
+					<div class="cell small-12 medium-2 large-2" style="margin:auto;"><input
+							class="search-submit large button ghost expanded" type="submit" value="Search"/></div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="grid-container">
+		<div class="background-darkgray text-white" results-data-bind="toggle:search_visible" style="display: none;">
+			<div class="grid-container grid-x">
+				<div class="search-status cell small-12">
+					<h3 class="spacer-top-1rem spacer-bottom-1rem" results-data-bind="toggle:results_pending"><span>Searching Home Listings for &ldquo;</span><span
+							results-data-bind="text:term"></span><span>&rdquo;</span></h3>
+					<h3 class="spacer-top-1rem spacer-bottom-1rem" results-data-bind="toggle:results_visible">
+						<span>Found </span><span results-data-bind="text:results"></span>
+						<span>results for &ldquo;</span><span results-data-bind="text:term"></span><span>&rdquo;</span>
+					</h3>
+					<h3 class="spacer-top-1rem spacer-bottom-1rem" results-data-bind="toggle:error">
+						Unable to retrieve search results due to an error
+					</h3>
+					<h3 class="spacer-top-1rem spacer-bottom-1rem" results-data-bind="toggle:results_empty">
+						<span>No results found for &ldquo;</span><span
+							results-data-bind="text:term"></span><span>&rdquo;</span>
+					</h3>
+					<!-- Retry Failed Requests -->
+					<h3><a class="content-search-retry" results-data-bind="toggle:error">
+						<icon class="far icon-fa-redo spacer-right-05rem"></icon>
+						<span class="indicator-label">Retry</span>
+					</a></h3>
+				</div>
+			</div>
+		</div>
+		<div class="background-darkgray text-white" results-data-bind="toggle:results_visible" style="display: none;">
+			<div class="grid-container">
+				<div class="search-results recent-content grid-x grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 spacer-bottom-1rem"></div>
+
+				<button type="button" class="search-results-load cell button ghost large"
+						results-data-bind="toggle:additional">Load More
+				</button>
+
+			</div>
+		</div>
+	</div>
+</section></script>
+            <div class="sey-container" style="left: 0px; top: 0px;"><div class="sey-categories"></div></div></div>
+        </nav>
+
+    </div></div><iframe id="mauticiframe_oaktreenewsletterform" name="mauticiframe_oaktreenewsletterform" style="display: none; margin: 0px; padding: 0px; border: none; width: 0px;" src="./Modeling Data With NumPy_ Image Volumes_files/saved_resource.html"></iframe></body></html>

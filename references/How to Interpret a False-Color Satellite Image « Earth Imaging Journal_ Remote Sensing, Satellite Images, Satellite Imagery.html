@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<!-- saved from url=(0131)https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image?doing_wp_cron=1612034458.6828610897064208984375 -->
+<html lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<!-- GOOGLE SITE VERIFICATION -->
+<meta name="google-site-verification" content="ClVKGrPHU8yczSl1q3tFKvJkxOf5RRovMBIKAeTsRvs">
+
+<!-- CHARSET -->
+<div class="fit-vids-style">­<style>               .fluid-width-video-wrapper {                 width: 100%;                              position: relative;                       padding: 0;                            }                                                                                   .fluid-width-video-wrapper iframe,        .fluid-width-video-wrapper object,        .fluid-width-video-wrapper embed {           position: absolute;                       top: 0;                                   left: 0;                                  width: 100%;                              height: 100%;                          }                                       </style></div><script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/360b5fbff6"></script><script src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/nr-1194.min.js.download"></script><script async="" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/analytics.js.download"></script><script type="text/javascript" async="" src="http://widgets.digg.com/buttons.js"></script><script async="" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/analytics.js.download"></script><script type="text/javascript">(window.NREUM||(NREUM={})).loader_config={licenseKey:"360b5fbff6",applicationID:"204893211"};window.NREUM||(NREUM={}),__nr_require=function(e,t,n){function r(n){if(!t[n]){var i=t[n]={exports:{}};e[n][0].call(i.exports,function(t){var i=e[n][1][t];return r(i||t)},i,i.exports)}return t[n].exports}if("function"==typeof __nr_require)return __nr_require;for(var i=0;i<n.length;i++)r(n[i]);return r}({1:[function(e,t,n){function r(){}function i(e,t,n){return function(){return o(e,[u.now()].concat(c(arguments)),t?null:this,n),t?void 0:this}}var o=e("handle"),a=e(6),c=e(7),f=e("ee").get("tracer"),u=e("loader"),s=NREUM;"undefined"==typeof window.newrelic&&(newrelic=s);var d=["setPageViewName","setCustomAttribute","setErrorHandler","finished","addToTrace","inlineHit","addRelease"],p="api-",l=p+"ixn-";a(d,function(e,t){s[t]=i(p+t,!0,"api")}),s.addPageAction=i(p+"addPageAction",!0),s.setCurrentRouteName=i(p+"routeName",!0),t.exports=newrelic,s.interaction=function(){return(new r).get()};var m=r.prototype={createTracer:function(e,t){var n={},r=this,i="function"==typeof t;return o(l+"tracer",[u.now(),e,n],r),function(){if(f.emit((i?"":"no-")+"fn-start",[u.now(),r,i],n),i)try{return t.apply(this,arguments)}catch(e){throw f.emit("fn-err",[arguments,this,e],n),e}finally{f.emit("fn-end",[u.now()],n)}}}};a("actionText,setName,setAttribute,save,ignore,onEnd,getContext,end,get".split(","),function(e,t){m[t]=i(l+t)}),newrelic.noticeError=function(e,t){"string"==typeof e&&(e=new Error(e)),o("err",[e,u.now(),!1,t])}},{}],2:[function(e,t,n){function r(){return c.exists&&performance.now?Math.round(performance.now()):(o=Math.max((new Date).getTime(),o))-a}function i(){return o}var o=(new Date).getTime(),a=o,c=e(8);t.exports=r,t.exports.offset=a,t.exports.getLastTimestamp=i},{}],3:[function(e,t,n){function r(e,t){var n=e.getEntries();n.forEach(function(e){"first-paint"===e.name?d("timing",["fp",Math.floor(e.startTime)]):"first-contentful-paint"===e.name&&d("timing",["fcp",Math.floor(e.startTime)])})}function i(e,t){var n=e.getEntries();n.length>0&&d("lcp",[n[n.length-1]])}function o(e){e.getEntries().forEach(function(e){e.hadRecentInput||d("cls",[e])})}function a(e){if(e instanceof m&&!g){var t=Math.round(e.timeStamp),n={type:e.type};t<=p.now()?n.fid=p.now()-t:t>p.offset&&t<=Date.now()?(t-=p.offset,n.fid=p.now()-t):t=p.now(),g=!0,d("timing",["fi",t,n])}}function c(e){d("pageHide",[p.now(),e])}if(!("init"in NREUM&&"page_view_timing"in NREUM.init&&"enabled"in NREUM.init.page_view_timing&&NREUM.init.page_view_timing.enabled===!1)){var f,u,s,d=e("handle"),p=e("loader"),l=e(5),m=NREUM.o.EV;if("PerformanceObserver"in window&&"function"==typeof window.PerformanceObserver){f=new PerformanceObserver(r);try{f.observe({entryTypes:["paint"]})}catch(v){}u=new PerformanceObserver(i);try{u.observe({entryTypes:["largest-contentful-paint"]})}catch(v){}s=new PerformanceObserver(o);try{s.observe({type:"layout-shift",buffered:!0})}catch(v){}}if("addEventListener"in document){var g=!1,w=["click","keydown","mousedown","pointerdown","touchstart"];w.forEach(function(e){document.addEventListener(e,a,!1)})}l(c)}},{}],4:[function(e,t,n){function r(e,t){if(!i)return!1;if(e!==i)return!1;if(!t)return!0;if(!o)return!1;for(var n=o.split("."),r=t.split("."),a=0;a<r.length;a++)if(r[a]!==n[a])return!1;return!0}var i=null,o=null,a=/Version\/(\S+)\s+Safari/;if(navigator.userAgent){var c=navigator.userAgent,f=c.match(a);f&&c.indexOf("Chrome")===-1&&c.indexOf("Chromium")===-1&&(i="Safari",o=f[1])}t.exports={agent:i,version:o,match:r}},{}],5:[function(e,t,n){function r(e){function t(){e(a&&document[a]?document[a]:document[i]?"hidden":"visible")}"addEventListener"in document&&o&&document.addEventListener(o,t,!1)}t.exports=r;var i,o,a;"undefined"!=typeof document.hidden?(i="hidden",o="visibilitychange",a="visibilityState"):"undefined"!=typeof document.msHidden?(i="msHidden",o="msvisibilitychange"):"undefined"!=typeof document.webkitHidden&&(i="webkitHidden",o="webkitvisibilitychange",a="webkitVisibilityState")},{}],6:[function(e,t,n){function r(e,t){var n=[],r="",o=0;for(r in e)i.call(e,r)&&(n[o]=t(r,e[r]),o+=1);return n}var i=Object.prototype.hasOwnProperty;t.exports=r},{}],7:[function(e,t,n){function r(e,t,n){t||(t=0),"undefined"==typeof n&&(n=e?e.length:0);for(var r=-1,i=n-t||0,o=Array(i<0?0:i);++r<i;)o[r]=e[t+r];return o}t.exports=r},{}],8:[function(e,t,n){t.exports={exists:"undefined"!=typeof window.performance&&window.performance.timing&&"undefined"!=typeof window.performance.timing.navigationStart}},{}],ee:[function(e,t,n){function r(){}function i(e){function t(e){return e&&e instanceof r?e:e?u(e,f,a):a()}function n(n,r,i,o,a){if(a!==!1&&(a=!0),!l.aborted||o){e&&a&&e(n,r,i);for(var c=t(i),f=v(n),u=f.length,s=0;s<u;s++)f[s].apply(c,r);var p=d[h[n]];return p&&p.push([b,n,r,c]),c}}function o(e,t){y[e]=v(e).concat(t)}function m(e,t){var n=y[e];if(n)for(var r=0;r<n.length;r++)n[r]===t&&n.splice(r,1)}function v(e){return y[e]||[]}function g(e){return p[e]=p[e]||i(n)}function w(e,t){s(e,function(e,n){t=t||"feature",h[n]=t,t in d||(d[t]=[])})}var y={},h={},b={on:o,addEventListener:o,removeEventListener:m,emit:n,get:g,listeners:v,context:t,buffer:w,abort:c,aborted:!1};return b}function o(e){return u(e,f,a)}function a(){return new r}function c(){(d.api||d.feature)&&(l.aborted=!0,d=l.backlog={})}var f="nr@context",u=e("gos"),s=e(6),d={},p={},l=t.exports=i();t.exports.getOrSetContext=o,l.backlog=d},{}],gos:[function(e,t,n){function r(e,t,n){if(i.call(e,t))return e[t];var r=n();if(Object.defineProperty&&Object.keys)try{return Object.defineProperty(e,t,{value:r,writable:!0,enumerable:!1}),r}catch(o){}return e[t]=r,r}var i=Object.prototype.hasOwnProperty;t.exports=r},{}],handle:[function(e,t,n){function r(e,t,n,r){i.buffer([e],r),i.emit(e,t,n)}var i=e("ee").get("handle");t.exports=r,r.ee=i},{}],id:[function(e,t,n){function r(e){var t=typeof e;return!e||"object"!==t&&"function"!==t?-1:e===window?0:a(e,o,function(){return i++})}var i=1,o="nr@id",a=e("gos");t.exports=r},{}],loader:[function(e,t,n){function r(){if(!x++){var e=b.info=NREUM.info,t=p.getElementsByTagName("script")[0];if(setTimeout(u.abort,3e4),!(e&&e.licenseKey&&e.applicationID&&t))return u.abort();f(y,function(t,n){e[t]||(e[t]=n)});var n=a();c("mark",["onload",n+b.offset],null,"api"),c("timing",["load",n]);var r=p.createElement("script");r.src="https://"+e.agent,t.parentNode.insertBefore(r,t)}}function i(){"complete"===p.readyState&&o()}function o(){c("mark",["domContent",a()+b.offset],null,"api")}var a=e(2),c=e("handle"),f=e(6),u=e("ee"),s=e(4),d=window,p=d.document,l="addEventListener",m="attachEvent",v=d.XMLHttpRequest,g=v&&v.prototype;NREUM.o={ST:setTimeout,SI:d.setImmediate,CT:clearTimeout,XHR:v,REQ:d.Request,EV:d.Event,PR:d.Promise,MO:d.MutationObserver};var w=""+location,y={beacon:"bam.nr-data.net",errorBeacon:"bam.nr-data.net",agent:"js-agent.newrelic.com/nr-1194.min.js"},h=v&&g&&g[l]&&!/CriOS/.test(navigator.userAgent),b=t.exports={offset:a.getLastTimestamp(),now:a,origin:w,features:{},xhrWrappable:h,userAgent:s};e(1),e(3),p[l]?(p[l]("DOMContentLoaded",o,!1),d[l]("load",r,!1)):(p[m]("onreadystatechange",i),d[m]("onload",r)),c("mark",["firstbyte",a.getLastTimestamp()],null,"api");var x=0},{}],"wrap-function":[function(e,t,n){function r(e,t){function n(t,n,r,f,u){function nrWrapper(){var o,a,s,p;try{a=this,o=d(arguments),s="function"==typeof r?r(o,a):r||{}}catch(l){i([l,"",[o,a,f],s],e)}c(n+"start",[o,a,f],s,u);try{return p=t.apply(a,o)}catch(m){throw c(n+"err",[o,a,m],s,u),m}finally{c(n+"end",[o,a,p],s,u)}}return a(t)?t:(n||(n=""),nrWrapper[p]=t,o(t,nrWrapper,e),nrWrapper)}function r(e,t,r,i,o){r||(r="");var c,f,u,s="-"===r.charAt(0);for(u=0;u<t.length;u++)f=t[u],c=e[f],a(c)||(e[f]=n(c,s?f+r:r,i,f,o))}function c(n,r,o,a){if(!m||t){var c=m;m=!0;try{e.emit(n,r,o,t,a)}catch(f){i([f,n,r,o],e)}m=c}}return e||(e=s),n.inPlace=r,n.flag=p,n}function i(e,t){t||(t=s);try{t.emit("internal-error",e)}catch(n){}}function o(e,t,n){if(Object.defineProperty&&Object.keys)try{var r=Object.keys(e);return r.forEach(function(n){Object.defineProperty(t,n,{get:function(){return e[n]},set:function(t){return e[n]=t,t}})}),t}catch(o){i([o],n)}for(var a in e)l.call(e,a)&&(t[a]=e[a]);return t}function a(e){return!(e&&e instanceof Function&&e.apply&&!e[p])}function c(e,t){var n=t(e);return n[p]=e,o(e,n,s),n}function f(e,t,n){var r=e[t];e[t]=c(r,n)}function u(){for(var e=arguments.length,t=new Array(e),n=0;n<e;++n)t[n]=arguments[n];return t}var s=e("ee"),d=e(7),p="nr@original",l=Object.prototype.hasOwnProperty,m=!1;t.exports=r,t.exports.wrapFunction=c,t.exports.wrapInPlace=f,t.exports.argsToArray=u},{}]},{},["loader"]);</script>
+
+<!-- TITLE -->
+<title>How to Interpret a False-Color Satellite Image « Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery</title>
+
+<!-- VIEWPORT -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<!-- DESCRIPTION -->
+<meta name="description" content="Earth Imaging Journal is a bimonthly magazine covering a range of earth observation and geospatial technologies and applications.">
+
+<!-- KEYWORDS -->
+<meta name="keywords" content="Earth observation,remote sensing,imagery,geospatial,uas,satellite,mapping,lidar,magazine">
+
+<!-- FAVICON -->
+
+<!-- STYLESHEET -->
+<link rel="stylesheet" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/style.css" type="text/css" media="screen">
+
+<!-- PINGBACK -->
+<link rel="pingback" href="https://eijournal.com/xmlrpc.php">
+
+<!--[if IE 8]>
+	<link rel="stylesheet" type="text/css" href="https://eijournal.com/wp-content/themes/urbannews/framework/css/ie.css" />
+<![endif]-->
+
+<!-- APPLE TOUCH ICONS -->
+<link rel="apple-touch-icon" href="https://eijournal.com/wp-content/uploads/2014/10/apple-touch-icon.png"><link rel="apple-touch-icon" sizes="72x72" href="https://eijournal.com/wp-content/uploads/2014/10/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="114x114" href="https://eijournal.com/wp-content/uploads/2014/10/apple-touch-icon-114x114.png">
+<!-- TRACKING HEADER -->
+
+<!-- WP HEAD -->
+<!-- Jetpack Site Verification Tags -->
+<link rel="dns-prefetch" href="https://s0.wp.com/">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+<link rel="dns-prefetch" href="https://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery » Feed" href="https://eijournal.com/feed">
+<link rel="alternate" type="application/rss+xml" title="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery » Comments Feed" href="https://eijournal.com/comments/feed">
+<link rel="alternate" type="application/rss+xml" title="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery » How to Interpret a False-Color Satellite Image Comments Feed" href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image/feed">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/eijournal.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.8"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,56826,8203,55356,56819),0,0),c=j.toDataURL(),b===c&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55358,56794,8205,9794,65039),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55358,56794,8203,9794,65039),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/wp-emoji-release.min.js.download" type="text/javascript" defer=""></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="super-post-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/super-post.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_font-awesome_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/font-awesome.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_fornt_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/front.css" type="text/css" media="all">
+<link rel="stylesheet" id="font-awesome-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/font-awesome(1).css" type="text/css" media="all">
+<link rel="stylesheet" id="font-creative-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/styles.css" type="text/css" media="all">
+<link rel="stylesheet" id="font-alternative-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/styles(1).css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_prettyphoto_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.prettyphoto.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_swiper_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/idangerous.swiper.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_YTPlayer_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/mb.YTVPlayer.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_animate_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/animate.css" type="text/css" media="all">
+<link rel="stylesheet" id="fbuilder_shortcode_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/shortcodes.css" type="text/css" media="all">
+<link rel="stylesheet" id="rs-plugin-settings-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/settings.css" type="text/css" media="all">
+<style id="rs-plugin-settings-inline-css" type="text/css">
+.tp-caption a{color:#ff7302;text-shadow:none;-webkit-transition:all 0.2s ease-out;-moz-transition:all 0.2s ease-out;-o-transition:all 0.2s ease-out;-ms-transition:all 0.2s ease-out}.tp-caption a:hover{color:#ffa902}
+</style>
+<link rel="stylesheet" id="grid-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/grid.css" type="text/css" media="all">
+<link rel="stylesheet" id="typography-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/typography.css" type="text/css" media="all">
+<link rel="stylesheet" id="carousel-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/carousel.css" type="text/css" media="all">
+<link rel="stylesheet" id="flex-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/flexslider.css" type="text/css" media="all">
+<link rel="stylesheet" id="fancybox-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.fancybox.css" type="text/css" media="all">
+<link rel="stylesheet" id="menu-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/menu.css" type="text/css" media="all">
+<link rel="stylesheet" id="responsive-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/responsive.css" type="text/css" media="all">
+<link rel="stylesheet" id="Raleway-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/css" type="text/css" media="all">
+<link rel="stylesheet" id="SansPro-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/css(1)" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jetpack.css" type="text/css" media="all">
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery-migrate.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var superPost = {"ajaxurl":"https:\/\/eijournal.com\/wp-admin\/admin-ajax.php","nonce":"26016b6427","likes":{"action":"likes","success":"Thaks for liking this post.","error":"You have liked this post."},"rates":{"action":"rates","success":"Thaks for rating this post.","error":"You have rated this post."},"paging":"super_post_widget_ajax","share":{"https:\/\/eijournal.com\/print\/articles\/how-to-interpret-a-false-color-satellite-image":21029},"google_plus":"get_google_plus_one","sendmail":"send_email"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.super-post.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/galleria.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jsapi"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/geo-mashup-loader.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.themepunch.tools.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.themepunch.revolution.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/custom.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/init-flexslider.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/slide.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.eqheight.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.eqheight-init.js.download"></script>
+<link rel="https://api.w.org/" href="https://eijournal.com/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://eijournal.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://eijournal.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Maximizing Orthoimagery QA/QC Procedures" href="https://eijournal.com/print/articles/maximizing-orthoimagery-qaqc-procedures">
+<link rel="next" title="Unlocking Radar’s Full Potential" href="https://eijournal.com/print/articles/unlocking-radars-full-potential">
+<meta name="generator" content="WordPress 4.8">
+<link rel="canonical" href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image">
+<link rel="shortlink" href="https://wp.me/p55zFG-5tb">
+<link rel="alternate" type="application/json+oembed" href="https://eijournal.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Feijournal.com%2Fprint%2Farticles%2Fhow-to-interpret-a-false-color-satellite-image">
+<link rel="alternate" type="text/xml+oembed" href="https://eijournal.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Feijournal.com%2Fprint%2Farticles%2Fhow-to-interpret-a-false-color-satellite-image&amp;format=xml">
+
+<style>	
+</style>
+<style>
+#fbuilder_content_wrapper .fbuilder_row > div:last-child, .anivia_row > div:last-child,  #fbuilder_wrapper.fbuilder_wrapper_one-fourth-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-fourth-left-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-left-sidebar {
+	margin: 0px -24px;
+}
+
+.fbuilder_column.fbuilder_column-1-1, .fbuilder_column.fbuilder_column-1-2, .fbuilder_column.fbuilder_column-1-3, .fbuilder_column.fbuilder_column-2-3, .fbuilder_sidebar.fbuilder_one-fourth-right-sidebar, .fbuilder_sidebar.fbuilder_one-fourth-left-sidebar, .fbuilder_sidebar.fbuilder_one-third-right-sidebar, .fbuilder_sidebar.fbuilder_one-third-left-sidebar, .fbuilder_column.fbuilder_column-1-4, .fbuilder_column.fbuilder_column-3-4, .fbuilder_column.fbuilder_column-1-5, .fbuilder_column.fbuilder_column-2-5, .fbuilder_column.fbuilder_column-3-5, .fbuilder_column.fbuilder_column-4-5, .fbuilder_wrapper_one-fourth-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-fourth-right-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-right-sidebar #fbuilder_content_wrapper{
+	border-right:24px solid transparent;
+	border-left:24px solid transparent;
+}
+
+@media screen and (max-width: 1200px) {
+
+	#fbuilder_content_wrapper .fbuilder_row > div:last-child, .anivia_row > div:last-child,  #fbuilder_wrapper.fbuilder_wrapper_one-fourth-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-fourth-left-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-left-sidebar {
+		margin: 0px -18px;
+	}
+	.fbuilder_column.fbuilder_column-1-1, .fbuilder_column.fbuilder_column-1-2, .fbuilder_column.fbuilder_column-1-3, .fbuilder_column.fbuilder_column-2-3, .fbuilder_sidebar.fbuilder_one-fourth-right-sidebar, .fbuilder_sidebar.fbuilder_one-fourth-left-sidebar, .fbuilder_sidebar.fbuilder_one-third-right-sidebar, .fbuilder_sidebar.fbuilder_one-third-left-sidebar, .fbuilder_column.fbuilder_column-1-4, .fbuilder_column.fbuilder_column-3-4, .fbuilder_column.fbuilder_column-1-5, .fbuilder_column.fbuilder_column-2-5, .fbuilder_column.fbuilder_column-3-5, .fbuilder_column.fbuilder_column-4-5, .fbuilder_wrapper_one-fourth-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-fourth-right-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-right-sidebar #fbuilder_content_wrapper{
+		border-right:18px solid transparent;
+		border-left:18px solid transparent;
+	}
+}
+@media screen and (max-width: 960px) {
+	#fbuilder_content_wrapper .fbuilder_row > div:last-child, .anivia_row > div:last-child,  #fbuilder_wrapper.fbuilder_wrapper_one-fourth-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-fourth-left-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-right-sidebar, #fbuilder_wrapper.fbuilder_wrapper_one-third-left-sidebar {
+		margin: 0px -12px;
+	}
+
+	.fbuilder_column.fbuilder_column-1-1, .fbuilder_column.fbuilder_column-1-2, .fbuilder_column.fbuilder_column-1-3, .fbuilder_column.fbuilder_column-2-3, .fbuilder_sidebar.fbuilder_one-fourth-right-sidebar, .fbuilder_sidebar.fbuilder_one-fourth-left-sidebar, .fbuilder_sidebar.fbuilder_one-third-right-sidebar, .fbuilder_sidebar.fbuilder_one-third-left-sidebar, .fbuilder_column.fbuilder_column-1-4, .fbuilder_column.fbuilder_column-3-4, .fbuilder_column.fbuilder_column-1-5, .fbuilder_column.fbuilder_column-2-5, .fbuilder_column.fbuilder_column-3-5, .fbuilder_column.fbuilder_column-4-5, .fbuilder_wrapper_one-fourth-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-fourth-right-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-right-sidebar #fbuilder_content_wrapper{
+		border-right:12px solid transparent;
+		border-left:12px solid transparent;
+	}
+}
+@media screen and (max-width: 768px) {
+	.fbuilder_column.fbuilder_column-1-1, .fbuilder_column.fbuilder_column-1-2, .fbuilder_column.fbuilder_column-1-3, .fbuilder_column.fbuilder_column-2-3, .fbuilder_sidebar.fbuilder_one-fourth-right-sidebar, .fbuilder_sidebar.fbuilder_one-fourth-left-sidebar, .fbuilder_sidebar.fbuilder_one-third-right-sidebar, .fbuilder_sidebar.fbuilder_one-third-left-sidebar, .fbuilder_column.fbuilder_column-1-4, .fbuilder_column.fbuilder_column-3-4, .fbuilder_column.fbuilder_column-1-5, .fbuilder_column.fbuilder_column-2-5, .fbuilder_column.fbuilder_column-3-5, .fbuilder_column.fbuilder_column-4-5, .fbuilder_wrapper_one-fourth-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-left-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-fourth-right-sidebar #fbuilder_content_wrapper, .fbuilder_wrapper_one-third-right-sidebar #fbuilder_content_wrapper{
+		width:100%;
+		border-width:0;
+	}
+	.frb_pricing_column_label {
+		display:none;
+	}
+	.frb_pricing_container_1col table {
+		width:100% !important;
+	}
+	.frb_pricing_container_2col table{
+		width:200% !important;
+	}
+	.frb_pricing_container_3col table{
+		width:300% !important;
+	}
+	.frb_pricing_container_4col table{
+		width:400% !important;
+	}
+	.frb_pricing_container_5col table{
+		width:500% !important;
+	}
+	.frb_pricing_table td {
+		border-right:0 !important;
+	}
+	#fbuilder_content_wrapper .fbuilder_row > div:last-child, .anivia_row > div:last-child,  .fbuilder_wrapper_one-third-left-sidebar .fbuilder_row, .fbuilder_wrapper_one-third-right-sidebar .fbuilder_row, .fbuilder_wrapper_one-fourth-left-sidebar .fbuilder_row, .fbuilder_wrapper_one-fourth-right-sidebar .fbuilder_row, .fbuilder_row_controls  {
+		margin: 0px;
+	}
+	.frb_pricing_controls,
+	.frb_pricing_section_responsive,
+	.frb_pricing_label_responsive {
+		display:block;
+	}
+
+
+}
+
+
+
+</style>
+<link rel="stylesheet" href="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/highslide.css" type="text/css" media="screen">
+<!--[if lt IE 7]>
+<link rel="stylesheet" type="text/css" href="https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/highslide-ie6.css" />
+<![endif]-->
+<!-- <meta name="NextGEN" version="2.1.23" /> -->
+		<script type="text/javascript">
+			jQuery(document).ready(function() {
+				// CUSTOM AJAX CONTENT LOADING FUNCTION
+				var ajaxRevslider = function(obj) {
+				
+					// obj.type : Post Type
+					// obj.id : ID of Content to Load
+					// obj.aspectratio : The Aspect Ratio of the Container / Media
+					// obj.selector : The Container Selector where the Content of Ajax will be injected. It is done via the Essential Grid on Return of Content
+					
+					var content = "<h2>THIS IS SOME TITLE</h2><br/>";
+
+					content += "Type:"+obj.type+"</br>";
+					content += "ID:"+obj.id+"</br>";        
+					content += "Aspect Ratio:"+obj.aspectratio+"</br>";  
+					
+					data = {};
+					
+					data.action = 'revslider_ajax_call_front';
+					data.client_action = 'get_slider_html';
+					data.token = '0c5dea30fd';
+					data.type = obj.type;
+					data.id = obj.id;
+					data.aspectratio = obj.aspectratio;
+					
+					// SYNC AJAX REQUEST
+					jQuery.ajax({
+						type:"post",
+						url:"https://eijournal.com/wp-admin/admin-ajax.php",
+						dataType: 'json',
+						data:data,
+						async:false,
+						success: function(ret, textStatus, XMLHttpRequest) {
+							if(ret.success == true)
+								content = ret.data;								
+						},
+						error: function(e) {
+							console.log(e);
+						}
+					});
+					
+					 // FIRST RETURN THE CONTENT WHEN IT IS LOADED !!
+					 return content;						 
+				};
+				
+				// CUSTOM AJAX FUNCTION TO REMOVE THE SLIDER
+				var ajaxRemoveRevslider = function(obj) {
+					return jQuery(obj.selector+" .rev_slider").revkill();
+				}
+
+				// EXTEND THE AJAX CONTENT LOADING TYPES WITH TYPE AND FUNCTION
+				var extendessential = setInterval(function() {
+					if (jQuery.fn.tpessential != undefined) {
+						clearInterval(extendessential);
+						if(typeof(jQuery.fn.tpessential.defaults) !== 'undefined')
+							jQuery.fn.tpessential.defaults.ajaxTypes.push({type:"revslider",func:ajaxRevslider,killfunc:ajaxRemoveRevslider,openAnimationSpeed:0.3});   
+							// type:  Name of the Post to load via Ajax into the Essential Grid Ajax Container
+							// func: the Function Name which is Called once the Item with the Post Type has been clicked
+							// killfunc: function to kill in case the Ajax Window going to be removed (before Remove function !
+							// openAnimationSpeed: how quick the Ajax Content window should be animated (default is 0.3)
+					}
+				},30);
+			});
+		</script>
+		
+<style type="text/css" media="screen">@import "https://eijournal.com/wp-content/plugins/sc-business-directory-manager/css/wpbusdirman.css";</style>
+	 
+<link rel="dns-prefetch" href="https://v0.wordpress.com/">
+<style type="text/css">img#wpstats{display:none}</style><!-- Custom CSS -->
+<style type="text/css">
+span.date-area,a.flex-active,.sf-menu li:hover,.sf-menu .current-menu-item,#section-three .thumb-wrap h2 a:hover,.btt:hover,#single .img-wrap h2 a:hover,.paginate .page-numbers.current,.paginate a.page-numbers:hover,.carousel .mask h2 a:hover,a.photo-gallery.extend:hover,a.page-link:hover,#sections-video.carousel ul li:hover .icon-eye,.blog_gallery .flex-control-paging li a:hover,.blog_gallery .flex-control-paging li a.flex-active,.bottom_slider ol.flex-control-nav.flex-control-paging li a.flex-active,#sections-bottom .bottom_slider h2 a:hover,.main_flexslider h2 a:hover,span.date-area,.main_flexslider p.date-main,.main_flexslider .flex-control-paging li a:hover,.blog_gallery .flex-control-paging li a:hover,#nav #uniform-undefined.selector:hover, #respond p.form-submit input#submit, .idTabs a.selected { background:#1c6be3 !important; } h2 a:hover,h3 a:hover,h4 a:hover,a:hover,a:focus,h2.sub-header,#section-five ul li a:hover,#single #related_posts ul li a,#single #related_posts.bottom-single-related ul li h2 a:hover,#single #related_posts.bottom-single-related ul li h2 a:hover,a.comment-reply-link,.blog-template .right-content p a,span.logo-news,#wrapper dt a,.carousel .pagination-links li.current a,#sections-bottom .bottom_slider ol.flex-control-nav.flex-control-paging li a.flex-active,.post .content-wrap ul li a,.post .content-wrap ol li a { color:#1c6be3 !important; }  #section-one.container .top_slider .flex-direction-nav .flex-next:hover,#section-one.container .top_slider .flex-direction-nav .flex-prev:hover,.flexslider_gallery .flex-direction-nav .flex-next:hover,.flexslider_gallery .flex-direction-nav .flex-prev:hover,.main_flexslider .flex-direction-nav .flex-next:hover, .main_flexslider .flex-direction-nav .flex-prev:hover,.blog_gallery .flex-direction-nav .flex-next:hover, .blog_gallery .flex-direction-nav .flex-prev:hover,.quote_flexslider .flex-direction-nav .flex-next:hover,.quote_flexslider .flex-direction-nav .flex-prev:hover,.page_gallery .flex-direction-nav .flex-next:hover,.page_gallery .flex-direction-nav .flex-prev:hover{ background-color:#1c6be3 !important; }.post [class^="icon-"]:before  { color:#343434 !important; }body  { border-top:5px solid #343434 !important; }#toppanel .panel_button  { background:#1c6be3 !important; }#panel  { background: #343434 !important; }#wrapper dt  { background: #ff9100 !important; }
+</style><style type="text/css">#super-post-5 .sp-date { background: url(https://eijournal.com/wp-content/plugins/super-post/images/date.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-comment { background: url(https://eijournal.com/wp-content/plugins/super-post/images/comments.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-category { background: url(https://eijournal.com/wp-content/plugins/super-post/images/category.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-author { background: url(https://eijournal.com/wp-content/plugins/super-post/images/author.png) no-repeat scroll 0 0 transparent; }</style><style type="text/css">#super-post-5 .sp-date { background: url(https://eijournal.com/wp-content/plugins/super-post/images/date.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-comment { background: url(https://eijournal.com/wp-content/plugins/super-post/images/comments.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-category { background: url(https://eijournal.com/wp-content/plugins/super-post/images/category.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-author { background: url(https://eijournal.com/wp-content/plugins/super-post/images/author.png) no-repeat scroll 0 0 transparent; }</style><style type="text/css">#super-post-5 .sp-date { background: url(https://eijournal.com/wp-content/plugins/super-post/images/date.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-comment { background: url(https://eijournal.com/wp-content/plugins/super-post/images/comments.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-category { background: url(https://eijournal.com/wp-content/plugins/super-post/images/category.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-author { background: url(https://eijournal.com/wp-content/plugins/super-post/images/author.png) no-repeat scroll 0 0 transparent; }</style><style type="text/css">#super-post-5 .sp-date { background: url(https://eijournal.com/wp-content/plugins/super-post/images/date.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-comment { background: url(https://eijournal.com/wp-content/plugins/super-post/images/comments.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-category { background: url(https://eijournal.com/wp-content/plugins/super-post/images/category.png) no-repeat scroll 0 0 transparent; }#super-post-5 .sp-author { background: url(https://eijournal.com/wp-content/plugins/super-post/images/author.png) no-repeat scroll 0 0 transparent; }</style><!-- All in one Favicon 4.3 --><link rel="shortcut icon" href="https://eijournal.com/wp-content/uploads/2014/09/favicon.ico">
+
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Interpret a False-Color Satellite Image">
+<meta property="og:url" content="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image">
+<meta property="og:description" content="How can a forest be red and a cloud blue? It depends on the processes used to transform satellite measurements into images. In our photo-saturated world, it’s natural to think of the images on NASA…">
+<meta property="article:published_time" content="2014-04-11T05:10:05+00:00">
+<meta property="article:modified_time" content="2014-11-29T17:28:16+00:00">
+<meta property="og:site_name" content="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery">
+<meta property="og:image" content="https://eijournal.com/wp-content/uploads/2014/04/Opener-1.jpg">
+<meta property="og:image:width" content="1385">
+<meta property="og:image:height" content="685">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:image" content="https://eijournal.com/wp-content/uploads/2014/04/Opener-1.jpg?w=640">
+<meta name="twitter:card" content="summary_large_image">
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/spcjs.php"></script><script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/spc.php"></script><script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/fl.js.download"></script>
+
+<!-- BEGIN GADWP v4.9.2 Universal Tracking - https://deconf.com/google-analytics-dashboard-wordpress/ -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55854274-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<!-- END GADWP Universal Tracking -->
+
+
+<!-- END HEAD -->
+
+
+
+
+
+
+
+
+<style type="text/css">.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q{display:block!important;border:1px solid #cdcfd2!important;background-color:#fff!important;color:#373a3d!important;width:100vw!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-24GeGuJgk9LrMLp7qVvlyz{background:#6a7e89!important;color:#fff!important;padding:10px!important;font-size:18px!important;font-family:sans-serif!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-KVjdulkCFfUZps29EbgAC{background:#f3f6f8!important;border-bottom:1px solid #cdcfd2!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-KVjdulkCFfUZps29EbgAC>*{margin-right:10px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1OeZ2PQ98oAp6Vc5mMc6V5{list-style:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-vCwYmWF_l83ScZBrGnRoi,.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1OeZ2PQ98oAp6Vc5mMc6V5{margin:0!important;padding:0!important;width:100%!important;display:block!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-vCwYmWF_l83ScZBrGnRoi:not(:last-child){border-bottom:1px solid #cdcfd2!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1XQZkb-FlHWABUp4_uShaZ{color:inherit!important;cursor:pointer!important;width:100%!important;display:inline-block!important;margin:10px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1XTzMvb2XKitWz0mFLlyyp{margin:5px!important;display:block!important;width:auto!important;white-space:pre!important;overflow-x:scroll!important;background:inherit!important;color:inherit!important;font-family:monospace}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1XTzMvb2XKitWz0mFLlyyp:not(.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-39QUvFFn5B7GMcqMQkOXZ3){display:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-295DY3nO0DbJWMsOqmjCli{background:#f5f5f5!important;color:#5a5a5a!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1aQZwu6CUzAf2zUcI7tg0Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-295DY3nO0DbJWMsOqmjCli{display:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-38EPFyKXMtoP12rPlmrHxs{background:#e6f7ff!important;color:#006097!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3W4ZnQjhoGfT1gTNcqRXdi .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-38EPFyKXMtoP12rPlmrHxs{display:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-HGYnfzlmgOZ-l7eANhQe_{background:#fff3ea!important;color:#993a00!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-24e52A11B1UIErbKHtBmqc .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-HGYnfzlmgOZ-l7eANhQe_{display:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-jji74ZzulHScD0OAD_G7h{background:#fef2f1!important;color:#b10823!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3npS60y-EvfF7G_lioSx2Q.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-28jAOA7cDee-95LvwGsOP- .IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-jji74ZzulHScD0OAD_G7h{display:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu{background-color:#0073b1!important;border:0!important;border-radius:2px!important;box-sizing:border-box!important;color:#fff!important;cursor:pointer!important;display:inline-block!important;font-family:-apple-system,system-ui,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Fira Sans,Ubuntu,Oxygen,Oxygen Sans,Cantarell,Droid Sans,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Lucida Grande,Helvetica,Arial,sans-serif!important;font-weight:600!important;overflow:hidden!important;outline-width:2px!important;position:relative!important;text-align:center!important;text-decoration:none!important;vertical-align:middle!important;white-space:nowrap!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu:disabled{cursor:not-allowed!important;opacity:.7!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu:not(:disabled):not(.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1zhzkayakwEXovVYUbq5Gy):hover{background-color:#006097!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu:not(:disabled):not(.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1zhzkayakwEXovVYUbq5Gy):active{background-color:#004b7c!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1zhzkayakwEXovVYUbq5Gy{background-color:#fff!important;color:#0073b1!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1zhzkayakwEXovVYUbq5Gy:not(:disabled):hover{color:#006097!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1zhzkayakwEXovVYUbq5Gy:not(:disabled):active{color:#004b7c!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon{display:inline-block!important;height:100%!important;vertical-align:top!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon>svg{pointer-events:none!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-7inSbaAsvG5bf7w6lJTEr{font-size:10px!important;height:16px!important;line-height:16px!important;padding:0 6px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-7inSbaAsvG5bf7w6lJTEr>xdoor-icon{margin-left:-6px!important;margin-right:3px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-7inSbaAsvG5bf7w6lJTEr>xdoor-icon>svg{height:16px!important;width:16px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-7inSbaAsvG5bf7w6lJTEr.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-6px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu,.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3uCBSbQNVNf2QjqHe1rfb6{font-size:11px!important;height:20px!important;line-height:20px!important;padding:0 7px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3uCBSbQNVNf2QjqHe1rfb6>xdoor-icon,.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon{margin-left:-7px!important;margin-right:3.5px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3uCBSbQNVNf2QjqHe1rfb6>xdoor-icon>svg,.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon>svg{height:20px!important;width:20px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-3uCBSbQNVNf2QjqHe1rfb6.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon,.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-7px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-21Smv9YG-5V6M6KP-5v2WG{font-size:14px!important;height:24px!important;line-height:24px!important;padding:0 12px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-21Smv9YG-5V6M6KP-5v2WG>xdoor-icon{margin-left:-12px!important;margin-right:6px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-21Smv9YG-5V6M6KP-5v2WG>xdoor-icon>svg{height:24px!important;width:24px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-21Smv9YG-5V6M6KP-5v2WG.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-12px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1TGdQUTLZdNG4R87OfAB-q{font-size:16px!important;height:32px!important;line-height:32px!important;padding:0 16px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1TGdQUTLZdNG4R87OfAB-q>xdoor-icon{margin-left:-16px!important;margin-right:8px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1TGdQUTLZdNG4R87OfAB-q>xdoor-icon>svg{height:32px!important;width:32px!important}.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1TGdQUTLZdNG4R87OfAB-q.IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-16px!important}</style><style id="fbuilder_dynamic_row_css" type="text/css"> .fbuilder_row.fbuilder_row_full_width{margin:0 -2131.5px; } .fbuilder_row .fbuilder_row_video > div {width:1463px; height:721px; margin:-360.5px 0 0 -731.5px !important;} </style><style type="text/css">.highslide img {cursor: url(https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/zoomin.cur), pointer !important;}.highslide-viewport-size {position: fixed; width: 100%; height: 100%; left: 0; top: 0}</style><script charset="utf-8" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/button.63c51c903061d0dbd843c41e8a00aa5a.js.download"></script></head>
+
+<body class="post-template-default single single-post postid-21029 single-format-standard">
+
+
+<div class="container" id="section-two">
+
+<div class="widget_search">
+<div id="search-3" class="widget widget_search">
+<form id="searchform" method="get" action="https://eijournal.com/">
+	
+<input value="Search Here..." onfocus="if(this.value==&#39;Search Here...&#39;){this.value=&#39;&#39;;}" onblur="if(this.value==&#39;&#39;){this.value=&#39;Search Here...&#39;;}" name="s" type="text" id="s" maxlength="99">
+
+</form>
+</div></div>
+
+<div class="widget_top">
+<div id="nav_menu-3" class="widget widget_nav_menu"><div class="menu-top-menu-container"><ul id="menu-top-menu" class="menu"><li id="menu-item-25374" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25374"><a href="https://eijournal.com/about">About</a></li>
+<li id="menu-item-25378" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25378"><a href="https://eijournal.com/about/contact-us">Contact</a></li>
+<li id="menu-item-25379" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25379"><a href="https://eijournal.com/advertise">Advertise</a></li>
+<li id="menu-item-34517" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-34517"><a href="https://eijournal.com/subscribe">Subscribe</a></li>
+</ul></div></div></div>
+
+
+
+<div id="sp_social253" class="sp_social icon_size_32">
+	<ul>
+					<li><a target="_blank" class="sp_social_rss" title="RSS" href="http://feeds.feedburner.com/EIJournal"><span>RSS</span><strong>S&amp;S</strong></a></li>
+
+
+					<li><a target="_blank" class="sp_social_facebook" title="Facebook" href="https://www.facebook.com/eijournal"><span>Facebook</span><strong>S&amp;S</strong></a></li>
+
+					<li><a target="_blank" class="sp_social_twitter" title="Twitter" href="https://www.twitter.com/eijournal"><span>Twitter</span><strong>S&amp;S</strong></a></li>
+
+
+
+					<li><a target="_blank" class="sp_social_linkedin" title="Linkedin" href="https://www.linkedin.com/groups?home=&amp;gid=6777463"><span>Linkedin</span><strong>S&amp;S</strong></a></li>
+
+
+
+
+					<li><a target="_blank" class="sp_social_picasa" title="sensorsandsystems" href="http://www.sensorsandsystems.com/index.php"><span>Picasa</span><strong>S&amp;S</strong></a></li>
+
+
+
+
+					<li><a target="_blank" class="sp_social_digg" title="Asian Surveying &amp; Mapping" href="http://www.asmmag.com/index.php"><span>Digg</span><strong>S&amp;S</strong></a></li>
+
+					<li><a target="_blank" class="sp_social_flickr" title="Informed Infrastructure" href="http://www.informedinfrastructure.com/index.php"><span>flickr</span><strong>S&amp;S</strong></a></li>
+
+
+					<li><a target="_blank" class="sp_social_vimeo" title="geospatialstream" href="http://www.geospatialstream.com/index.php"><span>Vimeo</span><strong>S&amp;S</strong></a></li>
+
+
+
+	</ul>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<div class="grid4 col logo-area">
+
+		
+        	<a href="https://eijournal.com/" title="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery" rel="home"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/logo.jpg" alt="Earth Imaging Journal: Remote Sensing, Satellite Images, Satellite Imagery" scale="0"></a>
+
+        
+
+
+			</div><!-- END GRID6 -->
+
+		<div class="grid12 col">
+
+
+<div class="widget_head">
+<div id="text-4" class="widget widget_text">			<div class="textwidget"><div class="foot_ban_a"><!--
+<img src="https://eijournal.sensorsandsystems.com/images/unnamed.gif">
+-->
+<script type="text/javascript"><!--// <![CDATA[
+    OA_show(51);
+// ]]> --></script><a href="https://v1adserver.com/www/delivery/ck.php?oaparams=2__bannerid=750__zoneid=51__cb=6928938bb5__oadest=https%3A%2F%2Fwww.bentley.com%2Fen%2FCampaigns%2FDigital-Cities%2FDigital-Context-for-Digital-Twins%3Futm_source%3Dinformedinfrastructure.com%26utm_medium%3Daffiliate%26utm_campaign%3Dcc-digital-context-digital-twins%26utm_content%3Den___learn-more__4d-digital-context-landing-page%26utm_term%3Drequest-a-demo___banner-728x90%26partnerref%3Dinformedinfrastructure.com" target="_blank"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/7ca2823288de0db6183a35e4eae25f45.jpg" width="728" height="90" alt="4D digital context for digital twins" title="4D digital context for digital twins" border="0" scale="0"></a><div id="beacon_6928938bb5" style="position: absolute; left: 0px; top: 0px; visibility: hidden;"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/lg.php" width="0" height="0" alt="" style="width: 0px; height: 0px;"></div>
+<noscript><a target='_blank' href='https://v1adserver.com/www/delivery/ck.php?n=bf29ea3'><img border='0' alt='' src='https://v1adserver.com/www/delivery/avw.php?zoneid=51&amp;n=bf29ea3' /></a></noscript>
+</div>
+<div class="foot_ban_b">
+<script type="text/javascript"><!--//<![CDATA[
+   document.MAX_ct0 = unescape('%c');
+
+   var m3_u = (location.protocol=='https:'?'https://v1adserver.com/www/delivery/ajs.php':'http://v1adserver.com/www/delivery/ajs.php');
+   var m3_r = Math.floor(Math.random()*99999999999);
+   if (!document.MAX_used) document.MAX_used = ',';
+   document.write ("<scr"+"ipt type='text/javascript' src='"+m3_u);
+   document.write ("?zoneid=58");
+   document.write ('&amp;cb=' + m3_r);
+   if (document.MAX_used != ',') document.write ("&amp;exclude=" + document.MAX_used);
+   document.write (document.charset ? '&amp;charset='+document.charset : (document.characterSet ? '&amp;charset='+document.characterSet : ''));
+   document.write ("&amp;loc=" + escape(window.location));
+   if (document.referrer) document.write ("&amp;referer=" + escape(document.referrer));
+   if (document.context) document.write ("&context=" + escape(document.context));
+   if ((typeof(document.MAX_ct0) != 'undefined') && (document.MAX_ct0.substring(0,4) == 'http')) {
+       document.write ("&amp;ct0=" + escape(document.MAX_ct0));
+   }
+   if (document.mmm_fo) document.write ("&amp;mmm_fo=1");
+   document.write ("'><\/scr"+"ipt>");
+//]]>--></script><script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/ajs.php"></script><noscript><a href='http://v1adserver.com/www/delivery/ck.php?n=a7f132a0&amp;cb=%n' target='_blank'><img src='https://v1adserver.com/www/delivery/avw.php?zoneid=58&amp;cb=%n&amp;n=a7f132a0&amp;ct0=%c' border='0' alt='' /></a></noscript>
+</div></div>
+		</div></div>
+
+
+
+			
+			
+		</div><!-- END GRID12 -->
+
+
+</div><!-- END CONTAINER SECTION TWO -->
+
+<div class="container" id="section-menu">
+
+ 	
+	<div id="wrapper">
+
+	<h5 class="breaking">Breaking News</h5>
+
+		<div class="first">
+
+			<div class="caroufredsel_wrapper" style="display: block; text-align: center; float: none; position: relative; inset: auto; z-index: auto; width: 100%; height: 35px; margin: 0px; overflow: hidden;"><dl id="ticker-1" style="text-align: left; float: none; position: absolute; inset: 0px auto auto -69.9258px; margin: 0px; width: 10478px; height: 35px; z-index: auto;">
+
+				
+				
+				
+
+			
+				
+				<dd>Redlands, Calif., United States: Esri, the global leader in...</dd>
+
+			
+				<dt><a href="https://eijournal.com/news/business-2/kongsberg-geospatial-improves-bvlos-drone-operations-safety-with-a-horizonless-air-picture-2">Kongsberg Geospatial Improves BVLOS Drone Operations Safety with a “Horizonless Air Picture”</a></dt>
+				<dd>Kongsberg Geospatial, developer of the TerraLens Geospatial SDK, uAvionix,...</dd>
+
+			
+				<dt><a href="https://eijournal.com/news/products-2/kongsberg-geospatial-improves-bvlos-drone-operations-safety-with-a-horizonless-air-picture">Kongsberg Geospatial Improves BVLOS Drone Operations Safety with a “Horizonless Air Picture”</a></dt>
+				<dd>Kongsberg Geospatial, developer of the TerraLens Geospatial SDK, uAvionix,...</dd>
+
+			
+				<dt><a href="https://eijournal.com/news/products-2/low-cost-high-resolution-nighttime-light-data-new-light-technologies-and-alba-orbital-are-partnering-to-provide-innovative-solutions-and-services">Low-cost High Resolution Nighttime Light Data: New Light Technologies and Alba Orbital are Partnering to Provide Innovative Solutions and Services</a></dt>
+				<dd>WASHINGTON -&nbsp;New Light Technologies Inc. (NLT) is partnering with...</dd>
+
+			
+			<dt><a href="https://eijournal.com/news/business-2/terra-drone-indonesia-obtained-drone-night-flight-permit">Terra Drone Indonesia Obtained Drone Night Flight Permit</a></dt><dd>Jakarta, January– After previously obtaining a Beyond Visual Line...</dd><dt><a href="https://eijournal.com/news/products-2/esri-launches-arcgis-platform">Esri Launches ArcGIS Platform</a></dt></dl></div><!-- END DL -->
+
+		</div><!-- END FIRST -->
+
+	</div><!-- END WRAPPER -->
+
+	<div class="clear"></div>
+
+	
+	<div id="nav">
+
+		<div class="menu-main-menu-container"><ul id="menu-main-menu" class="sf-menu sf-js-enabled sf-shadow"><li id="menu-item-25535" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-25535"><a href="https://eijournal.com/">Home</a></li>
+<li id="menu-item-25381" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-25381"><a href="https://eijournal.com/category/news" class="sf-with-ul">News<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu" style="float: none; width: 22em; display: none; visibility: hidden;">
+	<li id="menu-item-25382" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25382" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/news/business-2" style="float: none; width: auto;">Business</a></li>
+	<li id="menu-item-25385" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25385" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/news/products-2" style="float: none; width: auto;">Products</a></li>
+	<li id="menu-item-25384" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-25384" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/news/people-and-events" class="sf-with-ul" style="float: none; width: auto;">People and Events<span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu" style="left: 22em; float: none; width: 26.1667em; display: none; visibility: hidden;">
+		<li id="menu-item-31959" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31959" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/resources/drone-world-expo-exhibitor-map" style="float: none; width: auto;">Drone World Expo Exhibitor Map</a></li>
+		<li id="menu-item-31960" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31960" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/resources/urisa-gis-pro-nwgis-2015-exhibitor-map" style="float: none; width: auto;">URISA GIS-Pro &amp; NWGIS 2015 Exhibitor Map</a></li>
+	</ul>
+</li>
+	<li id="menu-item-25383" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25383" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/news/industry-insights-trends" style="float: none; width: auto;">Industry Insights &amp; Trends</a></li>
+	<li id="menu-item-30421" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-30421" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/news/top_stories" style="float: none; width: auto;">Top Stories</a></li>
+	<li id="menu-item-26755" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-26755" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/imagery-in-the-news" style="float: none; width: auto;">Imagery in the News</a></li>
+</ul>
+</li>
+<li id="menu-item-26756" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-26756"><a href="https://eijournal.com/category/print/column" class="sf-with-ul">Opinions<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu" style="float: none; width: 22em; display: none; visibility: hidden;">
+	<li id="menu-item-31998" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-31998" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/data_analysis" style="float: none; width: auto;">Data Analysis</a></li>
+	<li id="menu-item-25389" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25389" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/defense-watch" style="float: none; width: auto;">Defense Watch</a></li>
+	<li id="menu-item-25390" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25390" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/from-the-field" style="float: none; width: auto;">From the Field</a></li>
+	<li id="menu-item-25391" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25391" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/industry-insights" style="float: none; width: auto;">Industry Insights</a></li>
+	<li id="menu-item-25392" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25392" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/industry-overview-columns-nov-dec" style="float: none; width: auto;">Industry Overview</a></li>
+	<li id="menu-item-32102" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-32102" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/monitoring_resources" style="float: none; width: auto;">Monitoring Resources</a></li>
+	<li id="menu-item-28929" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-28929" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/column/uasinnovations" style="float: none; width: auto;">UAS Innovations</a></li>
+	<li id="menu-item-25395" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25395" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/interview" style="float: none; width: auto;">Interviews</a></li>
+</ul>
+</li>
+<li id="menu-item-25419" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-25419"><a href="https://eijournal.com/category/print/articles">Articles</a></li>
+<li id="menu-item-29465" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-29465"><a href="https://eijournal.com/category/magazine" class="sf-with-ul">Magazine<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu" style="float: none; width: 22em; display: none; visibility: hidden;">
+	<li id="menu-item-29467" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-29467" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/magazine/toc" style="float: none; width: auto;">Table of Contents</a></li>
+	<li id="menu-item-32170" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-32170" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/digital-flipbooks" style="float: none; width: auto;">Digital Flipbooks</a></li>
+</ul>
+</li>
+<li id="menu-item-25343" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25343"><a href="https://eijournal.com/image-gallery">Image Gallery</a></li>
+<li id="menu-item-25344" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-25344"><a href="https://eijournal.com/marketguide" class="sf-with-ul">Market Guide<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu" style="float: none; width: 34.0833em; display: none; visibility: hidden;">
+	<li id="menu-item-25345" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25345" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/aerial-imagery" style="float: none; width: auto;">Aerial Imagery</a></li>
+	<li id="menu-item-25346" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25346" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/aerospace" style="float: none; width: auto;">Aerospace</a></li>
+	<li id="menu-item-25347" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25347" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/cloud-computing" style="float: none; width: auto;">Cloud Computing</a></li>
+	<li id="menu-item-25348" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25348" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/data-storage-retrieval" style="float: none; width: auto;">Data Storage/Retrieval</a></li>
+	<li id="menu-item-25349" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25349" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/educationtraining" style="float: none; width: auto;">Education/Training</a></li>
+	<li id="menu-item-25350" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25350" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/gissoftware" style="float: none; width: auto;">GIS Software</a></li>
+	<li id="menu-item-25351" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25351" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/hardwareperipherials" style="float: none; width: auto;">Hardware/Peripherals</a></li>
+	<li id="menu-item-25352" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25352" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/hyperspectral-imagery" style="float: none; width: auto;">Hyperspectral Imagery</a></li>
+	<li id="menu-item-25353" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25353" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/image-compression-software" style="float: none; width: auto;">Image Compression Software</a></li>
+	<li id="menu-item-25354" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25354" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/image-processing-software" style="float: none; width: auto;">Image Processing Software</a></li>
+	<li id="menu-item-25355" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25355" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/lidar-imagery" style="float: none; width: auto;">LiDAR</a></li>
+	<li id="menu-item-25356" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25356" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/mappingservices" style="float: none; width: auto;">Mapping Services</a></li>
+	<li id="menu-item-25357" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25357" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/mobile-mapping" style="float: none; width: auto;">Mobile Mapping</a></li>
+	<li id="menu-item-25358" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25358" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/satellite-imagery" style="float: none; width: auto;">Optical Satellite Imagery</a></li>
+	<li id="menu-item-25359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25359" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/photogrammetry" style="float: none; width: auto;">Photogrammetry</a></li>
+	<li id="menu-item-25360" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25360" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/radar-imagery" style="float: none; width: auto;">Radar Satellite Imagery</a></li>
+	<li id="menu-item-30878" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-30878" style="white-space: normal; float: left; width: 100%;"><a href="http://eijournal.com/resources/smallsat-company-and-sensor-guide" style="float: none; width: auto;">Smallsats</a></li>
+	<li id="menu-item-25361" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25361" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/stereo-viewing-systems" style="float: none; width: auto;">Stereo Viewing Systems</a></li>
+	<li id="menu-item-25362" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25362" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/topographic-maps-nautical-charts-atlasesart-prints" style="float: none; width: auto;">Topographic Maps/Nautical Charts/Atlases/Art Prints</a></li>
+	<li id="menu-item-25363" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25363" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/unmanned-aerial-vehicles" style="float: none; width: auto;">Unmanned Aircraft Systems</a></li>
+	<li id="menu-item-25364" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25364" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/marketguide/visualization-softwaremodels" style="float: none; width: auto;">Visualization Software/Models</a></li>
+</ul>
+</li>
+<li id="menu-item-25365" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-25365"><a href="https://eijournal.com/resources" class="sf-with-ul">Resources<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu" style="float: none; width: 24.9167em; display: none; visibility: hidden;">
+	<li id="menu-item-32101" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-32101" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/category/print/sensor_spotlight" style="float: none; width: auto;">Sensor Spotlight</a></li>
+	<li id="menu-item-30875" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-30875" style="white-space: normal; float: left; width: 100%;"><a href="http://eijournal.com/resources/smallsat-company-and-sensor-guide" style="float: none; width: auto;">Smallsat Company and Sensor Guide</a></li>
+	<li id="menu-item-28917" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-28917" style="white-space: normal; float: left; width: 100%;"><a href="http://eijournal.com/resources/mobilelidarguide/mobile-lidar-systems-and-services-guide?doing_wp_cron=1428251586.2805030345916748046875" style="float: none; width: auto;">Mobile LIDAR Guide</a></li>
+	<li id="menu-item-25367" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25367" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/resources/optical-satellite-imagery-resources" style="float: none; width: auto;">Optical Satellite Imagery Resources</a></li>
+	<li id="menu-item-25366" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25366" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/resources/aerial-imaging-resource-guide" style="float: none; width: auto;">Aerial Imaging Resource Guide</a></li>
+	<li id="menu-item-25368" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25368" style="white-space: normal; float: left; width: 100%;"><a href="https://eijournal.com/resources/solutions-spotlight-homeland-security-and-disaster-management" style="float: none; width: auto;">Homeland Security</a></li>
+</ul>
+</li>
+<li id="menu-item-27795" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-27795"><a href="https://eijournal.com/?page_id=27793">Video</a></li>
+</ul></div>
+	<div class="selector" id="uniform-undefined"><span>Menu</span><select style="opacity: 0;"><option selected="selected" value="">Menu</option><option value="https://eijournal.com/">Home</option><option value="https://eijournal.com/category/news">News »</option><option value="https://eijournal.com/category/news/business-2">Business</option><option value="https://eijournal.com/category/news/products-2">Products</option><option value="https://eijournal.com/category/news/people-and-events">People and Events »</option><option value="https://eijournal.com/resources/drone-world-expo-exhibitor-map">Drone World Expo Exhibitor Map</option><option value="https://eijournal.com/resources/urisa-gis-pro-nwgis-2015-exhibitor-map">URISA GIS-Pro &amp; NWGIS 2015 Exhibitor Map</option><option value="https://eijournal.com/category/news/industry-insights-trends">Industry Insights &amp; Trends</option><option value="https://eijournal.com/category/news/top_stories">Top Stories</option><option value="https://eijournal.com/category/print/imagery-in-the-news">Imagery in the News</option><option value="https://eijournal.com/category/print/column">Opinions »</option><option value="https://eijournal.com/category/print/column/data_analysis">Data Analysis</option><option value="https://eijournal.com/category/print/column/defense-watch">Defense Watch</option><option value="https://eijournal.com/category/print/column/from-the-field">From the Field</option><option value="https://eijournal.com/category/print/column/industry-insights">Industry Insights</option><option value="https://eijournal.com/category/print/column/industry-overview-columns-nov-dec">Industry Overview</option><option value="https://eijournal.com/category/print/column/monitoring_resources">Monitoring Resources</option><option value="https://eijournal.com/category/print/column/uasinnovations">UAS Innovations</option><option value="https://eijournal.com/category/print/interview">Interviews</option><option value="https://eijournal.com/category/print/articles">Articles</option><option value="https://eijournal.com/category/magazine">Magazine »</option><option value="https://eijournal.com/category/magazine/toc">Table of Contents</option><option value="https://eijournal.com/digital-flipbooks">Digital Flipbooks</option><option value="https://eijournal.com/image-gallery">Image Gallery</option><option value="https://eijournal.com/marketguide">Market Guide »</option><option value="https://eijournal.com/marketguide/aerial-imagery">Aerial Imagery</option><option value="https://eijournal.com/marketguide/aerospace">Aerospace</option><option value="https://eijournal.com/marketguide/cloud-computing">Cloud Computing</option><option value="https://eijournal.com/marketguide/data-storage-retrieval">Data Storage/Retrieval</option><option value="https://eijournal.com/marketguide/educationtraining">Education/Training</option><option value="https://eijournal.com/marketguide/gissoftware">GIS Software</option><option value="https://eijournal.com/marketguide/hardwareperipherials">Hardware/Peripherals</option><option value="https://eijournal.com/marketguide/hyperspectral-imagery">Hyperspectral Imagery</option><option value="https://eijournal.com/marketguide/image-compression-software">Image Compression Software</option><option value="https://eijournal.com/marketguide/image-processing-software">Image Processing Software</option><option value="https://eijournal.com/marketguide/lidar-imagery">LiDAR</option><option value="https://eijournal.com/marketguide/mappingservices">Mapping Services</option><option value="https://eijournal.com/marketguide/mobile-mapping">Mobile Mapping</option><option value="https://eijournal.com/marketguide/satellite-imagery">Optical Satellite Imagery</option><option value="https://eijournal.com/marketguide/photogrammetry">Photogrammetry</option><option value="https://eijournal.com/marketguide/radar-imagery">Radar Satellite Imagery</option><option value="http://eijournal.com/resources/smallsat-company-and-sensor-guide">Smallsats</option><option value="https://eijournal.com/marketguide/stereo-viewing-systems">Stereo Viewing Systems</option><option value="https://eijournal.com/marketguide/topographic-maps-nautical-charts-atlasesart-prints">Topographic Maps/Nautical Charts/Atlases/Art Prints</option><option value="https://eijournal.com/marketguide/unmanned-aerial-vehicles">Unmanned Aircraft Systems</option><option value="https://eijournal.com/marketguide/visualization-softwaremodels">Visualization Software/Models</option><option value="https://eijournal.com/resources">Resources »</option><option value="https://eijournal.com/category/print/sensor_spotlight">Sensor Spotlight</option><option value="http://eijournal.com/resources/smallsat-company-and-sensor-guide">Smallsat Company and Sensor Guide</option><option value="http://eijournal.com/resources/mobilelidarguide/mobile-lidar-systems-and-services-guide?doing_wp_cron=1428251586.2805030345916748046875">Mobile LIDAR Guide</option><option value="https://eijournal.com/resources/optical-satellite-imagery-resources">Optical Satellite Imagery Resources</option><option value="https://eijournal.com/resources/aerial-imaging-resource-guide">Aerial Imaging Resource Guide</option><option value="https://eijournal.com/resources/solutions-spotlight-homeland-security-and-disaster-management">Homeland Security</option><option value="https://eijournal.com/?page_id=27793">Video</option></select></div></div><!--END NAV-->
+
+</div><!-- END CONTAINER SECTION MENU -->
+
+<div class="container" id="single">
+
+	<div class="grid11 col">
+
+			
+				
+		<!-- SUB TEXT -->
+				
+		<!-- IMG CAPTION -->
+				
+		<!-- VIDEO -->
+				
+		<!-- SET VIEWS -->
+		
+		<div class="post-21029 post type-post status-publish format-standard has-post-thumbnail hentry category-articles tag-how-to-interpret-a-false-color-satellite-image" id="post-21029">
+		
+			<div class="img-wrap">
+			
+				 
+				
+				<h2><span class="date-area">April 11, 2014</span><br><a href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image">How to Interpret a False-Color Satellite Image</a></h2>
+				
+				<img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Opener-1-659x326.jpg" class="single-img" alt="image" scale="0">
+				
+							
+			</div><!-- END IMG WRAP -->
+			
+			<!-- CLEAR -->
+			<div class="clear"></div>
+			
+						
+			<div class="left-content">
+			
+				<ul>
+				
+				<li class="posted">Apr 11, 2014</li>
+				
+				<li class="written"><a href="https://eijournal.com/author/admin" title="Posts by Admin" rel="author">Admin</a></li>
+				
+				<li class="comments"><span class="comments"><a href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image#respond">No comments yet</a></span></li>
+        			
+        			<li class="category"><a href="https://eijournal.com/category/print/articles" rel="category tag">Article</a></li>			
+					
+					<span class="tags-star"></span><li class="tags"><a href="https://eijournal.com/tag/how-to-interpret-a-false-color-satellite-image" rel="tag">How to Interpret a False-Color Satellite Image</a></li>					
+					<li class="views">40092 Views</li>
+					
+				</ul><!-- END UL -->
+				
+				
+			<div id="related_posts"><h3 class="rs">Related</h3><ul>	
+	<li><a href="https://eijournal.com/print/articles/high-performance-low-cost-attitude-control-and-formation-flying-technologies-key-to-commercial-radio-frequency-signal-mapping-with-small-satellites" rel="bookmark" title="Key Technologies for Commercial Radio Frequency Signal Mapping with Small Satellites">Key Technologies for Commercial Radio Frequency Signal Mapping with Small Satellites</a></li>
+		
+		
+	<li><a href="https://eijournal.com/print/articles/attitude-control-technologies-for-smaller-satellites-enable-complex-applications-in-earth-observation-space-astronomy-and-science-research" rel="bookmark" title="Attitude Control Technologies for Smaller Satellites Enable Complex Applications  in Earth Observation, Space Astronomy and Science Research">Attitude Control Technologies for Smaller Satellites Enable Complex Applications  in Earth Observation, Space Astronomy and Science Research</a></li>
+		
+		
+	<li><a href="https://eijournal.com/print/articles/vertical-images-from-film-making-to-inspection-and-why-the-future-of-drones-doesnt-lie-in-flying" rel="bookmark" title="Vertical Images: From Film Making to Inspection, and Why the Future of Drones Doesn’t Lie in Flying">Vertical Images: From Film Making to Inspection, and Why the Future of Drones Doesn’t Lie in Flying</a></li>
+		
+	</ul></div>			
+			       			
+       		</div><!-- END LEFT CONTENT -->
+			
+			<div class="right-content">
+			
+				<div class="content-wrap">
+				
+							
+				<h3>How can a forest be red and a cloud blue? It depends on the processes used to transform satellite measurements into images.</h3>
+<p></p><div id="attachment_21030" style="width: 620px" class="wp-caption aligncenter"><a class="highslide img_1" href="http://eijournal.com/wp-content/uploads/2014/04/Opener-1.jpg" onclick="return hs.expand(this)"><img class="size-large wp-image-21030" title="Natural- and false-color images from NASA’s MESSENGER mission to Mercury show plant-covered land from the Amazon rainforest to North American forests." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Opener-1-610x301.jpg" alt="" width="610" height="301" scale="0"></a><p class="wp-caption-text">Natural- and false-color images from NASA’s MESSENGER mission to Mercury show plant-covered land from the Amazon rainforest to North American forests.</p></div><p></p>
+<p style="text-align: left;">In our photo-saturated world, it’s natural to think of the images on NASA’s Earth Observatory website as snapshots from space. But most aren’t. Though they may look similar, photographs and satellite images are fundamentally different. A photograph is made when light is focused and captured on a light-sensitive surface such as film or a charge-coupled device in a digital camera. A satellite image is created by combining measurements of the intensity of certain wavelengths of light that are visible and invisible to human eyes.</p>
+<p style="text-align: left;">Why does the difference matter? When we see a photo where the colors are brightened or altered, we think of it as artful (at best) or manipulated (at worst). We also have that bias when we look at satellite images that don’t represent the Earth’s surface as we see it. “That forest is red,” we think, “so the image can’t possibly be real.”</p>
+<p>In reality, a red forest is just as real as a dark green one. Because satellites collect information beyond what human eyes can see, images made from other wavelengths of light look unnatural to us. We call these false-color images. To understand what they mean, it’s necessary to understand exactly what a satellite image is.</p>
+<p>Satellite instruments gather an array of information about Earth. Some of it is visual, some of it is chemical and some of it is physical. In fact, remote sensing scientists and engineers are endlessly creative about what they can measure from space, developing satellites with a wide variety of tools to tease information out of our planet. Some methods are active, bouncing light or radio waves off Earth and measuring the energy returned; light detection and ranging (LiDAR) and radar technology are good examples. But the majority of instruments are passive; that is, they record light reflected or emitted by Earth’s surface.</p>
+<p>These observations can be turned into data-based maps that measure everything from plant growth or cloudiness. But data also can become photo-like natural-color images or false-color images. It all depends on the process used to transform satellite measurements into images.</p>
+<p><strong>Seeing the Light</strong></p>
+<p>So what does a satellite imager measure to produce an image? It measures light we see and don’t see. Light is a form of energy—also known as electromagnetic radiation—that travels in waves. All light travels at the same speed, but the waves aren’t all the same. The distance between the top of each wave—the wavelength—is smaller for high-energy waves and longer for low-energy waves.</p>
+<p><span class="Apple-style-span" style="font-size: 13px; font-weight: normal;">Visible light comes in wavelengths of 400 to 700 nanometers, with violet having the shortest wavelengths and red having the longest. Infrared light and radio waves have longer wavelengths and lower energy than visible light, while ultraviolet light, X-rays and gamma rays have shorter wavelengths and higher energy.</span></p>
+<p></p><div id="attachment_21031" style="width: 620px" class="wp-caption aligncenter"><a class="highslide img_2" href="http://eijournal.com/wp-content/uploads/2014/04/florida.jpg" onclick="return hs.expand(this)"><img class="size-large wp-image-21031 " title="The natural-color image at left shows southeast Florida in red, green and blue light. The false-color image in the middle combines SWIR, NIR and green light. At right Southeast Florida is shown in NIR, red and green light." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/florida-610x275.jpg" alt="" width="610" height="275" scale="0"></a><p class="wp-caption-text">The natural-color image at left shows southeast Florida in red, green and blue light. The false-color image in the middle combines SWIR, NIR and green light. At right Southeast Florida is shown in NIR, red and green light.</p></div><p></p>
+<p>Most of the electromagnetic radiation that matters for Earth-observing satellites comes from the sun. When sunlight reaches Earth, the energy is absorbed, transmitted or reflected. Every surface or object absorbs, emits and reflects light uniquely depending on its chemical makeup. Chlorophyll in plants, for example, absorbs red and blue light but reflects green and infrared; this is why leaves appear green. This unique absorption and reflection pattern is called a spectral signature.</p>
+<p>Like Earth’s surfaces, gases in the atmosphere also have unique spectral signatures, absorbing some wavelengths of electromagnetic radiation and emitting others. Gases also let a few wavelengths pass through unimpeded. Scientists call these “atmospheric windows” for specific wavelengths, and often satellite sensors are tuned to measure light through these windows.</p>
+<p>Some satellite instruments also directly measure the energy emitted by objects. Everything gives off energy, usually in the form of heat (thermal infrared radiation). The hotter an object is, the shorter the peak wavelength it emits. At about 400°C (750° F)—the temperature of an electric stove burner set to high—the emitted light will begin to be visible. The colder an object is, the longer the peak wavelength it emits.</p>
+<p><strong>Turning Wavelength Data into an Image</strong></p>
+<p>Satellite instruments carry many sensors, each tuned to a narrow range, or “band,” of wavelengths. Viewing the output from just one band is a bit like looking at the world in shades of gray. The brightest spots are areas that reflect or emit a lot of that wavelength of light, and darker areas reflect or emit little—if any.</p>
+<p>To make a satellite image, researchers choose three bands and represent each in tones of red, green or blue. Because most visible colors can be created by combining red, green and blue light, the red, green and blue images are combined to get a full-color representation of the world.</p>
+<p>A natural or true-color image combines actual measurements of red, green and blue light. The result looks like the world as humans see it.</p>
+<p>A false-color image uses at least one nonvisible wavelength, though that band is still represented in red, green or blue.&nbsp;As a result, the colors in the final image may not be what you expect them to be. For example, grass isn’t always green. Such false-color band combinations reveal unique aspects of the land or sky that might not be visible otherwise.</p>
+<p>The series of Landsat images above of southeastern Florida and the Northern Everglades illustrates why you might want to see the world in false color. The natural-color image shows dark green forest, light green agriculture, brown wetlands, silver urban areas (the city of Miami), and turquoise offshore reefs and shallows. These colors are similar to what you would see from an airplane.</p>
+<p>The second image shows the same scene in green, near-infrared (NIR) and shortwave-infrared (SWIR) light. In this false-color band combination, plant-covered land is bright green, water is black and bare earth ranges from tan to pink. Urban areas are purple. Newly burned farmland is dark red, while older burns are lighter red. Much of the farmland in this area is used to grow sugar cane. Farmers burn the crop before harvest to remove leaves from the canes. Because burned land looks different in this kind of false-color image, it is possible to see how extensively farmers rely on fire in this region.</p>
+<p>This false-color view also reveals how water flows through the Northern Everglades. Green islands punctuate the wetlands, which are black and blue. These are tree islands that are hard to distinguish in natural color. Their orientation aligns with the flow of the water, highlighting direction that isn’t obvious in the natural-color image. It is also easier to see the extent of the wetlands against surrounding land, because water is dark in this view, and plant-covered land is bright green.</p>
+<p>The third image shows the scene in green, red and NIR light. Plants are dark red, because they reflect infrared light strongly, and the infrared band is assigned to be red. Plants that are growing quickly reflect more infrared, so they are brighter red. That means this type of false-color image can help us see how well plants are growing and how densely vegetated an area is. Water is black and blue, and urban areas are silver.</p>
+<p><strong>Observing in Visible Light</strong></p>
+<p>Data visualizers and remote sensing scientists make true- or false-color images to show the features in which they’re most interested, and they select the wavelength bands most likely to highlight those features. Blue light (450 to 490 nanometers) is among the few wavelengths that water reflects—the rest are absorbed. Hence, blue bands are useful for seeing water surface features and for spotting the floor of shallow water bodies.</p>
+<p></p><div id="attachment_21034" style="width: 468px" class="wp-caption alignright"><a class="highslide img_3" href="http://eijournal.com/wp-content/uploads/2014/04/right1.jpg" onclick="return hs.expand(this)"><img class="size-large wp-image-21034" title="Combining red, green and blue bands results in a true-color image, such as this view of Lake Issyk Kul, Kyrgyzstan." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/right1-458x460.jpg" alt="" width="458" height="460" scale="0"></a><p class="wp-caption-text">Combining red, green and blue bands results in a true-color image, such as this view of Lake Issyk Kul, Kyrgyzstan.</p></div><p></p>
+<p>You can see that water reflects some blue light in the image of Lake Issyk Kul, Kyrgyzstan, at right. Water is lighter in the blue band than it is in either the red or green bands, though the lake is too deep for shallow features to be visible. Manmade creations like cities and roads also show up well in blue light. It is also the wavelength most scattered by particles and gas molecules in the atmosphere, which is why the sky is blue.</p>
+<p>Green light (490 to 580 nanometers) is useful for monitoring phytoplankton in the ocean and plants on land. The chlorophyll in these organisms absorbs red and blue light but reflects green light. Sediment in water also reflects green light, so a muddy or sandy body of water will look brighter because it is reflecting both blue and green light.</p>
+<p>Red light (620 to 780 nanometers) can help distinguish minerals and soils that contain a high concentration of iron or iron oxides, making it valuable for studying geology. Because chlorophyll absorbs red light, this band commonly is used to monitor the growth and health of trees, grasses, shrubs and crops. Also, red light can help distinguish between different types of plants on a broad scale.</p>
+<p></p><div id="attachment_21033" style="width: 620px" class="wp-caption aligncenter"><a class="highslide img_4" href="http://eijournal.com/wp-content/uploads/2014/04/Landsat3.jpg" onclick="return hs.expand(this)"><img class="size-large wp-image-21033 " title="The Operational Land Imager on the Landsat 8 satellite captured the view at left of the Piquiang Fault in northwestern China. The colors reflect rocks that formed at different times and in different environments. Variations in mineral content, vegetation, and water cause patterns of light and dark in the NIR view in the middle. At right, comparing the differences among three SWIR bands highlights the mineral geology surrounding the fault." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Landsat3-610x214.jpg" alt="" width="610" height="214" scale="0"></a><p class="wp-caption-text">The Operational Land Imager on the Landsat 8 satellite captured the view at left of the Piquiang Fault in northwestern China. The colors reflect rocks that formed at different times and in different environments. Variations in mineral content, vegetation, and water cause patterns of light and dark in the NIR view in the middle. At right, comparing the differences among three SWIR bands highlights the mineral geology surrounding the fault.</p></div><p></p>
+<p></p><div id="attachment_21035" style="width: 310px" class="wp-caption alignleft"><a class="highslide img_5" href="http://eijournal.com/wp-content/uploads/2014/04/nir.jpg" onclick="return hs.expand(this)"><img class="size-medium wp-image-21035 " title="NIR, red and green light were used to create the false-color image of Algeria at left. Red, plant-covered land dominates the scene. The SWIR, NIR and green light version of the Algeria scene at right highlights the presence of water and wet soil in an otherwise dry landscape." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/nir-300x113.jpg" alt="" width="300" height="113" scale="0"></a><p class="wp-caption-text">NIR, red and green light were used to create the false-color image of Algeria at left. Red, plant-covered land dominates the scene. The SWIR, NIR and green light version of the Algeria scene at right highlights the presence of water and wet soil in an otherwise dry landscape.</p></div><p></p>
+<p><strong>Observing in Infrared</strong></p>
+<p>NIR light includes wavelengths between 700 and 1,100 nanometers. Water absorbs NIR, so it is useful for discerning land-water boundaries that aren’t obvious in visible light. The images above show a natural-color, NIR and SWIR view of China’s Piqiang Fault. Streambeds and the wetland in the upper left corner are darker than the surrounding arid landscape because of their water content. Plants, on the other hand, reflect NIR light strongly, and healthy plants reflect more than stressed plants. In addition, NIR light can penetrate haze, so including this band can help discern the details in a smoky or hazy scene.</p>
+<p>SWIR light includes wavelengths between 1,100 and 3,000 nanometers. Water absorbs SWIR light in three regions: 1,400, 1,900 and 2,400 nanometers. The more water there is, even in soil, the darker the image will appear at these wavelengths. This means SWIR measurements can help scientists estimate how much water is present in plants and soil. SWIR bands are also useful for distinguishing between cloud types (water clouds vs. ice clouds) and between clouds, snow and ice—all of which appear white in visible light.</p>
+<p>Newly burned land reflects strongly in SWIR bands, making them valuable for mapping fire damage. Active fires, lava flows and other extremely hot features “glow” in the SWIR part of the spectrum. In the Piqiang Fault images on page 32, different types of sandstone and limestone make up the mountains around the fault. Each rock type reflects SWIR light differently, making it possible to map out geology by comparing reflected SWIR light. Enhancing the subtle differences among the three bands of reflected SWIR light gives each mineral a distinctive, bright color.</p>
+<p>Midwave-infrared (MIR) light ranges from 3,000 to 5,000 nanometers and is used most often to study emitted thermal radiation at night. MIR energy also is useful in measuring sea-surface temperature, clouds and fires.</p>
+<p>Infrared light—specifically between 6,000 to 7,000 nanometers—is critical for observing water vapor in the atmosphere. Though water vapor makes up just 1-4 percent of the atmosphere, it is an important greenhouse gas. It is also the basis for clouds and rainfall. Water vapor absorbs and re-emits energy in this range, so infrared satellite observations can be used to track water vapor. Such observations are integral to weather observations and forecasts.</p>
+<p>Thermal- or longwave-infrared light includes wavelengths between 8,000 and 15,000 nanometers. Most of the energy in this part of the spectrum is emitted (not reflected) by Earth as heat, so it can be observed both day and night. Thermal-infrared radiation can be used to gauge water and land surface temperatures; this makes it particularly useful for geothermal mapping and detection of heat sources like active fires, gas flares and power plants. Scientists also use thermal-infrared light to monitor crops. Actively growing plants cool the air above them by releasing water through evapotranspiration, so thermal-infrared light helps scientists assess how much water the plants use.</p>
+<p><strong>How to Interpret Common False-Color Images</strong></p>
+<p>Though there are many possible combinations of wavelength bands, NASA’s Earth Observatory typically selects one of four combinations based on the event or feature to be illustrated. For example, floods are best viewed in SWIR, NIR and green light because muddy water blends with brown land in a natural-color image. SWIR light highlights the differences among clouds, ice and snow—all of which are white in visible light.</p>
+<p>The site’s four most common false-color band combinations are:</p>
+<p>1. NIR (red), green (blue) and red (green), which is a traditional band combination used to see changes in plant health.</p>
+<p>2. SWIR (red), NIR (green) and green (blue), which is a combination often used to show floods or newly burned land.</p>
+<p>3. Blue (red) and two different SWIR bands (green and blue), which is a combination used to differentiate among snow, ice and clouds.</p>
+<p>4. Thermal infrared, which usually is shown in gray tones to illustrate temperature.</p>
+<p><em><strong>NIR, Red and Green</strong></em></p>
+<p></p><div id="attachment_21037" style="width: 310px" class="wp-caption alignleft"><a class="highslide img_6" href="http://eijournal.com/wp-content/uploads/2014/04/Volcano.jpg" onclick="return hs.expand(this)"><img class="size-medium wp-image-21037" title="Infrared light reveals details of the evolving lava flows on Russia’s Tolbachik Volcano." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Volcano-300x200.jpg" alt="" width="300" height="200" scale="0"></a><p class="wp-caption-text">Infrared light reveals details of the evolving lava flows on Russia’s Tolbachik Volcano.</p></div><p></p>
+<p>One of the site’s most frequently published combinations uses NIR light as red, green light as blue and red light as green. In this case, plants reflect NIR and green light and absorb red. Because they reflect more NIR than green, plant-covered land appears deep red. The signal from plants is so strong that red dominates the left false-color view of Algeria above. Denser plant growth is darker red. This band combination is valuable for gauging plant health.</p>
+<p>Cities and exposed ground are gray or tan, and clear water is black. In the Algeria image, the water is muddy, and the sediment reflects light. This makes the water look blue. Images from the Advanced Spaceborne Thermal Emission and Reflection Radiometer (ASTER) and from the early Landsats often are shown in this band combination because that’s what the instruments measured.</p>
+<p><em><strong>SWIR, NIR and Green</strong></em></p>
+<p>The most common false-color band combination on the Earth Observatory website uses SWIR (shown as red), NIR (green) and the green visible band (shown as blue). Water absorbs all three wavelengths, so it is black in this band combination.</p>
+<p><span class="Apple-style-span" style="font-size: 13px; font-weight: normal;">In the right false-color image of Algeria above, however, water is blue because it is full of sediment. Sediment reflects visible light, which is assigned to look blue in this band combination. This means sediment-laden water and saturated soil will appear blue. Because water and wet soil stand out in this band combination, it is valuable for monitoring floods. Saturated soil also will appear blue. Clouds, snow and ice are bright blue, because ice reflects visible light and absorbs infrared. This helps distinguish water from snow and ice; it also distinguishes clouds made up mostly of liquid water or ice crystals.</span></p>
+<p>Newly burned land reflects SWIR light and appears red in this combination. Hot areas, such as lava flows or fires, are also bright red or orange. Exposed, bare earth generally reflects SWIR light and tends to have a red or pink tone. Urban areas are usually silver or purple, depending on the building material and how dense the area is.</p>
+<p>Because plants strongly reflect NIR light, vegetated areas are bright green. The signal is so strong that green often dominates the scene. Even the sparse vegetation in Algeria’s desert landscape stands out as bright green spots in the image.</p>
+<p><em><strong>Blue, SWIR</strong></em></p>
+<p>Occasionally, Earth Observatory will publish a band combination that assigns blue light to be red and two different SWIR bands to green and blue. As shown in the Great Lakes image below, this band combination is especially valuable in distinguishing snow, ice and clouds. Ice reflects more blue light than snow or ice clouds. Ice on the ground will be bright red in this false color, while snow is orange, and clouds range from white to dark peach.</p>
+<p><em><strong>Thermal Infrared</strong></em></p>
+<p></p><div id="attachment_21036" style="width: 469px" class="wp-caption alignright"><a class="highslide img_7" href="http://eijournal.com/wp-content/uploads/2014/04/Great-Lakes.jpg" onclick="return hs.expand(this)"><img class="size-large wp-image-21036" title="A combination of blue and SWIR light contrasts clouds, snow and ice in a large winter storm over the Great Lakes in January 2014." src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Great-Lakes-459x460.jpg" alt="" width="459" height="460" scale="0"></a><p class="wp-caption-text">A combination of blue and SWIR light contrasts clouds, snow and ice in a large winter storm over the Great Lakes in January 2014.</p></div><p></p>
+<p>Earth Observatory also uses thermal infrared measurements to show land temperatures, fire areas or volcanic flows, but these are published as grayscale images most of the time. Occasionally, the thermal features of interest will be layered on top of a true-color or grayscale image, particularly in the case of a fire or volcano, as shown in the image above.</p>
+<p><strong>Experiment with Different Band Combinations</strong></p>
+<p>You can explore the way different band combinations highlight different features by using a browse tool called Worldview (<em><a href="https://earthdata.nasa.gov/labs/worldview" target="_blank">https://earthdata.nasa.gov/labs/worldview</a></em>), which displays data from&nbsp;many different imagers. Click on “add layers,” and then select one of the alternate band combinations (1-2-1, 3-6-7 or 7-2-1).</p>
+<p>You can also explore false-color imagery with Landsat. A few examples are shown in the Landsat 7 Compositor (<em><a href="http://compositor.gsfc.nasa.gov/" target="_blank">http://compositor.gsfc.nasa.gov</a></em>). In addition, you can make your own Landsat images and experiment with band combinations by using software like Adobe Photoshop or ImageJ. Download data for free from the U.S. Geological Survey as detailed at <em><a href="http://earthobservatory.nasa.gov/blogs/elegantfigures/2013/05/31/a-quick-guide-to-earth-explorer-for-landsat-8/" target="_blank">http://earthobservatory.nasa.gov/blogs/elegantfigures/2013/05/31/a-quick-guide-to-earth-explorer-for-landsat-8/</a></em>, then follow the instructions for Photoshop (<em><a href="http://earthobservatory.nasa.gov/blogs/elegantfigures/2013/10/22/how-to-make-a-true-color-landsat-8-image/" target="_blank">http://earthobservatory.nasa.gov/blogs/elegantfigures/2013/10/22/how-to-make-a-true-color-landsat-8-image/</a></em>) or ImageJ (<em><a href="http://landsat.gsfc.nasa.gov/wp-content/uploads/2013/05/Make-Your-Own-%20Landsat-Image-Tutorial.pdf" target="_blank">http://landsat.gsfc.nasa.gov/wp-content/uploads/2013/05/Make-Your-Own-<br>
+Landsat-Image-Tutorial.pdf</a></em>).</p>
+<p><strong>Acknowledgements</strong></p>
+<p>Thanks to the following science reviewers and/or content providers: Michael King, Vincent Salomonson, David Mayer, Patricia Pavon and Belen Franch.</p>
+<p>&nbsp;</p>
+				
+							
+				</div>
+			
+			</div><!-- END RIGHT CONTENT -->
+			
+		</div><!-- END POST -->
+		
+		<!-- CLEAR -->
+		<div class="clear"></div>
+		
+		
+
+<ul class="share-area">
+
+	<li class="first">Share Post</li>
+			
+		<!-- FACEBOOK -->
+	<li><iframe src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/like.html" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:80px; height:20px;" allowtransparency="true"></iframe></li>
+			
+	 
+	<!-- LINKEDIN -->		
+	<li><span class="IN-widget" data-lnkd-debug="&lt;script type=&quot;in/share+init&quot; data-url=&quot;https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image&quot; data-counter=&quot;right&quot;&gt;&lt;/script&gt;" style="display: inline-block; line-height: 1; vertical-align: bottom; padding: 0px; margin: 0px; text-indent: 0px; text-align: center;"><span style="padding: 0px !important; margin: 0px !important; text-indent: 0px !important; display: inline-block !important; vertical-align: bottom !important; font-size: 1px !important;"><button class="IN-6d5494f8-69f0-4a9d-8c6b-3e3c3eb1b33b-1G9ISYhSF8XoOmdcl0yKDu"><xdoor-icon aria-hidden="true"><svg viewBox="0 0 24 24" width="24px" height="24px" x="0" y="0" preserveAspectRatio="xMinYMin meet">
+      <g style="fill: currentColor">
+        <rect x="-0.003" style="fill:none;" width="24" height="24"></rect>
+        <path style="" d="M20,2h-16c-1.1,0-2,0.9-2,2v16c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2zM8,19h-3v-9h3V19zM6.5,8.8C5.5,8.8,4.7,8,4.7,7s0.8-1.8,1.8-1.8S8.3,6,8.3,7S7.5,8.8,6.5,8.8zM19,19h-3v-4c0-1.4-0.6-2-1.5-2c-1.1,0-1.5,0.8-1.5,2.2V19h-3v-9h2.9v1.1c0.5-0.7,1.4-1.3,2.6-1.3c2.3,0,3.5,1.1,3.5,3.7V19z"></path>
+      </g>
+    </svg></xdoor-icon>Share</button></span></span></li>
+				
+	 
+	<!-- TWITTER -->	
+	<li><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" style="position: static; visibility: visible; width: 61px; height: 20px;" title="Twitter Tweet Button" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/tweet_button.96fd96193cc66c3e11d4c5e4c7c7ec97.en.html" data-url="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image"></iframe></li>
+			
+	 		
+	<!-- DIGG -->
+	<li><a class="DiggThisButton DiggCompact" href="http://digg.com/submit?url=https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image"></a></li>
+		
+		<li class="comments" style="float:right;"><span class="comments"><a href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image#respond">0 Comments</a></span></li>
+					
+</ul><!-- END SHARE AREA -->
+
+		
+		<div class="clear"></div>
+		
+		<div id="related_posts" class="bottom-single-related"><h3 class="rs">Recommended</h3><ul>	
+	<li>
+		<img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Graphic-3-HE360-Cluster-in-Orbit-Rendering-150x150.png" scale="0">
+		
+	<h2><a href="https://eijournal.com/print/articles/high-performance-low-cost-attitude-control-and-formation-flying-technologies-key-to-commercial-radio-frequency-signal-mapping-with-small-satellites" rel="bookmark" title="Key Technologies for Commercial Radio Frequency Signal Mapping with Small Satellites">Key Technologies for Commercial Radio Frequency Signal Mapping with Small Satellites</a></h2></li>
+		
+		
+	<li>
+		<img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/BRITE-Sat-e1513192941782-150x150.gif" scale="0">
+		
+	<h2><a href="https://eijournal.com/print/articles/attitude-control-technologies-for-smaller-satellites-enable-complex-applications-in-earth-observation-space-astronomy-and-science-research" rel="bookmark" title="Attitude Control Technologies for Smaller Satellites Enable Complex Applications  in Earth Observation, Space Astronomy and Science Research">Attitude Control Technologies for Smaller Satellites Enable Complex Applications  in Earth Observation, Space Astronomy and Science Research</a></h2></li>
+		
+		
+	<li>
+		<img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/Pic1-e1492016425348-150x150.jpg" scale="0">
+		
+	<h2><a href="https://eijournal.com/print/articles/vertical-images-from-film-making-to-inspection-and-why-the-future-of-drones-doesnt-lie-in-flying" rel="bookmark" title="Vertical Images: From Film Making to Inspection, and Why the Future of Drones Doesn’t Lie in Flying">Vertical Images: From Film Making to Inspection, and Why the Future of Drones Doesn’t Lie in Flying</a></h2></li>
+		
+		
+	<li>
+		<img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/drone-photo-e1490894192130-150x150.jpg" scale="0">
+		
+	<h2><a href="https://eijournal.com/print/articles/how-drone-data-delivers-real-bottom-line-value-for-smbs-in-construction" rel="bookmark" title="How Drone Data Delivers Real Bottom Line Value for SMBs in Construction">How Drone Data Delivers Real Bottom Line Value for SMBs in Construction</a></h2></li>
+		
+	</ul></div>		
+		<!-- CLEAR -->
+		<div class="clear"></div>
+
+		<div id="comments">
+	
+	
+			<p class="nocomments">Comments are closed.</p>
+	
+	
+</div><!-- #comments -->
+
+		
+	</div><!-- END GRID11 COL -->
+	
+	
+<div id="section-five" class="grid4 col">
+
+	<div class="section-inner">
+	
+				
+					
+		<div class="clear"></div>
+		
+		<div id="text-19" class="sidebar"><h3 class="widgettitle"><span class="title-wrap">Subscribe</span></h3>			<div class="textwidget"><a href="http://eijournal.com/subscribe">Receive our FREE publication and weekly e-mail newsletter.
+</a>
+<p>&nbsp;</p></div>
+		</div><div id="text-13" class="sidebar">			<div class="textwidget"><p><script type="text/javascript"><!--// <![CDATA[
+    OA_show(46);
+// ]]> --></script><a href="https://v1adserver.com/www/delivery/ck.php?oaparams=2__bannerid=764__zoneid=46__cb=8e58880420__oadest=https%3A%2F%2Fwww.aisc.org%2Fnascc%3Futm_source%3Dinformedinfrastructure%26utm_medium%3Dwebbanner%26utm_campaign%3Dnascctrade" target="_blank"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/e79210a3a050de80180813b6cc1546c4.jpg" width="300" height="250" alt="NASCC: THE STEEL CONFERENCE" title="NASCC: THE STEEL CONFERENCE" border="0" scale="0"></a></p><div id="beacon_8e58880420" style="position: absolute; left: 0px; top: 0px; visibility: hidden;"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/lg(1).php" width="0" height="0" alt="" style="width: 0px; height: 0px;"></div>
+<noscript><a target='_blank' href='https://v1adserver.com/www/delivery/ck.php?n=c7e0f0b'><img border='0' alt='' src='https://v1adserver.com/www/delivery/avw.php?zoneid=46&amp;n=c7e0f0b' /></a></noscript>
+<p></p><p&nbsp;< p=""></p&nbsp;<></div>
+		</div>		<div id="text-17" class="sidebar">			<div class="textwidget"><p>
+<script type="text/javascript"><!--// <![CDATA[
+    OA_show(47);
+// ]]> --></script><a href="https://v1adserver.com/www/delivery/ck.php?oaparams=2__bannerid=765__zoneid=47__cb=777a5fbf1b__oadest=https%3A%2F%2Fbit.ly%2F3suxuZF" target="_blank"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/3db915ca5174a6dff4318d63916a5582.gif" width="300" height="250" alt="Oldcastle Infrastructure" title="Oldcastle Infrastructure" border="0" scale="0"></a></p><div id="beacon_777a5fbf1b" style="position: absolute; left: 0px; top: 0px; visibility: hidden;"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/lg(2).php" width="0" height="0" alt="" style="width: 0px; height: 0px;"></div>
+<noscript><a target='_blank' href='https://v1adserver.com/www/delivery/ck.php?n=51c6b86'><img border='0' alt='' src='https://v1adserver.com/www/delivery/avw.php?zoneid=47&amp;n=51c6b86' /></a></noscript>
+<p></p><p>
+<script type="text/javascript"><!--// <![CDATA[
+    OA_show(49);
+// ]]> --></script><a href="https://v1adserver.com/www/delivery/ck.php?oaparams=2__bannerid=756__zoneid=49__cb=10458089d3__oadest=https%3A%2F%2Fv1-education.com%2Fcourse%2Fprefabricated-modular-steel-bridge-solutions-for-accelerated-bridge-construction%2F" target="_blank"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/ac8aedcfc11d2c6809300e816fbd1602.jpg" width="300" height="250" alt="Contech PDH" title="Contech PDH" border="0" scale="0"></a></p><div id="beacon_10458089d3" style="position: absolute; left: 0px; top: 0px; visibility: hidden;"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/lg(3).php" width="0" height="0" alt="" style="width: 0px; height: 0px;"></div>
+<noscript><a target='_blank' href='https://v1adserver.com/www/delivery/ck.php?n=6dd3ba5'><img border='0' alt='' src='https://v1adserver.com/www/delivery/avw.php?zoneid=49&amp;n=6dd3ba5' /></a></noscript>
+<p></p><p>&nbsp;</p></div>
+		</div><div id="text-16" class="sidebar"><h3 class="widgettitle"><span class="title-wrap">Newest V1 Media Publication</span></h3>			<div class="textwidget"><p><a href="http://read.informedinfrastructure.com/publication/?i=684638" target="_blank" rel="noopener"><img style="height: 250px;" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/2007_December_cover-e1608031081190.jpg" scale="0"></a><br>
+December 2020</p>
+</div>
+		</div>						<div id="recent-posts-3" class="sidebar">		<h3 class="widgettitle"><span class="title-wrap">Recent Posts</span></h3>		<ul>
+					<li>
+				<a href="https://eijournal.com/news/business-2/terra-drone-indonesia-obtained-drone-night-flight-permit">Terra Drone Indonesia Obtained Drone Night Flight Permit</a>
+						</li>
+					<li>
+				<a href="https://eijournal.com/news/products-2/esri-launches-arcgis-platform">Esri Launches ArcGIS Platform</a>
+						</li>
+					<li>
+				<a href="https://eijournal.com/news/business-2/kongsberg-geospatial-improves-bvlos-drone-operations-safety-with-a-horizonless-air-picture-2">Kongsberg Geospatial Improves BVLOS Drone Operations Safety with a “Horizonless Air Picture”</a>
+						</li>
+					<li>
+				<a href="https://eijournal.com/news/products-2/kongsberg-geospatial-improves-bvlos-drone-operations-safety-with-a-horizonless-air-picture">Kongsberg Geospatial Improves BVLOS Drone Operations Safety with a “Horizonless Air Picture”</a>
+						</li>
+				</ul>
+		</div>									
+	</div><!-- SECTION INNER -->
+		
+</div><!-- END FIVE -->
+	
+	</div><!-- Let the mystery begin. -->
+
+<!-- END CONTAINER -->
+
+
+
+<div class="footer-base">
+
+<div class="btt"><a href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image?doing_wp_cron=1612034458.6828610897064208984375#top"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/nav-up.png" alt="back-to-top" scale="0"></a></div>
+	
+	<div class="container" id="footer-area">
+	
+			
+		<div class="clear"></div>
+	
+											<div class="textwidget"><div id="bottom_leaderboard">
+<script type="text/javascript"><!--// <![CDATA[
+    OA_show(48);
+// ]]> --></script><a href="https://v1adserver.com/www/delivery/ck.php?oaparams=2__bannerid=688__zoneid=48__cb=24060f4194__oadest=https%3A%2F%2Fv1-education.com%2Fregister-in-wplms%2F%3Fcourse_id%3D5099" target="_blank"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/d5f53727c30f100143b608828ad754ee.jpg" width="728" height="90" alt="Bentley PDH" title="Bentley PDH" border="0" scale="0"></a><div id="beacon_24060f4194" style="position: absolute; left: 0px; top: 0px; visibility: hidden;"><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/lg(4).php" width="0" height="0" alt="" style="width: 0px; height: 0px;"></div>
+<noscript><a target='_blank' href='https://v1adserver.com/www/delivery/ck.php?n=1883d19'><img border='0' alt='' src='https://v1adserver.com/www/delivery/avw.php?zoneid=48&amp;n=1883d19' /></a></noscript></div></div>
+		</div>				
+	<div class="clear"></div>
+		
+	<div class="very-bottom">
+	
+			
+			<h3>Copyright © 2004-<script type="text/javascript">
+  document.write(new Date().getFullYear());
+</script>2021 • V1 Media. All Rights Reserved.</h3>
+		
+			
+	</div><!-- END VERY BOTTOM -->
+		
+	</div><!-- END FOOTER BASE -->
+	
+<!-- END FOOTER AREA -->
+
+ 
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/in.js.download"></script>
+
+ 
+<script src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/widgets.js.download" type="text/javascript"></script>
+
+ 
+
+<script type="text/javascript">
+(function() {
+var s = document.createElement('SCRIPT'), s1 = document.getElementsByTagName('SCRIPT')[0];
+s.type = 'text/javascript';
+s.async = true;
+s.src = 'http://widgets.digg.com/buttons.js';
+s1.parentNode.insertBefore(s, s1);
+})();
+</script>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55854274-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<!-- ngg_resource_manager_marker --><script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.color.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/widget.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/core.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/mouse.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/slider.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/accordion.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/sortable.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/draggable.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.prettyphoto.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/idangerous.swiper.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/swfobject.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.metadata.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.mb.YTPlayer.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var ajaxurl = "https:\/\/eijournal.com\/wp-admin\/admin-ajax.php";
+/* ]]> */
+</script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/shortcodes.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/jquery.easypiechart.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/chart.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/devicepx-jetpack.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/tabs.min.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/menu.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/combined.js.download"></script>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/wp-embed.min.js.download"></script>
+		<div id="sphare-email" style="display: none;">
+			<form action="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image?doing_wp_cron=1612034458.6828610897064208984375" class="sp-form" method="post">
+				
+					<p><label for="21029-sp-name">Your name:</label>
+					<input id="21029-sp-name" class="input-medium" type="text" name="name" value=""></p>
+					
+					<p><label for="21029-sp-sender">Your email address:</label>
+					<input id="21029-sp-sender" class="input-medium" type="text" name="sender" value=""></p>				
+				
+								
+				<p><label for="21029-sp-recipient">Send post to email address, <strong>comma separated</strong> for multiple emails.</label>				<input id="21029-sp-recipient" class="sp-recipient input-medium" type="text" name="recipient" value=""></p>
+				
+				<input type="submit" value="Send Email" class="sp-mail-send">
+				<a href="https://eijournal.com/print/articles/how-to-interpret-a-false-color-satellite-image?doing_wp_cron=1612034458.6828610897064208984375#spsharer-cancel" class="sp-mail-cancel">Cancel</a>
+				<div id="sp-response"></div>
+			</form>
+		</div>
+		<!-- HighSlide4Wordpress Footer JS Includes -->
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/hs-custom-min.js.download"></script><script type="text/javascript">
+hs.graphicsDir = 'https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/';
+hs.showCredits = false;
+hs.fadeInOut = false;
+hs.align = 'center';
+hs.padToMinWidth = true;
+hs.captionEval = 'this.thumb.title';
+hs.outlineType = 'rounded-white';
+hs.dimmingOpacity = 0.85;
+hs.expandDuration = 0;
+hs.outlineType = 'outer-glow';
+if (hs.addSlideshow) hs.addSlideshow({
+	interval: 5000,
+	repeat: false,
+	useControls: true,
+	fixedControls: 'fit',
+	overlayOptions: {
+		opacity: .6,
+		position: 'bottom center',
+		hideOnMouseOut: true
+	}
+});
+</script>
+	<div style="display:none">
+	</div>
+<script type="text/javascript" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/e-202104.js.download" async="" defer=""></script>
+<script type="text/javascript">
+	_stq = window._stq || [];
+	_stq.push([ 'view', {v:'ext',j:'1:5.1',blog:'75210444',post:'21029',tz:'-7',srv:'eijournal.com'} ]);
+	_stq.push([ 'clickTrackerInit', '75210444', '21029' ]);
+</script>
+
+<script type="text/javascript">window.NREUM||(NREUM={});NREUM.info={"beacon":"bam.nr-data.net","licenseKey":"360b5fbff6","applicationID":"204893211,12781498","transactionName":"YVFUMUMAXxYCVEJbC1gbdwZFCF4LTERfXANaUQ==","queueTime":0,"applicationTime":1125,"atts":"TRZXRwsaTBg=","errorBeacon":"bam.nr-data.net","agent":""}</script>
+
+
+<iframe scrolling="no" frameborder="0" allowtransparency="true" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/widget_iframe.96fd96193cc66c3e11d4c5e4c7c7ec97.html" title="Twitter settings iframe" style="display: none;"></iframe><img src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/g.gif" alt=":)" width="6" height="5" id="wpstats" scale="0"><div class="highslide-container" style="padding: 0px; border: none; margin: 0px; position: absolute; left: 0px; top: 0px; width: 100%; z-index: 1001; direction: ltr;"><a class="highslide-loading" title="Click to cancel" href="javascript:;" style="position: absolute; top: -9999px; opacity: 0.75; z-index: 1;">Loading...</a><div style="display: none;"></div><div class="highslide-viewport highslide-viewport-size" style="padding: 0px; border: none; margin: 0px; visibility: hidden;"></div><table cellspacing="0" style="padding: 0px; border: none; margin: 0px; visibility: hidden; position: absolute; border-collapse: collapse; width: 0px;"><tbody style="padding: 0px; border: none; margin: 0px;"><tr style="padding: 0px; border: none; margin: 0px; height: auto;"><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) 0px 0px; height: 20px; width: 20px;"></td><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) 0px -40px; height: 20px; width: 20px;"></td><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) -20px 0px; height: 20px; width: 20px;"></td></tr><tr style="padding: 0px; border: none; margin: 0px; height: auto;"><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) 0px -80px; height: 20px; width: 20px;"></td><td class="outer-glow highslide-outline" style="padding: 0px; border: none; margin: 0px; position: relative;"></td><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) -20px -80px; height: 20px; width: 20px;"></td></tr><tr style="padding: 0px; border: none; margin: 0px; height: auto;"><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) 0px -20px; height: 20px; width: 20px;"></td><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) 0px -60px; height: 20px; width: 20px;"></td><td style="padding: 0px; border: none; margin: 0px; line-height: 0; font-size: 0px; background: url(&quot;https://eijournal.com/wp-content/plugins/highslide-4-wordpress-reloaded/graphics/outlines/outer-glow.png&quot;) -20px -20px; height: 20px; width: 20px;"></td></tr></tbody></table></div><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./How to Interpret a False-Color Satellite Image « Earth Imaging Journal_ Remote Sensing, Satellite Images, Satellite Imagery_files/saved_resource.html"></iframe></body></html>

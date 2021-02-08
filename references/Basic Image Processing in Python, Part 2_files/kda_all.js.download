@@ -1,0 +1,92 @@
+function kda_top () {
+var path=kpath + 'aps/';
+var ts=new Date().getTime();
+var ms=new Date().getMilliseconds();
+var Top_nam=new Array(); var Top_ext=new Array(); var Top_wid=new Array(); var Top_hgt=new Array();
+var Top_alt=new Array(); var Top_txt=new Array(); var Top_url=new Array(); var Top_wgt=new Array(); var wgt=0;
+wgt+=1; Top_wgt[1]=wgt;
+Top_nam[1]="t-pny-21m01-nvirtx"; Top_ext[1]=".jpg"; Top_wid[1]=750; Top_hgt[1]=100;
+Top_url[1]='https://www.pny.com/whitepapers/improving-insights-and-outcomes-nvidia-quadro-rtx-for-data-science-and-big-data-analytics-whitepaper';
+Top_txt[1]="Learn how GPU acceleration is revolutionizing data science and analytics - download the whitepaper";
+Top_alt[1]="txt";
+wgt+=1; Top_wgt[2]=wgt;
+Top_nam[2]="t-bay-21m01-msads"; Top_ext[2]=".jpg"; Top_wid[2]=750; Top_hgt[2]=100;
+Top_url[2]='https://www.baypath.edu/academics/graduate-programs/applied-data-science-ms/?utm_source=kdnuggets&utm_medium=banner&utm_campaign=gradkdnuggetsads';
+Top_txt[2]="MS in Applied Data Science - Maximize Value with Data. 100% Online. Apply Today.";
+Top_alt[2]="MS in Applied Data Science";
+wgt+=1; Top_wgt[3]=wgt;
+Top_nam[3]="t-jmp-21m01b-stat0128"; Top_ext[3]=".jpg"; Top_wid[3]=750; Top_hgt[3]=100;
+Top_url[3]='https://www.jmp.com/en_us/events/statistically-speaking/events/jan-28/live-stream.html?utm_source=kdnuggetshp&utm_medium=advertisement&utm_campaign=ss7013Z000002DnsnQAC&utm_content=thirdparty';
+Top_txt[3]="Using Analytics to Create a Life Worth Living.  Jan 28 Webinar";
+Top_alt[3]="JMP";
+wgt+=1; Top_wgt[4]=wgt;
+Top_nam[4]="t-per-21m01-guitensor"; Top_ext[4]=".png"; Top_wid[4]=750; Top_hgt[4]=100;
+Top_url[4]='https://www.perceptilabs.com/home';
+Top_txt[4]="Build your model faster and easier with PerceptiLabs. Free for developers";
+Top_alt[4]="txt";
+var rtop=Math.random()*4;
+var n_ad=1; while (Top_wgt[n_ad]<rtop) {n_ad++};
+var out='<table border=0 cellspacing=5 cellpadding=20 width=990><tr><td valign=top align=center width=750>';
+  var whb=' width="90%" border=0';
+  if (Top_wid[n_ad] == 1) {
+      out+=Top_url[n_ad];
+      whb=' width=1 height=1';
+  } else {
+      out+='<a href=' + Top_url[n_ad] + ' onclick="ga(\'send\',\'pageview\',\'/zt/' + Top_nam[n_ad] + '\');" target=_blank>';
+  }
+  out+='<img src=' + path + Top_nam[n_ad] + Top_ext[n_ad] + '?ms=' + ms + whb + ' alt="' + Top_alt[n_ad] + '">';
+  out+='<br><b><font size="+1">' + Top_txt[n_ad] + '</font></b></a></td>';
+  out+='</tr></table><br>';document.writeln(out);}
+function kda_sid_init() {
+var ts=new Date().getTime();
+Sid_nam=new Array(); Sid_ext=new Array(); Sid_txt=new Array(); Sid_url=new Array();
+Sid_alt=new Array(); Sid_wid=new Array(); Sid_hgt=new Array(); Sid_wgt=new Array(); var wgt=0;
+wgt+=1; Sid_wgt[1]=wgt;
+Sid_nam[1]="e-sas-21m01-1v"; Sid_ext[1]=".gif"; Sid_wid[1]=1; Sid_hgt[1]=1;
+Sid_url[1]='<ins class="dcmads" style="display:inline-block;width:300px;height:250px" data-dcm-placement="N6626.289580.KDNUGGETS.COM/B23482492.291788525" data-dcm-rendering-mode="iframe" data-dcm-https-only data-dcm-resettable-device-id="" data-dcm-app-id=""> <script src="https://www.googletagservices.com/dcm/dcmads.js"></script></ins>';
+Sid_txt[1]="SAS Viya<br>";
+Sid_alt[1]="SAS";
+wgt+=0.5; Sid_wgt[2]=wgt;
+Sid_nam[2]="e-sas-21m01-2aiml"; Sid_ext[2]=".gif"; Sid_wid[2]=1; Sid_hgt[2]=1;
+Sid_url[2]='<ins class="dcmads" style="display:inline-block;width:300px;height:250px" data-dcm-placement="N6626.289580.KDNUGGETS.COM/B23482495.291974928" data-dcm-rendering-mode="iframe" data-dcm-https-only data-dcm-resettable-device-id="" data-dcm-app-id=""> <script src="https://www.googletagservices.com/dcm/dcmads.js"></script></ins>';
+Sid_txt[2]="SAS AI/ML Training";
+Sid_alt[2]="SAS";
+wgt+=0.5; Sid_wgt[3]=wgt;
+Sid_nam[3]="e-sas-21m01-2learn"; Sid_ext[3]=".gif"; Sid_wid[3]=1; Sid_hgt[3]=1;
+Sid_url[3]='<ins class="dcmads" style="display:inline-block;width:300px;height:250px" data-dcm-placement="N6626.289580.KDNUGGETS.COM/B23482495.291862872" data-dcm-rendering-mode="iframe" data-dcm-https-only data-dcm-resettable-device-id="" data-dcm-app-id=""> <script src="https://www.googletagservices.com/dcm/dcmads.js"></script></ins>';
+Sid_txt[3]="SAS Talent Development";
+Sid_alt[3]="SAS";
+wgt+=0.5; Sid_wgt[4]=wgt;
+Sid_nam[4]="e-aca-21m01-murr-mba"; Sid_ext[4]=".jpg"; Sid_wid[4]=300; Sid_hgt[4]=250;
+Sid_url[4]='https://onlinedegrees.murraystate.edu/online/bus-cybersecandbusanalytics-sap1-200905/?lsid=kdnuggets&lssid=murraystate_bus_all_m_dis_kd';
+Sid_txt[4]="MBA<br>Business Analytics Concentration<br>100% online<br>Learn more";
+Sid_alt[4]="MBA Business Analytics Concentration<br>100% online<br>Learn more";
+wgt+=0.5; Sid_wgt[5]=wgt;
+Sid_nam[5]="e-aca-21m01-murr-msis"; Sid_ext[5]=".jpg"; Sid_wid[5]=300; Sid_hgt[5]=250;
+Sid_url[5]='https://onlinedegrees.murraystate.edu/online/bus-cybersecandbusanalytics-sap1-200905/?lsid=kdnuggets&lssid=murraystate_bus_all_m_dis_kd';
+Sid_txt[5]="MS in Info Systems<br>Business Analytics Concentration<br>100% online<br>Learn more";
+Sid_alt[5]="MS in Info Systems Business Analytics Concentration<br>100% online<br>Learn more";
+wgt+=1; Sid_wgt[6]=wgt;
+Sid_nam[6]="e-kni-21m01-feb10"; Sid_ext[6]=".jpg"; Sid_wid[6]=300; Sid_hgt[6]=250;
+Sid_url[6]='https://www.knime.com/knime-analytics-platform-for-visual-workflow-users-kdn?utm_source=kdnuggets&utm_medium=display&utm_term=visual-workflow-users&utm_content=webinar&utm_campaign=webinar-cm';
+Sid_txt[6]="KNIME Analytics Platform for Visual Workflow Users<br>Webinar, Feb 10";
+Sid_alt[6]="KNIME Analytics Platform for Visual Workflow Users Webinar, Feb 10";
+}
+function kda_sid_write (nads) {
+  if (nads != 0) {nads=1};
+  var path=kpath + 'aps/';
+  var ms=new Date().getMilliseconds(); var adshown=new Array();
+  for (adpos=1; adpos<=nads; adpos++) {
+    do { var adn=1; var re=Math.random()*4;
+      while (Sid_wgt[adn]<re) {adn++};
+    } while (adshown[adn]==1);
+    if (Sid_wid[adn]==1) { s=Sid_url[adn]; s=s.replace('ze/e-','ze/' + nads + adpos + ':e-'); 
+      s+='<img src=' + path + Sid_nam[adn] + '.gif?ms' + ms + ' width=1 height=1 border=0>';
+    } else {
+      s='<a href=' + Sid_url[adn] + ' onclick="ga(\'send\',\'pageview\',\'/ze/' + nads + adpos + ':' + Sid_nam[adn] + '\');" target=_blank>';
+      s+='<img src=' + path + Sid_nam[adn] + Sid_ext[adn] + '?ms' + ms +  ' width=' + Sid_wid[adn] + ' height=' + Sid_hgt[adn] + ' border=0 alt="' + Sid_alt[adn] + '">';}
+    s+='<br><b>' + Sid_txt[adn] + '</b></a><br><br>';
+    if (nads>1) {s+='<br><hr class="grey-line"><br>'};
+    document.writeln(s); adshown[adn]=1;
+  }
+}

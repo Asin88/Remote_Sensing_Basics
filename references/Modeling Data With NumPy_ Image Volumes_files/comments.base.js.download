@@ -1,0 +1,43 @@
+var CommentsSystem = CommentsSystem || _.clone(GuruLabs.namespace_structure, { deep: true });
+
+// API codes for views and data binding mixins
+CommentsSystem.api = _.extend(CommentsSystem.api || {}, {
+	datetime: {
+		month_names_short: {
+			1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
+			7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec',
+		},
+		month_names_long: {
+			1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+			7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December',
+		}
+	}
+});
+
+CommentsSystem.Views.CoreDataBoundModelView = OakTree.Views.BaseModelView.extend({
+	//	Epoxy.js view which can be used for setting up two-way model/view data bindings.
+
+	//	@property bindings (default='data-bind')	: Selector used to locate and apply data
+	//		bindings for the view
+	//	@property init_databinding (bool, default=true)
+	bindings: 'data-bind',
+	init_databinding: true,
+
+	initialize: function(options) {
+		// Initialize view options and properties
+		options = options || {};
+		_.defaults(options, _.pick(this, 'bindings', 'init_databinding'));
+		this.bindings = options.bindings;
+		this.init_databinding = options.init_databinding;
+
+		// View events
+		if (this.model)
+			this.listenTo(this.model, 'destroy', this.removeBindings.bind(this));		// Remove bindings on model destruction
+	},
+
+	initView: function() {
+		// Initialize data binding for the view
+		if (this.init_databinding) this.applyBindings();
+	},
+});
+Backbone.Epoxy.View.mixin(CommentsSystem.Views.CoreDataBoundModelView.prototype);
