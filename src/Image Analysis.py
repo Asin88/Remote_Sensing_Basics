@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import glob
 import numpy as np
 from skimage import exposure
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import pandas as pd
 import xml.etree.ElementTree as ET
 import statsmodels.api as sm
@@ -108,14 +108,14 @@ def f_processImage(image, band_number, image_number, hfig, hax, cmap):
 #    hfig,hax = f_plotHistogram(hfig, hax, image_contrast_rescale, band_number, image_number)
     
 #    #Contrast Stretching using histrogram equalization
-    image_contrast_equalize = exposure.rescale_intensity(image, in_range='image')
-    plt.imsave(f_getFilePath(f"reports/Equalize/Image{image_number}_Band{band_number}.tiff"), image_contrast_equalize, cmap=cmap)
+    image_contrast_rescaled_equalize = exposure.rescale_intensity(image_contrast_rescale, in_range='image')
+    plt.imsave(f_getFilePath(f"reports/Equalize/Rescale_Image{image_number}_Band{band_number}.tiff"), image_contrast_rescaled_equalize, cmap=cmap)
     #View image
     #plt.figure(figsize='12,12')
 #    plt.imshow(image_contrast_equalize)
 #    
 #    #Histogram of DNs
-#    f_plotHistogram(image, band_number, image_number, f"Equalized Image {image_number} in band {band_number}")
+#    hfig,hax = f_plotHistogram(hfig,hax,image_contrast_rescaled_equalize, band_number, image_number)
 
     
     #Constrast improvement using histogram minimum method (haze correction)
@@ -133,7 +133,7 @@ def f_processImage(image, band_number, image_number, hfig, hax, cmap):
     plt.imsave(f_getFilePath(f"reports/BrightAreas/Image{image_number}_Band{band_number}.tiff"), image_contrast_rescale, cmap=cmap)
 #    plt.imshow(image_contrast_rescale)
     
-    return(image_contrast_rescale, hfig, hax)
+    return(image_contrast_rescaled_equalize, hfig, hax)
     
 #Function to get colourmap for images
 def f_chooseColourMap(band_number):
@@ -274,95 +274,17 @@ def f_annotatePlot(fig,ax,xs,ys):
                      xytext=(0,10), # distance from text to points (x,y)
                      ha='center') # horizontal alignment can be left, right or center
     return(fig,ax)
-
-#Main function
-              
-#Initialize variables
-processed_image_list = []
-total_images = 4
-total_vegetation_area_list = []
-dense_vegetation_area_list = []
-sparse_vegetation_area_list = []
-bare_soil_area_list = []
-very_healthy_vegetation_area_list = []
-mod_healthy_vegetation_area_list = []
-unhealthy_vegetation_area_list = []
-spatial_resolution_deg = []
-image_date = []
-df_vegetation = pd.DataFrame()
-
-#Loop through each image
-for image_number in range(1,total_images+1):
-    #Get metadata
-    # create element tree object 
-    for xmlfile in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.xml')):
-        tree = ET.parse(xmlfile) 
-    # get root element 
-    root = tree.getroot() 
-    #iterate through metadata
-    for image_data in root.findall('For_Image_Data'):
-        print(image_data)
-        for desc_item in image_data:
-            print(desc_item)
-            if desc_item.tag == "Date_of_Pass":
-                image_date.append(desc_item.text)
-            elif desc_item.tag == 'Spatial_Resolution':
-                spatial_resolution_deg.append(float(desc_item.text.split()[0]))
-            else:
-                continue
     
-    #Inspect original image and make histogram
-    band_number = 2
-#    hfig, hax = plt.subplots(2,2,sharex=True,sharey=True)
-    hax = hax.ravel()
-    for filepath in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.tif*')):
-    #    print(filepath)
-        image_iBand = imageio.imread(filepath)
-        cmap = f_chooseColourMap(band_number)
-        plt.imsave(f_getFilePath(f"reports/OriginalInColour/Image{image_number}_Band{band_number}.jpg"), image_iBand, cmap=cmap)
-        print(f"\nInspect Original Image {image_number} in Band {band_number}...")
-#        hfig, hax = f_plotHistogram(hfig,hax,image_iBand, band_number, image_number)
-        band_number = band_number + 1
-#    hfig.suptitle(f"Histogram of DN values of Original image {image_number}")
-#    hfig.subplots_adjust(top=0.88)
-#    plt.savefig(f_getFilePath(f"reports/histograms/OriginalImage_{image_number}"))
-#    plt.show()
+#Function to make FCC image
+def f_makeFCC(processed_image_list):
+    """
+    Function to make False Colour Composite Image
     
-    #Process image and make histogram
-    band_number = 2
-    processed_image_list.clear()
-#    hfig, hax = plt.subplots(2,2,sharex=True,sharey=True)
-    hax = hax.ravel()
-    for filepath in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.tif*')):
-    #    print(filepath)
-        image_iBand = imageio.imread(filepath)
-        print(f"\nProcessing Image {image_number} in Band {band_number}...")
-        cmap = f_chooseColourMap(band_number)
-        processed_image, hfig, hax = f_processImage(image_iBand, band_number, image_number, hfig, hax, cmap)
-        processed_image_list.append(processed_image)
-        band_number = band_number + 1
-#    hfig.suptitle(f"Histogram of DN values of Rescaled image {image_number}")
-#    hfig.subplots_adjust(top=0.88)
-#    plt.savefig(f_getFilePath(f"reports/histograms/RescaledImage_{image_number}"))
-#    plt.show()
-#    
-    #Create a new image
-    #new_image = np.zeros([1153,1153,3],dtype=np.uint8)
-    #new_image.fill(255) # or new_image[:] = 255
-    #new_image = Image.new('RGB',(1153,1153),(0,0,0))
-    
-    #print('Type of the image : ' , type(new_image)) 
-    #print('Shape of the image : {}'.format(new_image.shape)) 
-    #print('Image Height {}'.format(new_image.shape[0])) 
-    #print('Image Width {}'.format(new_image.shape[1])) 
-    #print('Dimension of Image {}'.format(new_image.ndim))
-    #
-    #print('Image size {}'.format(new_image.size)) 
-    #print('Maximum RGB value in this image {}'.format(new_image.max())) 
-    #print('Minimum RGB value in this image {}'.format(new_image.min()))
-    
-    #plt.imshow(new_image)
-    #Create False COlour Composite Image
+    Arguements:
+        processed_image_list: list of processed image in each band
+    Returns:
+        None
+    """
     green_band = Image.fromarray(np.uint8(processed_image_list[0]))
     red_band = Image.fromarray(np.uint8(processed_image_list[1]))
     nir_band = Image.fromarray(np.uint8(processed_image_list[2]))
@@ -381,11 +303,25 @@ for image_number in range(1,total_images+1):
     #Mark locations
     new_image_RGB = f_markLocations(new_image_RGB)
     new_image_RGB.save(f_getFilePath(f"reports/CompositeImage/Image{image_number}_FCC_RGB.tiff"))
+    #Detect Edges
+    new_image_RGB_edge = new_image_RGB.filter(ImageFilter.UnsharpMask(radius=2,percent=150, threshold=3))
+    new_image_RGB_edge.save(f_getFilePath(f"reports/CompositeImage/EDGE_Image{image_number}_FCC_RGB.tiff"))
     
     new_image_CMYK = Image.merge('CMYK',(swir_band,nir_band,green_band,red_band))
     #Mark locations
     new_image_CMYK = f_markLocations(new_image_CMYK)
     new_image_CMYK.save(f_getFilePath(f"reports/CompositeImage/Image{image_number}_FCC_CMYK.tiff"))
+
+#Function to calculate NDVI
+def f_calculateNDVI(processed_image_list):
+    """
+    Function to calculate NDVI
+    
+    Arguements:
+        processed_image_list: list of processed images in each band
+    Returns:
+        ndvi_green_arr: numpy array containing ndvi > 0.1
+    """
     
     #NDVI: Normalized Difference Vegetation Index: (NIR-R)/(NIR+R)
     # Allow division by zero
@@ -436,9 +372,41 @@ for image_number in range(1,total_images+1):
     #plt.imsave(f"reports/CompositeImage/Image_{image_number}/NDWI/ndwi.tiff",ndvi,cmap="inferno")
     #plt.imshow(ndwi)
     
-    #Calculate area under vegetation
-    spatial_resolution = spatial_resolution_deg[image_number - 1]*111*1000
-    pixel_area = (spatial_resolution*spatial_resolution)/1000000
+    return(ndvi_green_arr,ndvi_arr)
+
+#Function to calculate area under vegetation
+def f_calculateArea(ndvi_green_arr, pixel_area,ndvi_arr,
+                    total_vegetation_area_list,
+                    dense_vegetation_area_list,
+                    sparse_vegetation_area_list,
+                    bare_soil_area_list,
+                    very_healthy_vegetation_area_list,
+                    mod_healthy_vegetation_area_list,
+                    unhealthy_vegetation_area_list):
+    """
+    Function to calculate area under vegetation by category
+    
+    Arguements: 
+        ndvi_green_arr: numpy array containing data of ndvi > 0.1
+        pixel_area: area covered by a single pixel
+        ndvi_arr
+        total_vegetation_area_list,
+        dense_vegetation_area_list,
+        sparse_vegetation_area_list,
+        bare_soil_area_list,
+        very_healthy_vegetation_area_list,
+        mod_healthy_vegetation_area_list,
+        unhealthy_vegetation_area_list
+    Returns:
+        total_vegetation_area_list
+        dense_vegetation_area_list
+        sparse_vegetation_area_list
+        bare_soil_area_list
+        very_healthy_vegetation_area_list
+        mod_healthy_vegetation_area_list
+        unhealthy_vegetation_area_list
+    """
+    
     #Total vegetation area
     total_vegetation_area = np.count_nonzero(ndvi_green_arr > 0.2) *pixel_area
     #Dense vegetation area
@@ -480,11 +448,16 @@ for image_number in range(1,total_images+1):
     #Moderately healthy vegetation area
     mod_healthy_vegetation_area = np.count_nonzero((ndvi_green_arr < 0.66) & (ndvi_green_arr > 0.33)) *pixel_area
     #Unhealthy vegetation area
+#    unhealthy_vegetation_area_list = list(unhealthy_vegetation_area_list)
     unhealthy_vegetation_area = np.count_nonzero((ndvi_green_arr < 0.33) & (ndvi_green_arr > 0.2)) *pixel_area
+    print(unhealthy_vegetation_area)
     #Add to list of vegetation area by date
+    print(type(unhealthy_vegetation_area_list))
+    
     very_healthy_vegetation_area_list.append(very_healthy_vegetation_area)
     mod_healthy_vegetation_area_list.append(mod_healthy_vegetation_area)
     unhealthy_vegetation_area_list.append(unhealthy_vegetation_area)
+    print(unhealthy_vegetation_area_list)
     #Percentage of vegetation
     percentage_vhealthy_vegetation = (very_healthy_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
     print(f"\nArea under very healthy vegetation : {round(very_healthy_vegetation_area,2)} sq.Km")
@@ -495,247 +468,481 @@ for image_number in range(1,total_images+1):
     percentage_unhealthy_vegetation = (unhealthy_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
     print(f"\nArea under unhealthy vegetation : {round(unhealthy_vegetation_area,2)} sq.Km")
     print(f"Percentage area under unhealthy vegetation : {round(percentage_unhealthy_vegetation,2)}%")
-   
+    
+    return(total_vegetation_area_list,
+           dense_vegetation_area_list,
+           sparse_vegetation_area_list,
+           bare_soil_area_list,
+           very_healthy_vegetation_area_list,
+           mod_healthy_vegetation_area_list,
+           unhealthy_vegetation_area_list)
+    
+def f_populateDataframe(df_vegetation,
+                        total_vegetation_area_list,
+                        dense_vegetation_area_list,
+                        sparse_vegetation_area_list,
+                        bare_soil_area_list,
+                        very_healthy_vegetation_area_list,
+                        mod_healthy_vegetation_area_list,
+                        unhealthy_vegetation_area_list):
+    """
+    Function to populate dataframe with vegetation data
+    
+    Arguements:
+        df_vegetation: empty df
+        total_vegetation_area_list,
+       dense_vegetation_area_list,
+       sparse_vegetation_area_list,
+       bare_soil_area_list,
+       very_healthy_vegetation_area_list,
+       mod_healthy_vegetation_area_list,
+       unhealthy_vegetation_area_list
+    Returns:
+        df_vegetation: populated df
+    """
+    df_vegetation['Date'] = image_date
+    df_vegetation['Total_Vegetation_Area'] = total_vegetation_area_list
+    df_vegetation['Dense_Vegetation_Area'] = dense_vegetation_area_list
+    df_vegetation['Sparse_Vegetation_Area'] = sparse_vegetation_area_list
+    df_vegetation['Bare_Soil_Area'] = bare_soil_area_list
+    df_vegetation['VHealthy_Vegetation_Area'] = very_healthy_vegetation_area_list
+    df_vegetation['MHealthy_Vegetation_Area'] = mod_healthy_vegetation_area_list
+    df_vegetation['Unhealthy_Vegetation_Area'] = unhealthy_vegetation_area_list
+    print("\n",df_vegetation.head(10))
+    
+    #Convert date values to datetime format
+    df_vegetation["Date"] = pd.to_datetime(df_vegetation["Date"])
+    df_vegetation = df_vegetation.sort_values(by=["Date"])
+    #Save year and month as separate columns
+    df_vegetation["Year"] = pd.DatetimeIndex(df_vegetation["Date"]).year
+    df_vegetation["Month"] = pd.DatetimeIndex(df_vegetation["Date"]).month
+    
+    print(df_vegetation.info())
+    
+    return(df_vegetation)
+        
+#Function to plot vegetation data over time
+def f_plotVeg(df_vegetation):
+    """
+    Function to plot vegetation time series data
+    Arguements:
+        df_vegetation: df containing vegetation data
+    Returns: 
+        None
+    """
+
+    #Plot vegetation density by date
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Dense_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Sparse_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Bare_Soil_Area'])
+    ax.set(xlabel="Date",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density Over Four Years")
+    ax.legend(loc="upper left")
+    plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
+    fig.autofmt_xdate()
+    ax.grid()
+    plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByDatePlot"))
+    plt.show()
+    
+    #Plot vegetation area by year
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Dense_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Sparse_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Bare_Soil_Area'])
+    ax.set(xlabel="Year",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density Over Four Years")
+    ax.legend(loc="upper left")
+    plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
+    fig.autofmt_xdate()
+    ax.grid()
+    plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByYearPlot"))
+    plt.show()
+    
+    #Plot vegetation area by month
+    df_vegetation = df_vegetation.sort_values(by=["Month"])
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Dense_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Sparse_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Bare_Soil_Area'])
+    ax.set(xlabel="Month",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density By Month")
+    plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='right')
+    fig.autofmt_xdate()
+    ax.grid()
+    ax.legend(loc="upper left")
+    plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByMonthPlot"))
+    plt.show()
+    
+    #Plot vegetation health by date
+    df_vegetation = df_vegetation.sort_values(by=["Date"])
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['VHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['MHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Date"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Unhealthy_Vegetation_Area'])
+    ax.set(xlabel="Date",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health Over Four Years")
+    ax.legend(loc="upper left")
+    plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
+    fig.autofmt_xdate()
+    ax.grid()
+    plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByDatePlot"))
+    plt.show()
+    
+    #Plot vegetation health by year
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['VHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['MHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Year"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Unhealthy_Vegetation_Area'])
+    ax.set(xlabel="Year",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health Over Four Years")
+    ax.legend(loc="upper left")
+    plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
+    
+    fig.autofmt_xdate()
+    
+    ax.grid()
+    plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByYearPlot"))
+    plt.show()
+    
+    #Plot vegetation health by month
+    df_vegetation = df_vegetation.sort_values(by=["Month"])
+    fig,ax = plt.subplots()
+    ax.plot(df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['VHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['MHealthy_Vegetation_Area'])
+    ax.plot(df_vegetation["Month"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
+    fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Unhealthy_Vegetation_Area'])
+    ax.set(xlabel="Month",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health By Month")
+    plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='right')
+    fig.autofmt_xdate()
+    ax.grid()
+    ax.legend(loc="upper left")
+    plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByMonthPlot"))
+    plt.show()
+    
+#Function to run correlation
+def f_correlation(df_vegetation):
+    """
+    Function to run correlation on vegetation data
+    Arguements:
+        df_vegetation: df containing vegetation data
+    Returns:
+        None
+    """    
+    print("\nCorrelation between Total Vegetation Area and Month")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Month"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Dense Vegetation Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Dense_Vegetation_Area"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Sparse Vegetation Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Sparse_Vegetation_Area"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Bare Soil Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Bare_Soil_Area"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Very Healthy Vegetation Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["VHealthy_Vegetation_Area"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Mod Healthy Vegetation Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["MHealthy_Vegetation_Area"])[0,1])
+    print("\nCorrelation between Total Vegetation Area and Unhealthy Vegetation Area")
+    print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Unhealthy_Vegetation_Area"])[0,1])
+    
+    corr_matrix = df_vegetation.corr()
+    print("\n",corr_matrix)
+    ax = sn.heatmap(corr_matrix, annot=True)
+    ax.figure.tight_layout()
+    plt.savefig(f_getFilePath("reports/plots/CorrelationMatrix"))
+    plt.show()
+    
+#Function to run regression models
+def f_regModels(df_vegetation):
+    """Function to run regression models on vegetation data
+    
+    Arguements:
+        df_vegetation: df containing vegetation
+    Return:
+        None
+    """
+    #Regress total vegetation area over month
+    print("\nRegression 1")
+    Y = df_vegetation["Total_Vegetation_Area"]
+    X = df_vegetation["Month"]
+    #X= sm.add_constant(X)
+    mod = sm.OLS(Y,X)
+    res = mod.fit()
+    print(res.summary())
+    Yhat = res.predict(X)
+    print("\nPredicted Values\n",Yhat)
+    #Plot observed vs estimated values
+    fig,ax = plt.subplots()
+    ax.scatter(X,Y,label="Observed",color="blue",marker="+")
+    ax.plot(X,Yhat,label="Estimated",color="red",marker="o")
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Total Vegetation Area")
+    ax.set_title("Observed vs Estimated Values")
+    ax.legend(loc="lower right")
+    #slope = (Yhat[1]-Yhat[0])/(X[1]-X[0])
+    #angle = math.atan(slope)
+    #ax.annotate(f"Y={res.params[0]}*X",
+    #                 (((df_vegetation["Month"].max()-df_vegetation["Month"].min())/2),
+    #                  ((df_vegetation["Total_Vegetation_Area"].max()-df_vegetation["Total_Vegetation_Area"].min())/2)),
+    #                  ha="left",
+    #                  rotation=angle)
+    plt.savefig(f_getFilePath("reports/plots/MonthVsTotalRegression1Plot"))
+    plt.show()
+    #Plot observed, estimated and predicted values
+    Xnew = pd.Series([4,5,6,7,8])
+    Yphat = res.predict(Xnew)
+    fig,ax = plt.subplots()
+    ax.scatter(X,Y,label="Observed",color="green",marker="+")
+    ax.scatter(X,Yhat,label="Estimated",color="red",marker="o")
+    ax.scatter(Xnew,Yphat,label="Predicted",color="blue",marker="^")
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Total Vegetation Area")
+    ax.set_title("Observed vs Predicted Values")
+    ax.legend(loc="lower right")
+    plt.savefig(f_getFilePath("reports/plots/MonthVsTotalPredictionPlot"))
+    plt.show()    
+    
+    #Regress total vegetation over month, dense vegetation
+    print("\nRegression 2")
+    Y = df_vegetation["Total_Vegetation_Area"]
+    X = df_vegetation[["Dense_Vegetation_Area"]]
+    #X= sm.add_constant(X)
+    mod = sm.OLS(Y,X)
+    res = mod.fit()
+    print(res.summary())
+    #params = res.params
+    Yhat = res.predict(X)
+    print("\nPredicted Values",Yhat)
+    df_vegetation = df_vegetation.sort_values(by=["Dense_Vegetation_Area"])
+    #Plot observed vs estimated values
+    fig,ax = plt.subplots()
+    ax.scatter(X,Y,label="Observed",color="blue",marker="+")
+    ax.plot(X,Yhat,label="Estimated",color="red",marker="o")
+    ax.set_xlabel("Dense Vegetation Area")
+    ax.set_ylabel("Total Vegetation Area")
+    ax.set_title("Observed vs Estimated Values")
+    ax.legend(loc="lower right")
+    #print("Yhat[1]: ",type(Yhat))
+    #slope = (Yhat[1]-Yhat[0])/(X[1]-X[0])
+    #angle = math.atan(slope)
+    #ax.annotate(f"Y={res.params[0]}*X",
+    #                 (((df_vegetation["Dense_Vegetation_Area"].max()-df_vegetation["Dense_Vegetation_Area"].min())/2),
+    #                  ((df_vegetation["Total_Vegetation_Area"].max()-df_vegetation["Total_Vegetation_Area"].min())/2)),
+    #                  ha="left",
+    #                  rotation=angle)
+    plt.savefig(f_getFilePath("reports/plots/DenseVsTotalRegression2Plot"))
+    
+    plt.show()
+    
+    #Regress total vegetation over month, very healthy vegetation, unhealthy vegetation
+    print("\nRegression 3")
+    Y = df_vegetation["Total_Vegetation_Area"]
+    X = df_vegetation[["VHealthy_Vegetation_Area","Unhealthy_Vegetation_Area"]]
+    #X= sm.add_constant(X)
+    mod = sm.OLS(Y,X)
+    res = mod.fit()
+    print(res.summary())
+    print("\nPredicted Values\n",res.predict(X))
+
+#Main function
+              
+#Initialize variables
+processed_image_list = []
+total_images = 4
+total_vegetation_area_list = []
+dense_vegetation_area_list = []
+sparse_vegetation_area_list = []
+bare_soil_area_list = []
+very_healthy_vegetation_area_list = []
+mod_healthy_vegetation_area_list = []
+unhealthy_vegetation_area_list = []
+spatial_resolution_deg = []
+image_date = []
+df_vegetation = pd.DataFrame()
+
+print(type(unhealthy_vegetation_area_list))
+    
+
+#Loop through each image
+for image_number in range(1,total_images+1):
+    #Get metadata
+    # create element tree object 
+    for xmlfile in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.xml')):
+        tree = ET.parse(xmlfile) 
+    # get root element 
+    root = tree.getroot() 
+    #iterate through metadata
+    for image_data in root.findall('For_Image_Data'):
+        print(image_data)
+        for desc_item in image_data:
+            print(desc_item)
+            if desc_item.tag == "Date_of_Pass":
+                image_date.append(desc_item.text)
+            elif desc_item.tag == 'Spatial_Resolution':
+                spatial_resolution_deg.append(float(desc_item.text.split()[0]))
+            else:
+                continue
+    
+    #Inspect original image and make histogram
+    band_number = 2
+#    hfig, hax = plt.subplots(2,2,sharex=True,sharey=True)
+#    hax = hax.ravel()
+    for filepath in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.tif*')):
+    #    print(filepath)
+        image_iBand = imageio.imread(filepath)
+        cmap = f_chooseColourMap(band_number)
+        plt.imsave(f_getFilePath(f"reports/OriginalInColour/Image{image_number}_Band{band_number}.jpg"), image_iBand, cmap=cmap)
+        print(f"\nInspect Original Image {image_number} in Band {band_number}...")
+#        hfig, hax = f_plotHistogram(hfig,hax,image_iBand, band_number, image_number)
+        band_number = band_number + 1
+#    hfig.suptitle(f"Histogram of DN values of Original image {image_number}")
+#    hfig.subplots_adjust(top=0.88)
+#    plt.savefig(f_getFilePath(f"reports/histograms/OriginalImage_{image_number}"))
+##    plt.show()
+    
+    #Process image and make histogram
+    band_number = 2
+    processed_image_list.clear()
+    hfig, hax = plt.subplots(2,2,sharex=True,sharey=True)
+    hax = hax.ravel()
+    for filepath in glob.iglob(f_getFilePath(f'data/*_Image{image_number}/*.tif*')):
+    #    print(filepath)
+        image_iBand = imageio.imread(filepath)
+        print(f"\nProcessing Image {image_number} in Band {band_number}...")
+        cmap = f_chooseColourMap(band_number)
+        processed_image, hfig, hax = f_processImage(image_iBand, band_number, image_number, hfig, hax, cmap)
+        processed_image_list.append(processed_image)
+        band_number = band_number + 1
+#    hfig.suptitle(f"Histogram of DN values of Rescaled and Equalized image {image_number}")
+#    hfig.subplots_adjust(top=0.88)
+#    plt.savefig(f_getFilePath(f"reports/histograms/RescaledEqualizedImage_{image_number}"))
+#    plt.show()
+#    
+    #Create False Colour Composite Image
+    f_makeFCC(processed_image_list)
+
+    #Calculate NDVI
+    ndvi_green_arr,ndvi_arr = f_calculateNDVI(processed_image_list)
+    
+    #Calculate area under vegetation
+    spatial_resolution = spatial_resolution_deg[image_number - 1]*111*1000
+    pixel_area = (spatial_resolution*spatial_resolution)/1000000
+    print(type(unhealthy_vegetation_area_list))
+#    total_vegetation_area_list, dense_vegetation_area_list,
+#    sparse_vegetation_area_list, bare_soil_area_list,
+#    very_healthy_vegetation_area_list, mod_healthy_vegetation_area_list,
+#    unhealthy_vegetation_area_list = f_calculateArea(ndvi_green_arr, pixel_area,ndvi_arr,
+#                                                     total_vegetation_area_list,
+#                                                     dense_vegetation_area_list,
+#                                                     sparse_vegetation_area_list,
+#                                                     bare_soil_area_list,
+#                                                     very_healthy_vegetation_area_list,
+#                                                     mod_healthy_vegetation_area_list,
+#                                                     unhealthy_vegetation_area_list)
+    #Total vegetation area
+    total_vegetation_area = np.count_nonzero(ndvi_green_arr > 0.2) *pixel_area
+    #Dense vegetation area
+    dense_vegetation_area = np.count_nonzero(ndvi_green_arr > 0.5) *pixel_area
+    #Sparse vegetation area
+    sparse_vegetation_area = np.count_nonzero((ndvi_green_arr < 0.5) & (ndvi_green_arr > 0.2)) *pixel_area
+    #Bare Soil area
+    bare_soil_area = np.count_nonzero((ndvi_green_arr < 0.2) & (ndvi_green_arr > 0.1)) *pixel_area
+    #Add to list of vegetation area by date
+    dense_vegetation_area_list.append(dense_vegetation_area)
+    sparse_vegetation_area_list.append(sparse_vegetation_area)
+    total_vegetation_area_list.append(total_vegetation_area)
+    bare_soil_area_list.append(bare_soil_area)
+    #Percentage of vegetation
+    percentage_total_vegetation = (total_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under vegetation : {round(total_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under vegetation : {round(percentage_total_vegetation,2)}%")
+    percentage_dense_vegetation = (dense_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under dense vegetation : {round(dense_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under dense vegetation : {round(percentage_dense_vegetation,2)}%")
+    percentage_sparse_vegetation = (sparse_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under sparse vegetation : {round(sparse_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under sparse vegetation : {round(percentage_sparse_vegetation,2)}%")
+    percentage_bare_soil = (bare_soil_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under bare soil : {round(bare_soil_area,2)} sq.Km")
+    print(f"Percentage area under bare soil : {round(percentage_bare_soil,2)}%")
+    
+    #Identify vegetation health
+    ndvi_green_arr = ndvi_arr
+    ndvi_green_arr[ndvi_green_arr < 0.2] = 0
+    print(ndvi_green_arr.shape)
+    ndvi_green = Image.fromarray(np.uint8(ndvi_green_arr*255))
+    #Mark locations
+#    ndvi_green = f_markLocations(ndvi_green)
+    plt.imsave(f_getFilePath(f"reports/CompositeImage/Image{image_number}_ndvi_green_vegetation_health.tiff"),ndvi_green,cmap="RdYlGn")
+    #Calculate area under vegetation
+    #Very healthy vegetation area
+    very_healthy_vegetation_area = np.count_nonzero(ndvi_green_arr > 0.66) *pixel_area
+    #Moderately healthy vegetation area
+    mod_healthy_vegetation_area = np.count_nonzero((ndvi_green_arr < 0.66) & (ndvi_green_arr > 0.33)) *pixel_area
+    #Unhealthy vegetation area
+#    unhealthy_vegetation_area_list = list(unhealthy_vegetation_area_list)
+    unhealthy_vegetation_area = np.count_nonzero((ndvi_green_arr < 0.33) & (ndvi_green_arr > 0.2)) *pixel_area
+    print(unhealthy_vegetation_area)
+    #Add to list of vegetation area by date
+    print(type(unhealthy_vegetation_area_list))
+    
+    very_healthy_vegetation_area_list.append(very_healthy_vegetation_area)
+    mod_healthy_vegetation_area_list.append(mod_healthy_vegetation_area)
+    unhealthy_vegetation_area_list.append(unhealthy_vegetation_area)
+    print(unhealthy_vegetation_area_list)
+    #Percentage of vegetation
+    percentage_vhealthy_vegetation = (very_healthy_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under very healthy vegetation : {round(very_healthy_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under very healthy vegetation : {round(percentage_vhealthy_vegetation,2)}%")
+    percentage_mhealthy_vegetation = (mod_healthy_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under moderately healthy vegetation : {round(mod_healthy_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under moderately healthy vegetation : {round(percentage_mhealthy_vegetation,2)}%")
+    percentage_unhealthy_vegetation = (unhealthy_vegetation_area/(ndvi_green_arr.size*pixel_area))*100
+    print(f"\nArea under unhealthy vegetation : {round(unhealthy_vegetation_area,2)} sq.Km")
+    print(f"Percentage area under unhealthy vegetation : {round(percentage_unhealthy_vegetation,2)}%")
+    
+    print(type(unhealthy_vegetation_area_list))
+    
     
 #Populate dataframe
-df_vegetation['Date'] = image_date
-df_vegetation['Total_Vegetation_Area'] = total_vegetation_area_list
-df_vegetation['Dense_Vegetation_Area'] = dense_vegetation_area_list
-df_vegetation['Sparse_Vegetation_Area'] = sparse_vegetation_area_list
-df_vegetation['Bare_Soil_Area'] = bare_soil_area_list
-df_vegetation['VHealthy_Vegetation_Area'] = very_healthy_vegetation_area_list
-df_vegetation['MHealthy_Vegetation_Area'] = mod_healthy_vegetation_area_list
-df_vegetation['Unhealthy_Vegetation_Area'] = unhealthy_vegetation_area_list
-print("\n",df_vegetation.head(10))
+print(mod_healthy_vegetation_area_list)
+df_vegetation = f_populateDataframe(df_vegetation,
+                                    total_vegetation_area_list,
+                                    dense_vegetation_area_list,
+                                    sparse_vegetation_area_list,
+                                    bare_soil_area_list,
+                                    very_healthy_vegetation_area_list,
+                                    mod_healthy_vegetation_area_list,
+                                    unhealthy_vegetation_area_list)
 
-#Convert date values to datetime format
-df_vegetation["Date"] = pd.to_datetime(df_vegetation["Date"])
-df_vegetation = df_vegetation.sort_values(by=["Date"])
-#Save year and month as separate columns
-df_vegetation["Year"] = pd.DatetimeIndex(df_vegetation["Date"]).year
-df_vegetation["Month"] = pd.DatetimeIndex(df_vegetation["Date"]).month
-
-print(df_vegetation.info())
-
-#Plot vegetation density by date
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Dense_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Sparse_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Bare_Soil_Area'])
-ax.set(xlabel="Date",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density Over Four Years")
-ax.legend(loc="upper left")
-plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
-fig.autofmt_xdate()
-ax.grid()
-plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByDatePlot"))
-plt.show()
-
-#Plot vegetation area by year
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Dense_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Sparse_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Bare_Soil_Area'])
-ax.set(xlabel="Year",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density Over Four Years")
-ax.legend(loc="upper left")
-plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
-fig.autofmt_xdate()
-ax.grid()
-plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByYearPlot"))
-plt.show()
-
-#Plot vegetation area by month
-df_vegetation = df_vegetation.sort_values(by=["Month"])
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['Dense_Vegetation_Area'],label="Dense Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Dense_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['Sparse_Vegetation_Area'],label="Sparse Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Sparse_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['Bare_Soil_Area'],label="Bare Soil Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Bare_Soil_Area'])
-ax.set(xlabel="Month",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Density By Month")
-plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='right')
-fig.autofmt_xdate()
-ax.grid()
-ax.legend(loc="upper left")
-plt.savefig(f_getFilePath("reports/Plots/VegetationDensityByMonthPlot"))
-plt.show()
-
-#Plot vegetation health by date
-df_vegetation = df_vegetation.sort_values(by=["Date"])
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['VHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['MHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Date"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Date"],df_vegetation['Unhealthy_Vegetation_Area'])
-ax.set(xlabel="Date",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health Over Four Years")
-ax.legend(loc="upper left")
-plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
-fig.autofmt_xdate()
-ax.grid()
-plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByDatePlot"))
-plt.show()
-
-#Plot vegetation health by year
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['VHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['MHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Year"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Year"],df_vegetation['Unhealthy_Vegetation_Area'])
-ax.set(xlabel="Year",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health Over Four Years")
-ax.legend(loc="upper left")
-plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='right')
-
-fig.autofmt_xdate()
-
-ax.grid()
-plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByYearPlot"))
-plt.show()
-
-#Plot vegetation health by month
-df_vegetation = df_vegetation.sort_values(by=["Month"])
-fig,ax = plt.subplots()
-ax.plot(df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'],label="Total Vegetation Area",color='blue',marker='*',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Total_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['VHealthy_Vegetation_Area'],label="Very Healthy Vegetation Area",color='green',marker='+',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['VHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['MHealthy_Vegetation_Area'],label="Moderately Healthy Vegetation Area",color='orange',marker='o',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['MHealthy_Vegetation_Area'])
-ax.plot(df_vegetation["Month"],df_vegetation['Unhealthy_Vegetation_Area'],label="Unhealthy Vegetation Area",color='brown',marker='^',linewidth=2)
-fig,ax = f_annotatePlot(fig,ax,df_vegetation["Month"],df_vegetation['Unhealthy_Vegetation_Area'])
-ax.set(xlabel="Month",ylabel="Area Under Vegetation (sq.km)",title="Vegetation Health By Month")
-plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='right')
-fig.autofmt_xdate()
-ax.grid()
-ax.legend(loc="upper left")
-plt.savefig(f_getFilePath("reports/Plots/VegetationHealthByMonthPlot"))
-plt.show()
+#Plot time series of vegetation 
+f_plotVeg(df_vegetation)
 
 #Correlation
-print("\nCorrelation between Total Vegetation Area and Month")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Month"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Dense Vegetation Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Dense_Vegetation_Area"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Sparse Vegetation Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Sparse_Vegetation_Area"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Bare Soil Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Bare_Soil_Area"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Very Healthy Vegetation Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["VHealthy_Vegetation_Area"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Mod Healthy Vegetation Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["MHealthy_Vegetation_Area"])[0,1])
-print("\nCorrelation between Total Vegetation Area and Unhealthy Vegetation Area")
-print(np.corrcoef(df_vegetation["Total_Vegetation_Area"],df_vegetation["Unhealthy_Vegetation_Area"])[0,1])
-
-corr_matrix = df_vegetation.corr()
-print("\n",corr_matrix)
-ax = sn.heatmap(corr_matrix, annot=True)
-ax.figure.tight_layout()
-plt.savefig(f_getFilePath("reports/plots/CorrelationMatrix"))
-plt.show()
+f_correlation(df_vegetation)
 
 #Regression Models
-
-#Regress total vegetation area over month
-print("\nRegression 1")
-Y = df_vegetation["Total_Vegetation_Area"]
-X = df_vegetation["Month"]
-#X= sm.add_constant(X)
-mod = sm.OLS(Y,X)
-res = mod.fit()
-print(res.summary())
-Yhat = res.predict(X)
-print("\nPredicted Values\n",Yhat)
-#Plot observed vs estimated values
-fig,ax = plt.subplots()
-ax.scatter(X,Y,label="Observed",color="blue",marker="+")
-ax.plot(X,Yhat,label="Estimated",color="red",marker="o")
-ax.set_xlabel("Month")
-ax.set_ylabel("Total Vegetation Area")
-ax.set_title("Observed vs Estimated Values")
-ax.legend(loc="lower right")
-#slope = (Yhat[1]-Yhat[0])/(X[1]-X[0])
-#angle = math.atan(slope)
-#ax.annotate(f"Y={res.params[0]}*X",
-#                 (((df_vegetation["Month"].max()-df_vegetation["Month"].min())/2),
-#                  ((df_vegetation["Total_Vegetation_Area"].max()-df_vegetation["Total_Vegetation_Area"].min())/2)),
-#                  ha="left",
-#                  rotation=angle)
-plt.savefig(f_getFilePath("reports/plots/MonthVsTotalRegression1Plot"))
-plt.show()
-#Plot observed, estimated and predicted values
-Xnew = pd.Series([4,5,6,7,8])
-Yphat = res.predict(Xnew)
-fig,ax = plt.subplots()
-ax.scatter(X,Y,label="Observed",color="green",marker="+")
-ax.scatter(X,Yhat,label="Estimated",color="red",marker="o")
-ax.scatter(Xnew,Yphat,label="Predicted",color="blue",marker="^")
-ax.set_xlabel("Month")
-ax.set_ylabel("Total Vegetation Area")
-ax.set_title("Observed vs Predicted Values")
-ax.legend(loc="lower right")
-plt.savefig(f_getFilePath("reports/plots/MonthVsTotalPredictionPlot"))
-plt.show()
-
-
-
-#Regress total vegetation over month, dense vegetation
-print("\nRegression 2")
-Y = df_vegetation["Total_Vegetation_Area"]
-X = df_vegetation[["Dense_Vegetation_Area"]]
-#X= sm.add_constant(X)
-mod = sm.OLS(Y,X)
-res = mod.fit()
-print(res.summary())
-#params = res.params
-Yhat = res.predict(X)
-print("\nPredicted Values",Yhat)
-df_vegetation = df_vegetation.sort_values(by=["Dense_Vegetation_Area"])
-#Plot observed vs estimated values
-fig,ax = plt.subplots()
-ax.scatter(X,Y,label="Observed",color="blue",marker="+")
-ax.plot(X,Yhat,label="Estimated",color="red",marker="o")
-ax.set_xlabel("Dense Vegetation Area")
-ax.set_ylabel("Total Vegetation Area")
-ax.set_title("Observed vs Estimated Values")
-ax.legend(loc="lower right")
-#print("Yhat[1]: ",type(Yhat))
-#slope = (Yhat[1]-Yhat[0])/(X[1]-X[0])
-#angle = math.atan(slope)
-#ax.annotate(f"Y={res.params[0]}*X",
-#                 (((df_vegetation["Dense_Vegetation_Area"].max()-df_vegetation["Dense_Vegetation_Area"].min())/2),
-#                  ((df_vegetation["Total_Vegetation_Area"].max()-df_vegetation["Total_Vegetation_Area"].min())/2)),
-#                  ha="left",
-#                  rotation=angle)
-plt.savefig(f_getFilePath("reports/plots/DenseVsTotalRegression2Plot"))
-
-plt.show()
-
-#Regress total vegetation over month, very healthy vegetation, unhealthy vegetation
-print("\nRegression 3")
-Y = df_vegetation["Total_Vegetation_Area"]
-X = df_vegetation[["VHealthy_Vegetation_Area","Unhealthy_Vegetation_Area"]]
-#X= sm.add_constant(X)
-mod = sm.OLS(Y,X)
-res = mod.fit()
-print(res.summary())
-print("\nPredicted Values\n",res.predict(X))
+f_regModels(df_vegetation)
